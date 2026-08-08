@@ -1,12 +1,7 @@
 """
-NIFTY Relative Strength (RS) Momentum Screener Engine
-Replaces legacy ORB screener with the backtested +6.27% profitable RS Momentum strategy.
-
-Logic:
-1. At 09:45 AM, compute 15-min performance of each stock vs NIFTY 50 Index (^NSEI).
-2. Filter top stocks displaying Relative Strength outperformance (RS > +1.2% over Nifty).
-3. 5-min candle pullback to 20 EMA with 20 EMA > 50 EMA alignment.
-4. Calculate Entry, SL (0.8%), Target 1 (1.5R), Target 2 (2.5R), and Sizing.
+NIFTY Relative Strength (RS) Momentum Screener + Market Regime Filter
+Applies the 1-line NIFTY Daily 20 EMA > 50 EMA regime filter.
+Pauses stock buys when broader market is in correction.
 """
 import pandas as pd
 import numpy as np
@@ -26,10 +21,25 @@ def calculate_vwap(df: pd.DataFrame) -> pd.Series:
 
 def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.DataFrame], avg_volumes: Dict[str, float], avg_turnovers: Dict[str, float]) -> List[Dict]:
     """
-    Scans for NIFTY Relative Strength (RS) Outperformers and returns top picks.
+    Scans for NIFTY RS Outperformers ONLY when NIFTY Index Daily 20 EMA > 50 EMA (Bull Market Regime).
     """
-    # Fetch NIFTY 50 Index data for RS baseline comparison
     try:
+        # Fetch Nifty Index daily data for Market Regime Filter
+        nifty_daily = yf.download('^NSEI', period="60d", interval="1d", progress=False)
+        if isinstance(nifty_daily.columns, pd.MultiIndex):
+            nifty_daily.columns = nifty_daily.columns.get_level_values(0)
+        nifty_daily.index = nifty_daily.index.tz_localize(None) if nifty_daily.index.tz is not None else nifty_daily.index
+
+        # Calculate Nifty Daily 20 EMA & 50 EMA
+        nifty_ema20 = nifty_daily['Close'].ewm(span=20, adjust=False).mean().iloc[-1]
+        nifty_ema50 = nifty_daily['Close'].ewm(span=50, adjust=False).mean().iloc[-1]
+
+        # ── REGIME FILTER ── Pause buys if Nifty is in correction
+        if nifty_ema20 <= nifty_ema50:
+            print("MARKET REGIME PAUSE: NIFTY Daily 20 EMA <= 50 EMA (Market Correction). No stock picks today.")
+            return []
+
+        # Fetch NIFTY 50 15m intraday data for RS calculation
         nifty_df = yf.download('^NSEI', period="5d", interval="15m", progress=False)
         if isinstance(nifty_df.columns, pd.MultiIndex):
             nifty_df.columns = nifty_df.columns.get_level_values(0)
@@ -52,7 +62,6 @@ def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.Da
 
     stock_rs_list = []
 
-    # Calculate Relative Strength for all stocks
     for ticker, df in intraday_data.items():
         if df.empty: continue
         df_clean = df.copy()
@@ -61,13 +70,12 @@ def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.Da
         if len(day_df) < 6: continue
 
         s_open = day_df.iloc[0]['Open']
-        # Price around 09:45 (candle 6)
         s_945 = day_df.iloc[min(5, len(day_df)-1)]['Close']
         s_ret = (s_945 - s_open) / s_open * 100.0
-        rs = s_ret - nifty_ret  # RS outperformance vs Nifty 50
+        rs = s_ret - nifty_ret
 
         turnover = avg_turnovers.get(ticker, 0.0)
-        if turnover >= config.MIN_AVG_TURNOVER_CR and rs >= 1.0:
+        if turnover >= config.MIN_AVG_TURNOVER_CR and rs >= 1.2:
             stock_rs_list.append({
                 'ticker': ticker,
                 'rs': rs,
@@ -77,7 +85,6 @@ def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.Da
     if not stock_rs_list:
         return []
 
-    # Sort by Relative Strength descending
     stock_rs_list.sort(key=lambda x: x['rs'], reverse=True)
     top_candidates = stock_rs_list[:10]
 
@@ -88,27 +95,23 @@ def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.Da
         display_symbol = ticker.replace('.NS', '')
         day_df = cand['day_df'].copy()
 
-        # Compute indicators
         day_df['EMA20'] = day_df['Close'].ewm(span=20, adjust=False).mean()
         day_df['EMA50'] = day_df['Close'].ewm(span=50, adjust=False).mean()
         vwap_series = calculate_vwap(day_df)
 
-        # Scan candles after 09:45
         session = day_df.between_time('09:45', '15:30')
         if session.empty: continue
 
         for dt, row in session.iterrows():
             close = row['Close']
-            high = row['High']
             low = row['Low']
             ema20 = row['EMA20']
             ema50 = row['EMA50']
             vwap_val = vwap_series.loc[dt]
 
-            # Long entry on 20 EMA pullback with trend alignment
             if ema20 > ema50 and abs(low - ema20)/ema20 <= 0.005 and close > ema20:
                 entry = round(close, 2)
-                sl = round(entry * 0.992, 2)  # Tight 0.8% SL
+                sl = round(entry * 0.992, 2)
                 risk_r = round(abs(entry - sl), 2)
                 if risk_r <= 0: continue
 
@@ -125,7 +128,7 @@ def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.Da
                     'target1': target1,
                     'target2': target2,
                     'risk_r': risk_r,
-                    'adx': round(cand['rs'], 2),  # Display RS score
+                    'adx': round(cand['rs'], 2),
                     'volume_ratio': 1.5,
                     'or_high': entry,
                     'or_low': sl,
@@ -136,10 +139,9 @@ def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.Da
                 })
                 break
 
-    # Return top MAX_PICKS_PER_RUN picks
     picks.sort(key=lambda x: x['score'], reverse=True)
     max_picks = getattr(config, 'MAX_PICKS_PER_RUN', 5)
     return picks[:max_picks]
 
 if __name__ == '__main__':
-    print('RS Momentum Screener module loaded.')
+    print('RS Momentum Screener with Regime Filter loaded.')
