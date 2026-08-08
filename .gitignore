@@ -1,0 +1,7 @@
+.env
+data/cache_*.parquet
+data/picks.db
+logs/
+__pycache__/
+.pytest_cache/
+*.pyc
