@@ -1,16 +1,15 @@
 """
-Strict Same-Day Intraday Backtest (100% Intraday Entry 09:15 AM, Exit 03:15 PM Same Day)
-No multi-day holding! Every trade closes strictly on the same day.
+Strict Same-Day Intraday Exporter with explicit Target1_Price and Target2_Price columns
 """
 import pandas as pd
 import numpy as np
 import yfinance as yf
 from data_fetcher import load_watchlist
 
-def run_strict_sameday_intraday():
+def run_strict_sameday_with_targets():
     symbols = load_watchlist()[:100]
     all_tickers = symbols + ['^NSEI']
-    print("=== STRICT SAME-DAY INTRADAY BACKTEST (ENTRY 09:15 AM, EXIT 03:15 PM SAME DAY) ===")
+    print("=== EXPORTING 100% SAME-DAY INTRADAY LOG WITH EXPLICIT TARGET & SL PRICES ===")
 
     df_daily = yf.download(all_tickers, period="3y", interval="1d", progress=False, group_by="ticker")
 
@@ -34,7 +33,7 @@ def run_strict_sameday_intraday():
         nifty_row = nifty_df.loc[t_ts]
 
         if nifty_row['Nifty_EMA20'] <= nifty_row['Nifty_EMA50']:
-            continue  # Regime Pause
+            continue
 
         nifty_5d_ret = nifty_row['Nifty_5d_Ret']
         if pd.isna(nifty_5d_ret): continue
@@ -74,7 +73,6 @@ def run_strict_sameday_intraday():
 
             if idx_loc + 1 >= len(s_df): continue
 
-            # STRICT SAME-DAY INTRADAY CANDLE (idx_loc + 1)
             same_day_candle = s_df.iloc[idx_loc + 1]
             entry_dt = s_df.index[idx_loc + 1]
 
@@ -83,15 +81,14 @@ def run_strict_sameday_intraday():
             low = same_day_candle['Low']
             close = same_day_candle['Close']
 
-            sl = entry * 0.98  # 2% SL
+            sl = entry * 0.98
             risk_r = entry - sl
-            t1 = entry + 1.5 * risk_r  # +3% T1
-            t2 = entry + 2.5 * risk_r  # +5% T2
+            t1 = entry + 1.5 * risk_r
+            t2 = entry + 2.5 * risk_r
 
             pos_size = int((running_capital * 0.01) / risk_r)
             if pos_size <= 0: continue
 
-            # SAME-DAY EXIT RESOLUTION (03:15 PM CLOSE)
             outcome = 'EXPIRED_SAME_DAY'
             exit_price = close
 
@@ -118,6 +115,8 @@ def run_strict_sameday_intraday():
                 'Entry_Price': round(entry, 2),
                 'Exit_Price': round(exit_price, 2),
                 'SL_Price': round(sl, 2),
+                'Target1_Price': round(t1, 2),
+                'Target2_Price': round(t2, 2),
                 'Shares': pos_size,
                 'Outcome': outcome,
                 'PnL_Rs': round(pnl, 2),
@@ -126,13 +125,8 @@ def run_strict_sameday_intraday():
             })
 
     df_export = pd.DataFrame(trades)
-    print(f"\nSTRICT SAME-DAY INTRADAY RESULTS:")
-    print(f"Total Trades: {len(df_export)}")
-    print(f"Ending Capital: Rs. {running_capital:,.2f} (Net PnL: Rs. {running_capital-100000:+,.2f})")
-
-    # Export to CSV & XLSX
     df_export.to_csv("3year_trades_sameday_intraday.csv", index=False)
-    print("Exported 100% same-day trades to 3year_trades_sameday_intraday.csv")
+    print(f"Exported {len(df_export)} trades with explicit Entry, Exit, SL, T1, and T2 prices.")
 
 if __name__ == '__main__':
-    run_strict_sameday_intraday()
+    run_strict_sameday_with_targets()

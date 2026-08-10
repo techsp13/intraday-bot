@@ -1,5 +1,5 @@
 """
-Copy 100% Same-Day Intraday CSV & Excel Reports to brain and workspace folders
+Format and export 100% same-day intraday CSV & Excel reports with Target1 and Target2 columns
 """
 import pandas as pd
 import openpyxl
@@ -25,7 +25,7 @@ def format_and_export_sameday_reports():
     ws.append([f"Starting Capital: Rs. 100,000.00 | Ending Capital: Rs. 274,826.98 | Net Return: +174.83% | Total Trades: {len(df)}"])
     ws.append([])
 
-    headers = ["#", "Date", "Trigger Time", "Timestamp", "Symbol", "Direction", "Entry Price (Rs)", "Exit Price (Rs)", "Stop Loss (Rs)", "Shares", "Outcome", "P&L (Rs)", "Return %", "Capital After (Rs)"]
+    headers = ["#", "Date", "Trigger Time", "Timestamp", "Symbol", "Direction", "Entry Price (Rs)", "Exit Price (Rs)", "Stop Loss (Rs)", "Target 1 (Rs)", "Target 2 (Rs)", "Shares", "Outcome", "P&L (Rs)", "Return %", "Capital After (Rs)"]
     ws.append(headers)
 
     header_fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
@@ -53,6 +53,8 @@ def format_and_export_sameday_reports():
             row['Entry_Price'],
             row['Exit_Price'],
             row['SL_Price'],
+            row['Target1_Price'],
+            row['Target2_Price'],
             row['Shares'],
             row['Outcome'],
             row['PnL_Rs'],
@@ -61,12 +63,12 @@ def format_and_export_sameday_reports():
         ])
 
         fill = win_fill if row['Outcome'] in ['HIT_T1', 'HIT_T2'] else (loss_fill if row['Outcome'] == 'HIT_SL' else be_fill)
-        for col_num in range(1, 15):
+        for col_num in range(1, 17):
             cell = ws.cell(row=r_idx, column=col_num)
             cell.fill = fill
-            if col_num in [7, 8, 9, 12, 14]:
+            if col_num in [7, 8, 9, 10, 11, 14, 16]:
                 cell.number_format = '#,##0.00'
-            elif col_num == 13:
+            elif col_num == 15:
                 cell.number_format = '+0.00%;-0.00%;0.00%'
 
     for col in ws.columns:
@@ -76,7 +78,7 @@ def format_and_export_sameday_reports():
 
     wb.save(excel_path)
     wb.save(brain_excel_path)
-    print("Successfully exported 100% same-day intraday CSV & Excel reports!")
+    print("Exported Excel & CSV reports with explicit Entry, Exit, SL, Target 1, and Target 2 columns!")
 
 if __name__ == '__main__':
     format_and_export_sameday_reports()
