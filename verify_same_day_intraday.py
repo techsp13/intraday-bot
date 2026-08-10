@@ -1,22 +1,17 @@
 """
-Export ALL 1,251 Trades Across 3 Full Years (2023-2026) with Complete Breakout Trigger Timestamps
+Fix Entry_Time to strictly 09:15 AM Market Open for all market open trades.
 """
 import pandas as pd
 import numpy as np
 import yfinance as yf
 from data_fetcher import load_watchlist
 
-def export_full_3year_intraday_breakout_log():
+def run_intraday_strict_915_entry():
     symbols = load_watchlist()[:100]
     all_tickers = symbols + ['^NSEI']
-    print("=== EXPORTING FULL 3-YEAR (1251 TRADES) LOG WITH BREAKOUT TIMESTAMPS ===")
-    print("Downloading 3-year market data...")
+    print("=== EXPORTING FULL 3-YEAR LOG WITH EXACT 09:15 AM ENTRY TIME ===")
 
     df_daily = yf.download(all_tickers, period="3y", interval="1d", progress=False, group_by="ticker")
-
-    if '^NSEI' not in df_daily.columns.levels[0]:
-        print("Nifty index data missing")
-        return
 
     nifty_df = df_daily['^NSEI'].dropna(subset=['Open', 'High', 'Low', 'Close'])
     nifty_df.index = nifty_df.index.tz_localize(None) if nifty_df.index.tz is not None else nifty_df.index
@@ -38,7 +33,7 @@ def export_full_3year_intraday_breakout_log():
         nifty_row = nifty_df.loc[t_ts]
 
         if nifty_row['Nifty_EMA20'] <= nifty_row['Nifty_EMA50']:
-            continue  # Market Regime Pause
+            continue
 
         nifty_5d_ret = nifty_row['Nifty_5d_Ret']
         if pd.isna(nifty_5d_ret): continue
@@ -71,7 +66,7 @@ def export_full_3year_intraday_breakout_log():
         stock_rs.sort(key=lambda x: x['rs'], reverse=True)
         top_rs_candidates = stock_rs[:3]
 
-        for cand_idx, cand in enumerate(top_rs_candidates):
+        for cand in top_rs_candidates:
             sym = cand['symbol']
             idx_loc = cand['idx_loc']
             s_df = cand['s_df']
@@ -86,7 +81,6 @@ def export_full_3year_intraday_breakout_log():
             low = same_day_candle['Low']
             close = same_day_candle['Close']
 
-            trigger_level = round(entry, 2)
             sl = round(entry * 0.98, 2)
             risk_r = round(entry - sl, 2)
             if risk_r <= 0: continue
@@ -97,10 +91,8 @@ def export_full_3year_intraday_breakout_log():
             pos_size = int((running_capital * 0.01) / risk_r)
             if pos_size <= 0: continue
 
-            # Determine intra-day trigger & exit times deterministically
-            alert_time_str = "09:15 AM"
-            trigger_mins = 20 + (cand_idx * 10)  # 09:20 AM, 09:30 AM, 09:40 AM
-            trigger_time_str = f"09:{trigger_mins:02d} AM"
+            alert_time_str = "09:05 AM"
+            entry_time_str = "09:15 AM"
 
             outcome = 'EXPIRED_SAME_DAY'
             exit_price = round(close, 2)
@@ -126,16 +118,15 @@ def export_full_3year_intraday_breakout_log():
             trades.append({
                 'Date': str(entry_dt.date()),
                 'Alert_Signal_Time': alert_time_str,
-                'Entry_Trigger_Time': trigger_time_str,
+                'Entry_Time': entry_time_str,
                 'Exit_Time': exit_time_str,
                 'Symbol': sym.replace('.NS', ''),
                 'Direction': 'LONG',
-                'Breakout_Level': trigger_level,
                 'Entry_Price': round(entry, 2),
                 'Exit_Price': round(exit_price, 2),
-                'SL_Price': round(sl, 2),
-                'Target1_Price': round(t1, 2),
-                'Target2_Price': round(t2, 2),
+                'SL_Price': sl,
+                'Target1_Price': t1,
+                'Target2_Price': t2,
                 'Shares': pos_size,
                 'Outcome': outcome,
                 'PnL_Rs': round(pnl, 2),
@@ -145,7 +136,7 @@ def export_full_3year_intraday_breakout_log():
 
     df_export = pd.DataFrame(trades)
     df_export.to_csv("3year_trades_sameday_intraday.csv", index=False)
-    print(f"Exported ALL {len(df_export)} trades over 3 full years!")
+    print(f"Exported {len(df_export)} trades with fixed 09:15 AM Entry_Time.")
 
 if __name__ == '__main__':
-    export_full_3year_intraday_breakout_log()
+    run_intraday_strict_915_entry()

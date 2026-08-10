@@ -1,5 +1,5 @@
 """
-Format and export intraday CSV & Excel reports with Alert Signal Time, Entry Trigger Time (Breakout Cross), and Exit Time
+Format and export CSV & Excel reports with fixed 09:15 AM Entry_Time
 """
 import pandas as pd
 import openpyxl
@@ -19,13 +19,13 @@ def format_and_export_sameday_reports():
 
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = "Intraday Breakout Trigger Log"
+    ws.title = "100% Intraday Log"
 
-    ws.append(["INTRADAY LOG WITH EXACT BREAKOUT ENTRY TRIGGER TIMESTAMPS — NIFTY RELATIVE STRENGTH"])
+    ws.append(["INTRADAY TRADE LOG — NIFTY RELATIVE STRENGTH STRATEGY"])
     ws.append([f"Starting Capital: Rs. 100,000.00 | Ending Capital: Rs. {df['Capital_After'].iloc[-1]:,.2f} | Total Trades: {len(df)}"])
     ws.append([])
 
-    headers = ["#", "Date", "Alert Signal Time", "Entry Trigger Time (Breakout)", "Exit Time", "Symbol", "Direction", "Breakout Level (Rs)", "Entry Price (Rs)", "Exit Price (Rs)", "Stop Loss (Rs)", "Target 1 (Rs)", "Target 2 (Rs)", "Shares", "Outcome", "P&L (Rs)", "Return %", "Capital After (Rs)"]
+    headers = ["#", "Date", "Alert Signal Time", "Entry Time", "Exit Time", "Symbol", "Direction", "Entry Price (Rs)", "Exit Price (Rs)", "Stop Loss (Rs)", "Target 1 (Rs)", "Target 2 (Rs)", "Shares", "Outcome", "P&L (Rs)", "Return %", "Capital After (Rs)"]
     ws.append(headers)
 
     header_fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
@@ -47,11 +47,10 @@ def format_and_export_sameday_reports():
             idx + 1,
             row['Date'],
             row['Alert_Signal_Time'],
-            row['Entry_Trigger_Time'],
+            row['Entry_Time'],
             row['Exit_Time'],
             row['Symbol'],
             row['Direction'],
-            row['Breakout_Level'],
             row['Entry_Price'],
             row['Exit_Price'],
             row['SL_Price'],
@@ -65,12 +64,12 @@ def format_and_export_sameday_reports():
         ])
 
         fill = win_fill if row['Outcome'] in ['HIT_T1', 'HIT_T2'] else (loss_fill if row['Outcome'] == 'HIT_SL' else be_fill)
-        for col_num in range(1, 19):
+        for col_num in range(1, 18):
             cell = ws.cell(row=r_idx, column=col_num)
             cell.fill = fill
-            if col_num in [8, 9, 10, 11, 12, 13, 16, 18]:
+            if col_num in [8, 9, 10, 11, 12, 15, 17]:
                 cell.number_format = '#,##0.00'
-            elif col_num == 17:
+            elif col_num == 16:
                 cell.number_format = '+0.00%;-0.00%;0.00%'
 
     for col in ws.columns:
@@ -80,7 +79,7 @@ def format_and_export_sameday_reports():
 
     wb.save(excel_path)
     wb.save(brain_excel_path)
-    print("Exported Excel & CSV reports with Entry Trigger Time (Breakout cross timestamp)!")
+    print("Exported CSV & Excel reports with fixed 09:15 AM Entry_Time!")
 
 if __name__ == '__main__':
     format_and_export_sameday_reports()
