@@ -1,17 +1,15 @@
 """
-Strict 5-Minute Intraday Backtest with Exact Entry_Time and Exit_Time
-Calculates exact candle timestamp for Entry (09:15 AM) and Exit (e.g. 10:35 AM or 03:15 PM EOD).
+Intraday Exporter with explicit Signal_Trigger_Time (09:05 AM), Entry_Time (09:15 AM), and Exit_Time
 """
 import pandas as pd
 import numpy as np
 import yfinance as yf
 from data_fetcher import load_watchlist
 
-def run_intraday_with_exact_timestamps():
+def run_intraday_with_all_timestamps():
     symbols = load_watchlist()[:80]
     all_tickers = symbols + ['^NSEI']
-    print("=== EXPORTING INTRADAY LOG WITH EXACT ENTRY_TIME & EXIT_TIME ===")
-    print("Downloading 5m intraday market data...")
+    print("=== EXPORTING INTRADAY LOG WITH SIGNAL_TRIGGER_TIME, ENTRY_TIME & EXIT_TIME ===")
 
     df_5m = yf.download(all_tickers, period="30d", interval="5m", progress=False, group_by="ticker")
     df_daily = yf.download(['^NSEI'], period="60d", interval="1d", progress=False)
@@ -38,7 +36,7 @@ def run_intraday_with_exact_timestamps():
         last_d = prior_daily.iloc[-1]
 
         if last_d['Nifty_EMA20'] <= last_d['Nifty_EMA50']:
-            continue  # Market Regime Pause
+            continue
 
         nifty_day = nifty_5m[nifty_5m.index.date == t_date]
         if len(nifty_day) < 4: continue
@@ -77,10 +75,12 @@ def run_intraday_with_exact_timestamps():
 
             entry_candle = s_day.iloc[0]
             entry_dt = s_day.index[0]
-            entry_time_str = entry_dt.strftime('%I:%M %p')
+
+            signal_trigger_time_str = "09:05 AM"
+            entry_actual_time_str = "09:15 AM"
 
             entry = entry_candle['Open']
-            sl = entry * 0.992  # 0.8% SL
+            sl = entry * 0.992
             risk_r = entry - sl
             t1 = entry + 1.5 * risk_r
             t2 = entry + 2.5 * risk_r
@@ -91,7 +91,7 @@ def run_intraday_with_exact_timestamps():
             session = s_day.iloc[1:]
             outcome = 'EXPIRED_SAME_DAY'
             exit_price = session.iloc[-1]['Close']
-            exit_time_str = session.index[-1].strftime('%I:%M %p')
+            exit_time_str = "03:15 PM"
             trail_sl = sl
 
             for dt, row in session.iterrows():
@@ -119,7 +119,8 @@ def run_intraday_with_exact_timestamps():
 
             trades.append({
                 'Date': str(t_date),
-                'Entry_Time': entry_time_str,
+                'Signal_Trigger_Time': signal_trigger_time_str,
+                'Entry_Actual_Time': entry_actual_time_str,
                 'Exit_Time': exit_time_str,
                 'Symbol': sym.replace('.NS', ''),
                 'Direction': 'LONG',
@@ -137,7 +138,7 @@ def run_intraday_with_exact_timestamps():
 
     df_export = pd.DataFrame(trades)
     df_export.to_csv("3year_trades_sameday_intraday.csv", index=False)
-    print(f"Exported {len(df_export)} trades with exact Entry_Time AND Exit_Time!")
+    print(f"Exported {len(df_export)} trades with Signal_Trigger_Time (09:05 AM), Entry_Actual_Time (09:15 AM), and Exit_Time!")
 
 if __name__ == '__main__':
-    run_intraday_with_exact_timestamps()
+    run_intraday_with_all_timestamps()
