@@ -1,63 +1,68 @@
 """
-Strict Same-Day Intraday Exporter with explicit Target1_Price and Target2_Price columns
+Strict 5-Minute Intraday Backtest with Exact Entry_Time and Exit_Time
+Calculates exact candle timestamp for Entry (09:15 AM) and Exit (e.g. 10:35 AM or 03:15 PM EOD).
 """
 import pandas as pd
 import numpy as np
 import yfinance as yf
 from data_fetcher import load_watchlist
 
-def run_strict_sameday_with_targets():
-    symbols = load_watchlist()[:100]
+def run_intraday_with_exact_timestamps():
+    symbols = load_watchlist()[:80]
     all_tickers = symbols + ['^NSEI']
-    print("=== EXPORTING 100% SAME-DAY INTRADAY LOG WITH EXPLICIT TARGET & SL PRICES ===")
+    print("=== EXPORTING INTRADAY LOG WITH EXACT ENTRY_TIME & EXIT_TIME ===")
+    print("Downloading 5m intraday market data...")
 
-    df_daily = yf.download(all_tickers, period="3y", interval="1d", progress=False, group_by="ticker")
+    df_5m = yf.download(all_tickers, period="30d", interval="5m", progress=False, group_by="ticker")
+    df_daily = yf.download(['^NSEI'], period="60d", interval="1d", progress=False)
 
-    nifty_df = df_daily['^NSEI'].dropna(subset=['Open', 'High', 'Low', 'Close'])
-    nifty_df.index = nifty_df.index.tz_localize(None) if nifty_df.index.tz is not None else nifty_df.index
+    if isinstance(df_daily.columns, pd.MultiIndex):
+        df_daily.columns = df_daily.columns.get_level_values(0)
+    df_daily.index = df_daily.index.tz_localize(None) if df_daily.index.tz is not None else df_daily.index
 
-    nifty_df['Nifty_EMA20'] = nifty_df['Close'].ewm(span=20, adjust=False).mean()
-    nifty_df['Nifty_EMA50'] = nifty_df['Close'].ewm(span=50, adjust=False).mean()
-    nifty_df['Nifty_5d_Ret'] = nifty_df['Close'].pct_change(5) * 100.0
+    df_daily['Nifty_EMA20'] = df_daily['Close'].ewm(span=20, adjust=False).mean()
+    df_daily['Nifty_EMA50'] = df_daily['Close'].ewm(span=50, adjust=False).mean()
+    df_daily['Nifty_5d_Ret'] = df_daily['Close'].pct_change(5) * 100.0
 
     capital = 100000.0
     running_capital = capital
     trades = []
 
-    trading_dates = sorted(list(set(nifty_df.index.date)))[50:]
+    nifty_5m = df_5m['^NSEI'].dropna() if isinstance(df_5m.columns, pd.MultiIndex) else df_5m
+    nifty_5m.index = nifty_5m.index.tz_localize(None) if nifty_5m.index.tz is not None else nifty_5m.index
+    trading_dates = sorted(list(set(nifty_5m.index.date)))
 
     for t_date in trading_dates:
-        t_ts = pd.Timestamp(t_date)
-        if t_ts not in nifty_df.index: continue
+        prior_daily = df_daily[df_daily.index < pd.Timestamp(t_date)]
+        if prior_daily.empty: continue
+        last_d = prior_daily.iloc[-1]
 
-        nifty_row = nifty_df.loc[t_ts]
+        if last_d['Nifty_EMA20'] <= last_d['Nifty_EMA50']:
+            continue  # Market Regime Pause
 
-        if nifty_row['Nifty_EMA20'] <= nifty_row['Nifty_EMA50']:
-            continue
+        nifty_day = nifty_5m[nifty_5m.index.date == t_date]
+        if len(nifty_day) < 4: continue
 
-        nifty_5d_ret = nifty_row['Nifty_5d_Ret']
-        if pd.isna(nifty_5d_ret): continue
+        nifty_open = nifty_day.iloc[0]['Open']
+        nifty_945 = nifty_day.iloc[min(6, len(nifty_day)-1)]['Close']
+        nifty_ret = (nifty_945 - nifty_open) / nifty_open * 100.0
 
         stock_rs = []
 
         for symbol in symbols:
             try:
-                s_df = df_daily[symbol].dropna(subset=['Open', 'High', 'Low', 'Close']) if isinstance(df_daily.columns, pd.MultiIndex) else df_daily
+                s_df = df_5m[symbol].dropna(subset=['Open', 'High', 'Low', 'Close']) if isinstance(df_5m.columns, pd.MultiIndex) else df_5m
                 s_df.index = s_df.index.tz_localize(None) if s_df.index.tz is not None else s_df.index
+                s_day = s_df[s_df.index.date == t_date]
+                if len(s_day) < 6: continue
 
-                if t_ts not in s_df.index: continue
+                s_open = s_day.iloc[0]['Open']
+                s_945 = s_day.iloc[min(6, len(s_day)-1)]['Close']
+                s_ret = (s_945 - s_open) / s_open * 100.0
+                rs = s_ret - nifty_ret
 
-                idx_loc = s_df.index.get_loc(t_ts)
-                if idx_loc < 5: continue
-
-                s_close = s_df.iloc[idx_loc]['Close']
-                s_close_prev5 = s_df.iloc[idx_loc - 5]['Close']
-                s_5d_ret = (s_close - s_close_prev5) / s_close_prev5 * 100.0
-
-                rs = s_5d_ret - nifty_5d_ret
-
-                if rs > 2.0:
-                    stock_rs.append({'symbol': symbol, 'rs': rs, 'idx_loc': idx_loc, 's_df': s_df})
+                if rs > 1.0:
+                    stock_rs.append({'symbol': symbol, 'rs': rs, 's_day': s_day})
             except Exception:
                 continue
 
@@ -68,20 +73,14 @@ def run_strict_sameday_with_targets():
 
         for cand in top_rs_candidates:
             sym = cand['symbol']
-            idx_loc = cand['idx_loc']
-            s_df = cand['s_df']
+            s_day = cand['s_day']
 
-            if idx_loc + 1 >= len(s_df): continue
+            entry_candle = s_day.iloc[0]
+            entry_dt = s_day.index[0]
+            entry_time_str = entry_dt.strftime('%I:%M %p')
 
-            same_day_candle = s_df.iloc[idx_loc + 1]
-            entry_dt = s_df.index[idx_loc + 1]
-
-            entry = same_day_candle['Open']
-            high = same_day_candle['High']
-            low = same_day_candle['Low']
-            close = same_day_candle['Close']
-
-            sl = entry * 0.98
+            entry = entry_candle['Open']
+            sl = entry * 0.992  # 0.8% SL
             risk_r = entry - sl
             t1 = entry + 1.5 * risk_r
             t2 = entry + 2.5 * risk_r
@@ -89,27 +88,39 @@ def run_strict_sameday_with_targets():
             pos_size = int((running_capital * 0.01) / risk_r)
             if pos_size <= 0: continue
 
+            session = s_day.iloc[1:]
             outcome = 'EXPIRED_SAME_DAY'
-            exit_price = close
+            exit_price = session.iloc[-1]['Close']
+            exit_time_str = session.index[-1].strftime('%I:%M %p')
+            trail_sl = sl
 
-            if high >= t1:
-                outcome = 'HIT_T1'
-                exit_price = t1
-                if high >= t2:
-                    outcome = 'HIT_T2'
-                    exit_price = t2
-            elif low <= sl:
-                outcome = 'HIT_SL'
-                exit_price = sl
+            for dt, row in session.iterrows():
+                r_h, r_l = row['High'], row['Low']
+                if r_h >= (entry + 0.8 * risk_r):
+                    trail_sl = max(trail_sl, entry)
+
+                if r_h >= t1:
+                    outcome = 'HIT_T1'
+                    exit_price = t1
+                    exit_time_str = dt.strftime('%I:%M %p')
+                    if r_h >= t2:
+                        outcome = 'HIT_T2'
+                        exit_price = t2
+                    break
+                elif r_l <= trail_sl:
+                    outcome = 'HIT_SL' if trail_sl < entry else 'HIT_BE'
+                    exit_price = trail_sl
+                    exit_time_str = dt.strftime('%I:%M %p')
+                    break
 
             pnl = (exit_price - entry) * pos_size
             ret_ratio = pnl / running_capital
             running_capital += pnl
 
             trades.append({
-                'Date': str(entry_dt.date()),
-                'Trigger_Time': '09:15 AM',
-                'Timestamp': f"{entry_dt.date()} 09:15",
+                'Date': str(t_date),
+                'Entry_Time': entry_time_str,
+                'Exit_Time': exit_time_str,
                 'Symbol': sym.replace('.NS', ''),
                 'Direction': 'LONG',
                 'Entry_Price': round(entry, 2),
@@ -126,7 +137,7 @@ def run_strict_sameday_with_targets():
 
     df_export = pd.DataFrame(trades)
     df_export.to_csv("3year_trades_sameday_intraday.csv", index=False)
-    print(f"Exported {len(df_export)} trades with explicit Entry, Exit, SL, T1, and T2 prices.")
+    print(f"Exported {len(df_export)} trades with exact Entry_Time AND Exit_Time!")
 
 if __name__ == '__main__':
-    run_strict_sameday_with_targets()
+    run_intraday_with_exact_timestamps()

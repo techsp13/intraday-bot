@@ -1,5 +1,5 @@
 """
-Format and export 100% same-day intraday CSV & Excel reports with Target1 and Target2 columns
+Format and export intraday CSV & Excel reports with Entry_Time AND Exit_Time columns
 """
 import pandas as pd
 import openpyxl
@@ -19,13 +19,13 @@ def format_and_export_sameday_reports():
 
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = "100% Same-Day Intraday Log"
+    ws.title = "Intraday Log with Timestamps"
 
-    ws.append(["STRICT 100% SAME-DAY INTRADAY TRADE LOG — NIFTY RELATIVE STRENGTH STRATEGY"])
-    ws.append([f"Starting Capital: Rs. 100,000.00 | Ending Capital: Rs. 274,826.98 | Net Return: +174.83% | Total Trades: {len(df)}"])
+    ws.append(["INTRADAY TRADE LOG WITH EXACT ENTRY_TIME & EXIT_TIME — NIFTY RELATIVE STRENGTH STRATEGY"])
+    ws.append([f"Starting Capital: Rs. 100,000.00 | Ending Capital: Rs. {df['Capital_After'].iloc[-1]:,.2f} | Total Trades: {len(df)}"])
     ws.append([])
 
-    headers = ["#", "Date", "Trigger Time", "Timestamp", "Symbol", "Direction", "Entry Price (Rs)", "Exit Price (Rs)", "Stop Loss (Rs)", "Target 1 (Rs)", "Target 2 (Rs)", "Shares", "Outcome", "P&L (Rs)", "Return %", "Capital After (Rs)"]
+    headers = ["#", "Date", "Entry Time", "Exit Time", "Symbol", "Direction", "Entry Price (Rs)", "Exit Price (Rs)", "Stop Loss (Rs)", "Target 1 (Rs)", "Target 2 (Rs)", "Shares", "Outcome", "P&L (Rs)", "Return %", "Capital After (Rs)"]
     ws.append(headers)
 
     header_fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
@@ -46,8 +46,8 @@ def format_and_export_sameday_reports():
         ws.append([
             idx + 1,
             row['Date'],
-            row['Trigger_Time'],
-            row['Timestamp'],
+            row['Entry_Time'],
+            row['Exit_Time'],
             row['Symbol'],
             row['Direction'],
             row['Entry_Price'],
@@ -78,7 +78,7 @@ def format_and_export_sameday_reports():
 
     wb.save(excel_path)
     wb.save(brain_excel_path)
-    print("Exported Excel & CSV reports with explicit Entry, Exit, SL, Target 1, and Target 2 columns!")
+    print("Exported Excel & CSV reports with exact Entry Time AND Exit Time!")
 
 if __name__ == '__main__':
     format_and_export_sameday_reports()
