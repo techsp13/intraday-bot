@@ -2,11 +2,13 @@ import urllib.request
 import urllib.parse
 import json
 import time
+import os
 from datetime import datetime
 import config
+from chart_generator import generate_candlestick_chart
 
 def send_telegram_message(message: str, parse_mode: str = 'Markdown') -> bool:
-    """Send a message to Telegram via Bot API."""
+    """Send a text message to Telegram via Bot API."""
     if not getattr(config, 'TELEGRAM_ALERTS_ENABLED', True):
         return False
         
@@ -30,13 +32,71 @@ def send_telegram_message(message: str, parse_mode: str = 'Markdown') -> bool:
         with urllib.request.urlopen(req, timeout=10) as response:
             if response.status == 200:
                 return True
-    except Exception as e:
+    except Exception:
         pass
         
     return False
 
+def send_photo_alert(photo_path: str, caption: str, parse_mode: str = 'Markdown') -> bool:
+    """Send a photo with caption to Telegram using pure urllib multipart/form-data."""
+    if not getattr(config, 'TELEGRAM_ALERTS_ENABLED', True):
+        return False
+        
+    token = getattr(config, 'TELEGRAM_BOT_TOKEN', '')
+    chat_id = getattr(config, 'TELEGRAM_CHAT_ID', '')
+    
+    if not token or not chat_id or not os.path.exists(photo_path):
+        return False
+        
+    url = f"https://api.telegram.org/bot{token}/sendPhoto"
+    boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
+    
+    with open(photo_path, 'rb') as f:
+        photo_bytes = f.read()
+        
+    body = bytearray()
+    
+    # chat_id field
+    body.extend(f'--{boundary}\r\n'.encode())
+    body.extend(b'Content-Disposition: form-data; name="chat_id"\r\n\r\n')
+    body.extend(f'{chat_id}\r\n'.encode())
+    
+    # caption field
+    body.extend(f'--{boundary}\r\n'.encode())
+    body.extend(b'Content-Disposition: form-data; name="caption"\r\n\r\n')
+    body.extend(f'{caption}\r\n'.encode())
+    
+    # parse_mode field
+    body.extend(f'--{boundary}\r\n'.encode())
+    body.extend(b'Content-Disposition: form-data; name="parse_mode"\r\n\r\n')
+    body.extend(f'{parse_mode}\r\n'.encode())
+    
+    # photo file field
+    filename = os.path.basename(photo_path)
+    body.extend(f'--{boundary}\r\n'.encode())
+    body.extend(f'Content-Disposition: form-data; name="photo"; filename="{filename}"\r\n'.encode())
+    body.extend(b'Content-Type: image/png\r\n\r\n')
+    body.extend(photo_bytes)
+    body.extend(b'\r\n')
+    body.extend(f'--{boundary}--\r\n'.encode())
+    
+    headers = {
+        'Content-Type': f'multipart/form-data; boundary={boundary}',
+        'Content-Length': str(len(body))
+    }
+    
+    req = urllib.request.Request(url, data=bytes(body), headers=headers, method='POST')
+    try:
+        with urllib.request.urlopen(req, timeout=15) as response:
+            if response.status == 200:
+                return True
+    except Exception as e:
+        print(f"Error sending photo alert: {e}")
+        
+    return False
+
 def send_pick_alert(pick: dict) -> bool:
-    """Format and send an alert for a single stock pick."""
+    """Format and send an alert for a single stock pick with candlestick chart image."""
     direction = pick.get('direction', 'LONG').upper()
     symbol = pick.get('symbol', 'UNKNOWN')
     entry = pick.get('entry', 0.0)
@@ -51,15 +111,10 @@ def send_pick_alert(pick: dict) -> bool:
     breakout_time = pick.get('breakout_time', 'N/A')
     
     date_str = datetime.now().strftime("%d-%b-%Y")
-    
     risk = abs(entry - sl)
     
-    if direction == 'LONG':
-        emoji = "🟢"
-        header_emoji = "🚀"
-    else:
-        emoji = "🔴"
-        header_emoji = "📉"
+    emoji = "🟢" if direction == 'LONG' else "🔴"
+    header_emoji = "🚀" if direction == 'LONG' else "📉"
         
     msg = f"""{header_emoji} *INTRADAY PICK — {direction}*
 
@@ -75,11 +130,19 @@ def send_pick_alert(pick: dict) -> bool:
 📦 Qty:        {qty} shares
 💰 Risk Amt:   ₹{risk_amt:.0f}
 ━━━━━━━━━━━━━━━━━━━━━━━
-📈 ADX: {adx:.1f} | Vol: {vol_ratio:.1f}x avg
-📊 Score: {score}/50
-⏰ Breakout: {breakout_time}
+📈 RS Score: +{adx:.1f}% | Vol: {vol_ratio:.1f}x avg
+📊 Score: {score}/100
+⏰ Entry Window: {breakout_time}
 📅 {date_str}"""
 
+    # Generate Candlestick Chart Image
+    chart_path = generate_candlestick_chart(pick)
+    if chart_path and os.path.exists(chart_path):
+        res = send_photo_alert(chart_path, msg)
+        if res:
+            return True
+
+    # Fallback to text message
     return send_telegram_message(msg)
 
 def send_picks_batch(picks: list[dict]) -> int:
@@ -102,7 +165,7 @@ def send_picks_batch(picks: list[dict]) -> int:
 def send_no_picks_alert() -> bool:
     """Send alert when no picks are found."""
     date_str = datetime.now().strftime("%d-%b-%Y")
-    msg = f"📭 *No qualifying setups today*\nAll filters active. No ORB breakouts met criteria.\n📅 {date_str}"
+    msg = f"📭 *No qualifying setups today*\nAll filters active. Market Regime / RS filters active.\n📅 {date_str}"
     return send_telegram_message(msg)
 
 def send_daily_loss_halt_alert(cumulative_pnl: float) -> bool:
