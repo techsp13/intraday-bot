@@ -1,10 +1,14 @@
 import logging
+import os
+import asyncio
 from datetime import datetime
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 import config
 import logger
+import alerts
+import main as main_orchestrator
 
 # Setup logging
 logging.basicConfig(
@@ -17,9 +21,27 @@ async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = (
         "Welcome to the Intraday Stock Pick Bot! 🚀\n\n"
         "I provide daily breakout alerts and performance tracking.\n"
-        "Use /help to see available commands."
+        "⚡ Send /stock to run a live scan and get today's stock picks instantly!\n"
+        "Use /help to see all commands."
     )
     await update.message.reply_text(msg)
+
+async def stock_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle /stock or /scan command — triggers a live market scan on demand."""
+    await update.message.reply_text("⚡ *Scanning live NSE market data...* Please wait ~10 seconds.", parse_mode='Markdown')
+    
+    try:
+        # Run main pipeline in background thread to avoid blocking asyncio event loop
+        loop = asyncio.get_running_loop()
+        summary = await loop.run_in_executor(None, main_orchestrator.run_pipeline)
+        
+        picks_count = summary.get('total_picks', 0)
+        if picks_count == 0:
+            await update.message.reply_text("📭 No qualifying stock setups found right now (Market Regime / RS filter active).")
+        else:
+            await update.message.reply_text(f"✅ *Scan complete!* Sent {picks_count} stock picks with zoomed candlestick charts below.", parse_mode='Markdown')
+    except Exception as e:
+        await update.message.reply_text(f"⚠️ Error running live market scan: `{e}`", parse_mode='Markdown')
 
 async def status_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /status command."""
@@ -27,7 +49,7 @@ async def status_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     picks = logger.get_today_picks(today_str)
     
     if not picks:
-        await update.message.reply_text(f"📭 No picks recorded for today ({today_str}).")
+        await update.message.reply_text(f"📭 No picks recorded for today ({today_str}). Send /stock to trigger a live scan!")
         return
         
     msg = f"📊 *Today's Status ({today_str})*\n━━━━━━━━━━━━━━━━━━━━━━━\n"
@@ -69,7 +91,7 @@ async def picks_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     picks = logger.get_today_picks(today_str)
     
     if not picks:
-        await update.message.reply_text(f"📭 No picks recorded for today ({today_str}).")
+        await update.message.reply_text(f"📭 No picks recorded for today ({today_str}). Send /stock to run a live scan!")
         return
         
     msg = f"📋 *Detailed Picks ({today_str})*\n━━━━━━━━━━━━━━━━━━━━━━━\n"
@@ -80,12 +102,13 @@ async def picks_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         entry = pick.get('entry', 0.0)
         sl = pick.get('sl', 0.0)
         t1 = pick.get('target1', 0.0)
+        t2 = pick.get('target2', 0.0)
         outcome = pick.get('outcome', 'OPEN')
         pnl = pick.get('actual_pnl', 0.0) or 0.0
         
         msg += (
             f"*{symbol}* ({direction})\n"
-            f"Entry: ₹{entry:.2f} | SL: ₹{sl:.2f} | T1: ₹{t1:.2f}\n"
+            f"Entry: ₹{entry:.2f} | SL: ₹{sl:.2f} | T1: ₹{t1:.2f} | T2: ₹{t2:.2f}\n"
             f"Status: {outcome} | P&L: ₹{pnl:.2f}\n\n"
         )
         
@@ -95,11 +118,12 @@ async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /help command."""
     msg = (
         "🛠 *Available Commands*\n"
-        "/start - Welcome message\n"
-        "/status - Today's picks and running P&L\n"
-        "/picks - Detailed view of today's picks\n"
+        "/stock - Run live market scan & get stock picks instantly!\n"
+        "/scan - Trigger instant market scan\n"
+        "/picks - View today's detailed stock picks\n"
+        "/status - Today's picks & running P&L\n"
         "/weekly - Weekly performance summary\n"
-        "/help - Show this message"
+        "/help - Show this help menu"
     )
     await update.message.reply_text(msg, parse_mode='Markdown')
 
@@ -112,12 +136,14 @@ def main():
     app = ApplicationBuilder().token(token).build()
     
     app.add_handler(CommandHandler('start', start_cmd))
+    app.add_handler(CommandHandler('stock', stock_cmd))
+    app.add_handler(CommandHandler('scan', stock_cmd))
     app.add_handler(CommandHandler('status', status_cmd))
     app.add_handler(CommandHandler('weekly', weekly_cmd))
     app.add_handler(CommandHandler('picks', picks_cmd))
     app.add_handler(CommandHandler('help', help_cmd))
     
-    print('Bot is running... Press Ctrl+C to stop.')
+    print('Telegram Bot Listener is running... Press Ctrl+C to stop.')
     app.run_polling()
 
 if __name__ == '__main__':
