@@ -2,6 +2,7 @@
 High-Precision Zoomed Intraday Candlestick Chart Generator
 Renders zoomed-in 5m intraday candles with bold Entry, SL, T1, T2 level lines and crisp callouts.
 """
+import os
 try:
     import matplotlib
     matplotlib.use('Agg')
