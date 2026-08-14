@@ -5,3 +5,5 @@ pyarrow
 python-telegram-bot>=21.0
 python-dotenv
 requests
+matplotlib>=3.7.0
+mplfinance>=0.12.10

@@ -2,11 +2,15 @@
 High-Precision Zoomed Intraday Candlestick Chart Generator
 Renders zoomed-in 5m intraday candles with bold Entry, SL, T1, T2 level lines and crisp callouts.
 """
-import os
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
+try:
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    import matplotlib.dates as mdates
+    HAS_MATPLOTLIB = True
+except ImportError:
+    HAS_MATPLOTLIB = False
+
 import pandas as pd
 import yfinance as yf
 
@@ -14,6 +18,9 @@ def generate_candlestick_chart(pick: dict) -> str:
     """
     Generates a zoomed-in, high-definition 5m intraday dark mode candlestick chart.
     """
+    if not HAS_MATPLOTLIB:
+        print("Warning: matplotlib not installed. Skipping chart generation.")
+        return ""
     symbol = pick.get('symbol', 'STOCK')
     ticker = pick.get('ticker', f"{symbol}.NS")
     entry = pick.get('entry', 0.0)

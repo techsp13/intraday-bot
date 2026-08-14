@@ -5,3 +5,7 @@ logs/
 __pycache__/
 .pytest_cache/
 *.pyc
+dist/
+build/
+*.spec
+charts/*.png
