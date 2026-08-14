@@ -135,14 +135,6 @@ def send_pick_alert(pick: dict) -> bool:
 ⏰ Entry Window: {breakout_time}
 📅 {date_str}"""
 
-    # Generate Candlestick Chart Image
-    chart_path = generate_candlestick_chart(pick)
-    if chart_path and os.path.exists(chart_path):
-        res = send_photo_alert(chart_path, msg)
-        if res:
-            return True
-
-    # Fallback to text message
     return send_telegram_message(msg)
 
 def send_picks_batch(picks: list[dict]) -> int:
