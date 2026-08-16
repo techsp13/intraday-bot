@@ -2,10 +2,10 @@ name: NSE Intraday Stock Pick Bot
 
 on:
   schedule:
-    # 03:30 UTC, 03:35 UTC, 03:40 UTC (09:00-09:10 AM IST Mon-Fri) — morning scan
-    - cron: '30 3 * * 1-5'
-    - cron: '35 3 * * 1-5'
-    - cron: '40 3 * * 1-5'
+    # 03:00 UTC, 03:05 UTC, 03:10 UTC (08:30-08:40 AM IST Mon-Fri) — morning scan at 8:30 AM
+    - cron: '0 3 * * 1-5'
+    - cron: '5 3 * * 1-5'
+    - cron: '10 3 * * 1-5'
     # 09:45 UTC = 03:15 PM IST (Monday-Friday) — squareoff reminder  
     - cron: '45 9 * * 1-5'
   workflow_dispatch:
