@@ -15,6 +15,7 @@ import screener
 import risk_manager
 import logger
 import alerts
+import web_generator
 
 def run_pipeline(dry_run: bool = False):
     """Run the complete intraday stock pick pipeline."""
@@ -84,6 +85,12 @@ def run_pipeline(dry_run: bool = False):
             else:
                 alerts.send_no_picks_alert()
                 print('No picks — sent notification')
+
+        # Step 9: Update Web Dashboard & JSON API
+        try:
+            web_generator.generate_site()
+        except Exception as e:
+            print(f'Warning: Web generation failed: {e}')
                 
     except Exception as e:
         error_msg = traceback.format_exc()
