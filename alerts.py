@@ -138,21 +138,37 @@ def send_pick_alert(pick: dict) -> bool:
     return send_telegram_message(msg)
 
 def send_picks_batch(picks: list[dict]) -> int:
-    """Send a batch of pick alerts."""
-    date_str = datetime.now().strftime("%d-%b-%Y")
-    n = len(picks)
-    header = f"📋 *INTRADAY PICKS — {date_str}*\n{n} setups found"
-    
-    send_telegram_message(header)
-    time.sleep(0.5)
-    
-    count = 0
-    for pick in picks:
-        if send_pick_alert(pick):
-            count += 1
-        time.sleep(0.5)
+    """Send all daily stock picks in ONE single consolidated Telegram alert at 08:30 AM."""
+    if not picks:
+        return 0
         
-    return count
+    date_str = datetime.now().strftime("%d-%b-%Y")
+    
+    msg = f"🚀 *NSE INTRADAY PICKS — {date_str} (08:30 AM)*\n"
+    msg += f"━━━━━━━━━━━━━━━━━━━━━━━\n"
+    
+    for i, p in enumerate(picks, 1):
+        sym = p.get('symbol', 'UNKNOWN')
+        dirn = p.get('direction', 'LONG')
+        ent = float(p.get('entry', 0.0))
+        sl = float(p.get('sl', round(ent * 0.98, 2)))
+        t1 = float(p.get('target1', round(ent * 1.03, 2)))
+        t2 = float(p.get('target2', round(ent * 1.05, 2)))
+        qty = p.get('position_size', 10)
+        rs = float(p.get('adx', 0.0))
+        
+        msg += f"*{i}️⃣ {sym}* ({dirn})\n"
+        msg += f"▸ Entry: `₹{ent:,.2f}` | SL: `₹{sl:,.2f}` (-2%)\n"
+        msg += f"▸ T1: `₹{t1:,.2f}` (+3%) | T2: `₹{t2:,.2f}` (+5%)\n"
+        msg += f"▸ Qty: *{qty} shares* | RS: *+{rs:.1f}%*\n\n"
+        
+    msg += f"━━━━━━━━━━━━━━━━━━━━━━━\n"
+    msg += f"🌐 *Live Dashboard*: https://techsp13.github.io/intraday-bot/\n"
+    msg += f"⏰ *Entry*: 09:15 AM Market Open | *Square-off*: 03:15 PM"
+    
+    if send_telegram_message(msg):
+        return len(picks)
+    return 0
 
 def send_no_picks_alert() -> bool:
     """Send alert when no picks are found."""

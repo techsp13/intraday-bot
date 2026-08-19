@@ -2,12 +2,8 @@ name: NSE Intraday Stock Pick Bot
 
 on:
   schedule:
-    # 03:00 UTC, 03:05 UTC, 03:10 UTC (08:30-08:40 AM IST Mon-Fri) — morning scan at 8:30 AM
+    # Exactly ONE single morning scan at 08:30 AM IST (03:00 UTC) Mon-Fri
     - cron: '0 3 * * 1-5'
-    - cron: '5 3 * * 1-5'
-    - cron: '10 3 * * 1-5'
-    # 09:45 UTC = 03:15 PM IST (Monday-Friday) — squareoff reminder  
-    - cron: '45 9 * * 1-5'
   workflow_dispatch:
     inputs:
       mode:
@@ -17,7 +13,6 @@ on:
         type: choice
         options:
           - scan
-          - squareoff
           - dry-run
 
 permissions:
@@ -41,36 +36,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install --no-cache-dir -r requirements.txt
       
-      - name: Determine run mode
-        id: mode
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "mode=${{ github.event.inputs.mode }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event.schedule }}" = "45 9 * * 1-5" ]; then
-            echo "mode=squareoff" >> $GITHUB_OUTPUT
-          else
-            echo "mode=scan" >> $GITHUB_OUTPUT
-          fi
-      
       - name: Run morning scan
-        if: steps.mode.outputs.mode == 'scan'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_ALERTS_ENABLED: 'TRUE'
         run: python main.py
-      
-      - name: Run dry-run scan
-        if: steps.mode.outputs.mode == 'dry-run'
-        run: python main.py --dry-run
-      
-      - name: Run squareoff reminder
-        if: steps.mode.outputs.mode == 'squareoff'
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_ALERTS_ENABLED: 'TRUE'
-        run: python squareoff_reminder.py
       
       - name: Commit database updates
         if: always()
