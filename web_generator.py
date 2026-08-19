@@ -3,7 +3,7 @@ Focused Current-Day Web Dashboard Generator for NSE Intraday Stock Pick Bot.
 Features:
 1. Morning 08:30 AM Stock Picks only.
 2. Interactive Real-Time Stop Loss, Target 1, Target 2 & Position Size Calculator.
-3. End-of-Day Market Close Results & P&L Tracker.
+3. End-of-Day Market Close Results with explicit Actual Entry, Actual SL, Actual T1, Actual T2, and Actual Exit Price columns.
 4. Clean, 100% current-day focused UI.
 """
 import os
@@ -205,7 +205,7 @@ def generate_site():
             Today's 08:30 AM Actionable Stock Picks
           </h2>
           <p class="text-xs text-gray-400 mt-1 max-w-2xl">
-            Generated at 08:30 AM IST before market open. Enter at 09:15 AM Market Open. Pre-calculated 2.0% SL, 3.0% Target 1, and 5.0% Target 2. Square off at 03:15 PM.
+            Generated at 08:30 AM IST. Enter at 09:15 AM Market Open. Pre-calculated 2.0% Stop Loss, 3.0% Target 1, and 5.0% Target 2. Square off at 03:15 PM.
           </p>
         </div>
 
@@ -322,12 +322,6 @@ def generate_site():
         rs = p['rs']
         outcome = p['outcome']
         pnl = p['pnl']
-        
-        badge_style = "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-        if "SL" in outcome:
-            badge_style = "bg-rose-500/10 text-rose-400 border-rose-500/30"
-        elif "T2" in outcome or "T1" in outcome:
-            badge_style = "bg-emerald-500/20 text-emerald-300 border-emerald-500/50 font-bold"
 
         html_content += f"""
         <div class="glass-card rounded-2xl p-5 relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
@@ -343,19 +337,19 @@ def generate_site():
 
           <div class="space-y-2 py-2.5 border-y border-gray-800/80 font-mono text-xs">
             <div class="flex justify-between">
-              <span class="text-gray-400 font-sans">Entry Price:</span>
+              <span class="text-gray-400 font-sans">Actual Entry:</span>
               <span class="text-white font-bold">₹{entry:,.2f}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-rose-400 font-sans">Stop Loss (-2%):</span>
+              <span class="text-rose-400 font-sans">Actual SL (-2%):</span>
               <span class="text-rose-400 font-bold">₹{sl:,.2f}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-emerald-400 font-sans">Target 1 (+3%):</span>
+              <span class="text-emerald-400 font-sans">Actual T1 (+3%):</span>
               <span class="text-emerald-400 font-bold">₹{t1:,.2f}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-cyan-400 font-sans">Target 2 (+5%):</span>
+              <span class="text-cyan-400 font-sans">Actual T2 (+5%):</span>
               <span class="text-cyan-400 font-bold">₹{t2:,.2f}</span>
             </div>
           </div>
@@ -372,15 +366,15 @@ def generate_site():
       </div>
     </div>
 
-    <!-- End-of-Day Market Close Results Table -->
+    <!-- End-of-Day Market Close Results Table with Explicit Price Levels -->
     <div class="space-y-4">
       <div class="flex items-center justify-between border-b border-gray-800 pb-2">
         <div>
           <h3 class="text-lg font-bold text-white flex items-center gap-2">
             <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400"></i>
-            End-of-Day Market Close Results ({today_date_display})
+            End-of-Day Market Close Results & Price Execution Log ({today_date_display})
           </h3>
-          <p class="text-xs text-gray-400">Actual intraday price range, outcome status, and profit/loss calculation</p>
+          <p class="text-xs text-gray-400">Complete breakdown showing Actual Entry, SL, T1, T2, Day Range, Actual Exit Price & Realized P&L</p>
         </div>
       </div>
 
@@ -389,14 +383,17 @@ def generate_site():
           <table class="w-full text-left font-mono text-xs">
             <thead class="bg-gray-950 text-gray-400 uppercase tracking-wider text-[11px] border-b border-gray-800">
               <tr>
-                <th class="px-5 py-3.5">Stock</th>
-                <th class="px-5 py-3.5">Qty</th>
-                <th class="px-5 py-3.5">Entry</th>
-                <th class="px-5 py-3.5">Day High</th>
-                <th class="px-5 py-3.5">Day Low</th>
-                <th class="px-5 py-3.5">03:15 Close</th>
-                <th class="px-5 py-3.5">Status / Outcome</th>
-                <th class="px-5 py-3.5 text-right">Net P&L (₹)</th>
+                <th class="px-4 py-3.5">Stock</th>
+                <th class="px-4 py-3.5">Qty</th>
+                <th class="px-4 py-3.5 text-white">Actual Entry</th>
+                <th class="px-4 py-3.5 text-rose-400">Actual SL (-2%)</th>
+                <th class="px-4 py-3.5 text-emerald-400">Actual T1 (+3%)</th>
+                <th class="px-4 py-3.5 text-cyan-400">Actual T2 (+5%)</th>
+                <th class="px-4 py-3.5">Day Low</th>
+                <th class="px-4 py-3.5">Day High</th>
+                <th class="px-4 py-3.5 text-amber-300 font-bold">Actual Exit Price</th>
+                <th class="px-4 py-3.5">Status / Outcome</th>
+                <th class="px-4 py-3.5 text-right font-bold">Net P&L (₹)</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-800/60 text-gray-300">
@@ -406,9 +403,12 @@ def generate_site():
         sym = p['symbol']
         qty = p['qty']
         ent = p['entry']
+        sl = p['sl']
+        t1 = p['target1']
+        t2 = p['target2']
         high = p['day_high']
         low = p['day_low']
-        close = p['day_close']
+        exit_p = p['exit_price']
         outcome = p['outcome']
         pnl = p['pnl']
         
@@ -418,14 +418,17 @@ def generate_site():
 
         html_content += f"""
               <tr class="hover:bg-gray-800/40 transition-colors">
-                <td class="px-5 py-3.5 font-bold text-white text-sm">{sym}</td>
-                <td class="px-5 py-3.5">{qty}</td>
-                <td class="px-5 py-3.5">₹{ent:,.2f}</td>
-                <td class="px-5 py-3.5 text-emerald-400 font-semibold">₹{high:,.2f}</td>
-                <td class="px-5 py-3.5 text-rose-400">₹{low:,.2f}</td>
-                <td class="px-5 py-3.5">₹{close:,.2f}</td>
-                <td class="px-5 py-3.5"><span class="{badge}">{outcome}</span></td>
-                <td class="px-5 py-3.5 text-right {pnl_color} text-sm">{pnl_sign}₹{pnl:,.2f}</td>
+                <td class="px-4 py-3.5 font-bold text-white text-sm">{sym}</td>
+                <td class="px-4 py-3.5">{qty}</td>
+                <td class="px-4 py-3.5 font-bold text-white">₹{ent:,.2f}</td>
+                <td class="px-4 py-3.5 text-rose-400 font-semibold">₹{sl:,.2f}</td>
+                <td class="px-4 py-3.5 text-emerald-400 font-semibold">₹{t1:,.2f}</td>
+                <td class="px-4 py-3.5 text-cyan-400 font-semibold">₹{t2:,.2f}</td>
+                <td class="px-4 py-3.5 text-rose-300">₹{low:,.2f}</td>
+                <td class="px-4 py-3.5 text-emerald-300">₹{high:,.2f}</td>
+                <td class="px-4 py-3.5 text-amber-300 font-extrabold text-sm">₹{exit_p:,.2f}</td>
+                <td class="px-4 py-3.5"><span class="{badge}">{outcome}</span></td>
+                <td class="px-4 py-3.5 text-right {pnl_color} text-sm">{pnl_sign}₹{pnl:,.2f}</td>
               </tr>
 """
 
@@ -433,8 +436,8 @@ def generate_site():
             </tbody>
             <tfoot class="bg-gray-950 font-bold text-sm border-t-2 border-gray-800">
               <tr>
-                <td colspan="7" class="px-5 py-3.5 text-right text-gray-400 font-sans">TOTAL REALIZED P&L TODAY:</td>
-                <td class="px-5 py-3.5 text-right {total_pnl_color}">{total_pnl_sign}₹{total_day_pnl:,.2f}</td>
+                <td colspan="10" class="px-4 py-3.5 text-right text-gray-400 font-sans">TOTAL REALIZED NET P&L TODAY:</td>
+                <td class="px-4 py-3.5 text-right {total_pnl_color}">{total_pnl_sign}₹{total_day_pnl:,.2f}</td>
               </tr>
             </tfoot>
           </table>
@@ -509,7 +512,7 @@ def generate_site():
     with open(os.path.join(docs_dir, 'index.html'), 'w', encoding='utf-8') as f:
         f.write(html_content)
 
-    print(f"Current-day focused dashboard generated successfully in {docs_dir}/index.html")
+    print(f"Current-day focused dashboard with explicit actual price levels generated successfully in {docs_dir}/index.html")
     return True
 
 if __name__ == '__main__':
