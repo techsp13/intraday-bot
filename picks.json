@@ -30,5 +30,37 @@
     "exit_price": 174.23,
     "outcome": "\ud83d\udd34 HIT STOP LOSS (-2.0%)",
     "pnl": -398.72
+  },
+  {
+    "symbol": "NETWEB",
+    "direction": "LONG",
+    "entry": 5354.5,
+    "sl": 5247.41,
+    "target1": 5515.14,
+    "target2": 5622.22,
+    "qty": 3,
+    "rs": 11.47,
+    "day_high": 5395.5,
+    "day_low": 5102.2,
+    "day_close": 5354.5,
+    "exit_price": 5247.41,
+    "outcome": "\ud83d\udd34 HIT STOP LOSS (-2.0%)",
+    "pnl": -321.27
+  },
+  {
+    "symbol": "WELSPUNLIV",
+    "direction": "LONG",
+    "entry": 177.79,
+    "sl": 174.23,
+    "target1": 183.13,
+    "target2": 186.69,
+    "qty": 112,
+    "rs": 12.65,
+    "day_high": 182.9,
+    "day_low": 168.38,
+    "day_close": 177.3,
+    "exit_price": 174.23,
+    "outcome": "\ud83d\udd34 HIT STOP LOSS (-2.0%)",
+    "pnl": -398.72
   }
 ]
