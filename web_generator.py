@@ -1,8 +1,9 @@
 """
 Clean, Simple & Professional Web Dashboard Generator for NSE Intraday Stock Pick Bot.
-- During Market Hours (08:30 AM - 03:30 PM): Focus on Active Picks & Instant Calculator.
+- Developed by Sanket Patel.
+- Interactive Investment Amount & Shares Calculator.
+- During Market Hours: Focus on Active Picks & Calculator.
 - After Market Close (03:30 PM): Displays Verified EOD Results & Realized P&L.
-- Clean, minimal, readable dark theme.
 """
 import os
 import json
@@ -12,7 +13,7 @@ import yfinance as yf
 import pandas as pd
 
 def generate_site():
-    """Generates a clean, professional docs/index.html for GitHub Pages."""
+    """Generates clean docs/index.html for GitHub Pages."""
     docs_dir = os.path.join(os.path.dirname(__file__), 'docs')
     os.makedirs(docs_dir, exist_ok=True)
     
@@ -52,7 +53,6 @@ def generate_site():
 
     # Check if current time is after 03:30 PM IST
     now = datetime.now()
-    # Market closes at 15:30 IST
     is_market_closed = (now.hour > 15) or (now.hour == 15 and now.minute >= 30)
     
     evaluated_picks = []
@@ -136,11 +136,11 @@ def generate_site():
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NSE Intraday Terminal | {today_date_display}</title>
+  <title>NSE Intraday Terminal | Developed by Sanket Patel</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     body {{
@@ -162,24 +162,28 @@ def generate_site():
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-  <!-- Simple Header -->
+  <!-- Header with Developer Credit -->
   <header class="border-b border-[#30363d] bg-[#161b22]/90 sticky top-0 z-50 px-4 py-3">
-    <div class="max-w-6xl mx-auto flex items-center justify-between">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div class="flex items-center space-x-3">
-        <div class="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center font-bold text-gray-950">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center font-bold text-gray-950 shadow-md">
           <i data-lucide="trending-up" class="w-5 h-5"></i>
         </div>
         <div>
-          <h1 class="text-base font-bold text-white flex items-center gap-2">
-            NSE Intraday Terminal
-            <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">{today_date_display}</span>
-          </h1>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-bold text-white">NSE Intraday Terminal</h1>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">{today_date_display}</span>
+          </div>
+          <p class="text-xs text-cyan-400 font-medium flex items-center gap-1">
+            <span>Developed by</span>
+            <strong class="text-white font-semibold">Sanket Patel</strong>
+          </p>
         </div>
       </div>
       
-      <div class="flex items-center space-x-3">
-        <span class="hidden sm:inline-block text-xs text-gray-400 mono">Updated: {now_formatted}</span>
-        <a href="https://t.me/sany_trader_bot" target="_blank" class="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors">
+      <div class="flex items-center space-x-3 self-end sm:self-center">
+        <span class="text-xs text-gray-400 mono hidden md:inline-block">Updated: {now_formatted}</span>
+        <a href="https://t.me/sany_trader_bot" target="_blank" class="px-3.5 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow transition-colors">
           <i data-lucide="send" class="w-3.5 h-3.5"></i> Telegram
         </a>
       </div>
@@ -197,14 +201,14 @@ def generate_site():
             <i data-lucide="zap" class="w-5 h-5 text-amber-400"></i>
             Today's 08:30 AM Stock Picks
           </h2>
-          <p class="text-xs text-gray-400">Buy at 09:15 AM Market Open | Set Stop Loss & Targets</p>
+          <p class="text-xs text-gray-400">Enter at 09:15 AM Market Open | Set Stop Loss & Targets</p>
         </div>
         <span class="text-xs px-2.5 py-1 rounded bg-[#0d1117] text-gray-300 border border-[#30363d] mono">
-          {len(evaluated_picks)} Stocks Selected
+          {len(evaluated_picks)} Setups Found
         </span>
       </div>
 
-      <!-- Desktop Table / Mobile Cards -->
+      <!-- Desktop Table / Mobile Responsive -->
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs mono">
           <thead class="bg-[#0d1117] text-gray-400 uppercase text-[11px] border-b border-[#30363d]">
@@ -215,8 +219,8 @@ def generate_site():
               <th class="px-4 py-3 text-rose-400">Stop Loss (-2%)</th>
               <th class="px-4 py-3 text-emerald-400">Target 1 (+3%)</th>
               <th class="px-4 py-3 text-cyan-400">Target 2 (+5%)</th>
-              <th class="px-4 py-3">Qty</th>
-              <th class="px-4 py-3 text-right">Action</th>
+              <th class="px-4 py-3">Shares</th>
+              <th class="px-4 py-3 text-right">Calculator</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-[#30363d] text-gray-200">
@@ -254,40 +258,60 @@ def generate_site():
       </div>
     </div>
 
-    <!-- Section 2: Simple Instant Calculator -->
-    <div class="card rounded-xl p-5 border-cyan-500/40">
+    <!-- Section 2: Direct Investment Amount & Shares Calculator -->
+    <div class="card rounded-xl p-5 border-cyan-500/40 shadow-lg">
       <div class="flex items-center gap-2 border-b border-[#30363d] pb-3 mb-4">
         <i data-lucide="calculator" class="w-5 h-5 text-cyan-400"></i>
         <div>
-          <h3 class="text-base font-bold text-white">Direct Trade Calculator</h3>
-          <p class="text-xs text-gray-400">Enter Buy Price & Quantity to see exact Stop Loss & Targets</p>
+          <h3 class="text-base font-bold text-white">Investment & Position Size Calculator</h3>
+          <p class="text-xs text-gray-400">Enter your Total Investment Amount or Stock Buy Price to calculate exact shares and levels</p>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <!-- Input 1: Buy Price -->
         <div>
-          <label class="block text-xs text-gray-400 mb-1">Buy Price (₹)</label>
-          <input type="number" id="calcPrice" step="0.05" value="1250.00" oninput="calculateLevels()" class="w-full bg-[#0d1117] border border-[#30363d] focus:border-cyan-400 rounded-lg p-2.5 text-white mono font-bold outline-none">
+          <label class="block text-xs text-gray-400 mb-1 font-semibold">Stock Buy Price (₹)</label>
+          <input type="number" id="calcPrice" step="0.05" value="1250.00" oninput="onPriceOrInvestmentChange()" class="w-full bg-[#0d1117] border border-[#30363d] focus:border-cyan-400 rounded-lg p-2.5 text-white mono font-bold text-base outline-none">
         </div>
 
+        <!-- Input 2: Total Investment Amount -->
         <div>
-          <label class="block text-xs text-gray-400 mb-1">Quantity (Shares)</label>
-          <input type="number" id="calcQty" value="16" oninput="calculateLevels()" class="w-full bg-[#0d1117] border border-[#30363d] focus:border-cyan-400 rounded-lg p-2.5 text-white mono font-bold outline-none">
+          <label class="block text-xs text-cyan-400 mb-1 font-semibold">Total Amount to Invest (₹)</label>
+          <input type="number" id="calcInvestment" step="1000" value="20000" oninput="onInvestmentChange()" class="w-full bg-[#0d1117] border border-cyan-500/50 focus:border-cyan-400 rounded-lg p-2.5 text-cyan-300 mono font-bold text-base outline-none">
         </div>
 
-        <div class="md:col-span-2 grid grid-cols-3 gap-2 bg-[#0d1117] p-2.5 rounded-lg border border-[#30363d] mono text-center">
-          <div>
-            <span class="text-[10px] text-rose-400 block font-sans">STOP LOSS (-2%)</span>
-            <div id="outSL" class="text-sm font-bold text-rose-400">₹1,225.00</div>
-          </div>
-          <div>
-            <span class="text-[10px] text-emerald-400 block font-sans">TARGET 1 (+3%)</span>
-            <div id="outT1" class="text-sm font-bold text-emerald-400">₹1,287.50</div>
-          </div>
-          <div>
-            <span class="text-[10px] text-cyan-400 block font-sans">TARGET 2 (+5%)</span>
-            <div id="outT2" class="text-sm font-bold text-cyan-400">₹1,312.50</div>
-          </div>
+        <!-- Input 3: Quantity (Shares) -->
+        <div>
+          <label class="block text-xs text-gray-400 mb-1 font-semibold">Quantity (Shares to Buy)</label>
+          <input type="number" id="calcQty" value="16" oninput="onQtyChange()" class="w-full bg-[#0d1117] border border-[#30363d] focus:border-cyan-400 rounded-lg p-2.5 text-white mono font-bold text-base outline-none">
+        </div>
+      </div>
+
+      <!-- Results Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#0d1117] p-3.5 rounded-xl border border-[#30363d] mono text-center">
+        <div class="p-2 bg-[#161b22] rounded-lg border border-[#30363d]">
+          <span class="text-[11px] text-gray-400 block font-sans">TOTAL INVESTED</span>
+          <div id="outTotalInvested" class="text-base font-bold text-white mt-0.5">₹20,000</div>
+          <span id="outShareCount" class="text-[10px] text-gray-500 font-sans block">16 shares</span>
+        </div>
+
+        <div class="p-2 bg-[#161b22] rounded-lg border border-[#30363d]">
+          <span class="text-[11px] text-rose-400 block font-sans">STOP LOSS (-2%)</span>
+          <div id="outSL" class="text-base font-bold text-rose-400 mt-0.5">₹1,225.00</div>
+          <span id="outRiskAmt" class="text-[10px] text-rose-300/80 font-sans block">Loss: -₹400</span>
+        </div>
+
+        <div class="p-2 bg-[#161b22] rounded-lg border border-[#30363d]">
+          <span class="text-[11px] text-emerald-400 block font-sans">TARGET 1 (+3%)</span>
+          <div id="outT1" class="text-base font-bold text-emerald-400 mt-0.5">₹1,287.50</div>
+          <span id="outProfitT1" class="text-[10px] text-emerald-300/80 font-sans block">Profit: +₹600</span>
+        </div>
+
+        <div class="p-2 bg-[#161b22] rounded-lg border border-[#30363d]">
+          <span class="text-[11px] text-cyan-400 block font-sans">TARGET 2 (+5%)</span>
+          <div id="outT2" class="text-base font-bold text-cyan-400 mt-0.5">₹1,312.50</div>
+          <span id="outProfitT2" class="text-[10px] text-cyan-300/80 font-sans block">Profit: +₹1,000</span>
         </div>
       </div>
     </div>
@@ -382,8 +406,9 @@ def generate_site():
   </main>
 
   <!-- Simple Footer -->
-  <footer class="border-t border-[#30363d] py-4 text-center text-xs text-gray-500">
-    <p>NSE Intraday Terminal — Quantitative Outperformance Engine</p>
+  <footer class="border-t border-[#30363d] py-5 text-center text-xs text-gray-500 space-y-1">
+    <p class="text-gray-400 font-medium">NSE Intraday Breakout Terminal — Developed by Sanket Patel</p>
+    <p>Data provided for quantitative intraday research. Always trade with strict risk management.</p>
   </footer>
 
   <script>
@@ -391,25 +416,63 @@ def generate_site():
 
     function setCalculator(price, qty) {
       document.getElementById('calcPrice').value = price;
-      document.getElementById('calcQty').value = qty;
-      calculateLevels();
+      const invest = parseFloat(document.getElementById('calcInvestment').value) || 20000;
+      const p = parseFloat(price) || 1;
+      const shares = Math.max(1, Math.floor(invest / p));
+      document.getElementById('calcQty').value = shares;
+      updateCalculations(p, shares);
       window.scrollTo({ top: 220, behavior: 'smooth' });
     }
 
-    function calculateLevels() {
+    function onInvestmentChange() {
+      const invest = parseFloat(document.getElementById('calcInvestment').value) || 0;
+      const price = parseFloat(document.getElementById('calcPrice').value) || 1;
+      if (price > 0 && invest > 0) {
+        const shares = Math.max(1, Math.floor(invest / price));
+        document.getElementById('calcQty').value = shares;
+        updateCalculations(price, shares);
+      }
+    }
+
+    function onQtyChange() {
       const price = parseFloat(document.getElementById('calcPrice').value) || 0;
-      if (price <= 0) return;
+      const qty = parseInt(document.getElementById('calcQty').value) || 1;
+      if (price > 0 && qty > 0) {
+        document.getElementById('calcInvestment').value = Math.round(price * qty);
+        updateCalculations(price, qty);
+      }
+    }
+
+    function onPriceOrInvestmentChange() {
+      onInvestmentChange();
+    }
+
+    function updateCalculations(price, qty) {
+      if (price <= 0 || qty <= 0) return;
 
       const sl = price * 0.98;
       const t1 = price * 1.03;
       const t2 = price * 1.05;
+      const totalInvested = price * qty;
+      const maxLoss = (price - sl) * qty;
+      const profitT1 = (t1 - price) * qty;
+      const profitT2 = (t2 - price) * qty;
+
+      document.getElementById('outTotalInvested').innerText = '₹' + Math.round(totalInvested).toLocaleString('en-IN');
+      document.getElementById('outShareCount').innerText = qty + ' shares';
 
       document.getElementById('outSL').innerText = '₹' + sl.toFixed(2);
+      document.getElementById('outRiskAmt').innerText = 'Loss: -₹' + Math.round(maxLoss).toLocaleString('en-IN');
+
       document.getElementById('outT1').innerText = '₹' + t1.toFixed(2);
+      document.getElementById('outProfitT1').innerText = 'Profit: +₹' + Math.round(profitT1).toLocaleString('en-IN');
+
       document.getElementById('outT2').innerText = '₹' + t2.toFixed(2);
+      document.getElementById('outProfitT2').innerText = 'Profit: +₹' + Math.round(profitT2).toLocaleString('en-IN');
     }
 
-    calculateLevels();
+    // Initial run
+    onInvestmentChange();
   </script>
 </body>
 </html>
@@ -418,7 +481,7 @@ def generate_site():
     with open(os.path.join(docs_dir, 'index.html'), 'w', encoding='utf-8') as f:
         f.write(html_content)
 
-    print(f"Simple, professional website generated successfully in {docs_dir}/index.html")
+    print(f"Website generated successfully in {docs_dir}/index.html")
     return True
 
 if __name__ == '__main__':
