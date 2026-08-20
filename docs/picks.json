@@ -12,7 +12,7 @@
     "day_low": 179.87,
     "day_close": 188.75,
     "exit_price": 190.29,
-    "outcome": "\ud83d\udfe2 HIT TARGET 2 (+5.0%)",
+    "outcome": "HIT TARGET 2 (+5%)",
     "pnl": 995.5
   },
   {
@@ -28,7 +28,7 @@
     "day_low": 1156.6,
     "day_close": 1164.4,
     "exit_price": 1161.1,
-    "outcome": "\ud83d\udd34 HIT STOP LOSS (-2.0%)",
+    "outcome": "HIT STOP LOSS (-2%)",
     "pnl": -379.2
   },
   {
@@ -44,7 +44,7 @@
     "day_low": 80.43,
     "day_close": 81.05,
     "exit_price": 81.05,
-    "outcome": "\u26aa CLOSED AT 03:15 PM",
+    "outcome": "CLOSED AT 03:15 PM",
     "pnl": -153.72
   },
   {
@@ -60,7 +60,7 @@
     "day_low": 944.15,
     "day_close": 949.75,
     "exit_price": 949.75,
-    "outcome": "\u26aa CLOSED AT 03:15 PM",
+    "outcome": "CLOSED AT 03:15 PM",
     "pnl": -18.9
   },
   {
@@ -76,7 +76,7 @@
     "day_low": 1882.9,
     "day_close": 1912.0,
     "exit_price": 1942.75,
-    "outcome": "\ud83d\udd34 HIT STOP LOSS (-2.0%)",
+    "outcome": "HIT STOP LOSS (-2%)",
     "pnl": -396.5
   }
 ]
