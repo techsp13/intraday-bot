@@ -8,12 +8,12 @@
     "target2": 2081.52,
     "qty": 10,
     "rs": 10.4,
-    "day_high": 2039.5,
-    "day_low": 1922.3,
-    "day_close": 1930.0,
-    "exit_price": 1942.75,
-    "outcome": "\ud83d\udd34 HIT STOP LOSS (-2.0%)",
-    "pnl": -396.5
+    "day_high": 1982.4,
+    "day_low": 1982.4,
+    "day_close": 1982.4,
+    "exit_price": 1982.4,
+    "outcome": "\ud83d\udfe1 OPEN / ACTIVE",
+    "pnl": 0.0
   },
   {
     "symbol": "WELSPUNLIV",
