@@ -1,10 +1,11 @@
 """
-Clean, Simple & Professional Web Dashboard Generator for NSE Intraday Stock Pick Bot.
+Clean, Simple & Mobile-Optimized Web Dashboard Generator for NSE Intraday Stock Pick Bot.
+- 100% Mobile Friendly: Zero horizontal scrolling on smartphones.
+- Adaptive UI: Modern Stacked Cards on Mobile + Clean Table on Desktop.
 - Developed by Sanket Patel.
-- Interactive Investment Amount & Shares Calculator.
-- Trading Rules & Stock Selection Guide.
-- During Market Hours: Focus on Active Picks & Calculator.
-- After Market Close (03:30 PM): Displays Verified EOD Results & Realized P&L.
+- Investment Amount & Position Size Calculator.
+- Trading Rules & Selection Guide.
+- Market Close Results & P&L reveal at 03:30 PM.
 """
 import os
 import json
@@ -14,7 +15,7 @@ import yfinance as yf
 import pandas as pd
 
 def generate_site():
-    """Generates clean docs/index.html for GitHub Pages."""
+    """Generates a 100% mobile-friendly docs/index.html for GitHub Pages."""
     docs_dir = os.path.join(os.path.dirname(__file__), 'docs')
     os.makedirs(docs_dir, exist_ok=True)
     
@@ -136,7 +137,7 @@ def generate_site():
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>NSE Intraday Terminal | Developed by Sanket Patel</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -148,6 +149,7 @@ def generate_site():
       background-color: #0d1117;
       color: #e6edf3;
       font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }}
     .mono {{
       font-family: 'JetBrains Mono', monospace;
@@ -163,54 +165,104 @@ def generate_site():
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-  <!-- Header with Developer Credit -->
-  <header class="border-b border-[#30363d] bg-[#161b22]/90 sticky top-0 z-50 px-4 py-3">
-    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <div class="flex items-center space-x-3">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center font-bold text-gray-950 shadow-md">
-          <i data-lucide="trending-up" class="w-5 h-5"></i>
+  <!-- Mobile-Optimized Header -->
+  <header class="border-b border-[#30363d] bg-[#161b22]/95 sticky top-0 z-50 px-3 py-2.5 sm:px-4 sm:py-3">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center font-bold text-gray-950 shadow">
+          <i data-lucide="trending-up" class="w-4 h-4 sm:w-5 sm:h-5"></i>
         </div>
         <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-base sm:text-lg font-bold text-white">NSE Intraday Terminal</h1>
-            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">{today_date_display}</span>
+          <div class="flex items-center gap-1.5">
+            <h1 class="text-sm sm:text-base font-bold text-white leading-tight">NSE Intraday Terminal</h1>
+            <span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">{today_date_display}</span>
           </div>
-          <p class="text-xs text-cyan-400 font-medium flex items-center gap-1">
-            <span>Developed by</span>
-            <strong class="text-white font-semibold">Sanket Patel</strong>
+          <p class="text-[11px] text-cyan-400 font-medium">
+            Developed by <strong class="text-white">Sanket Patel</strong>
           </p>
         </div>
       </div>
       
-      <div class="flex items-center space-x-3 self-end sm:self-center">
-        <span class="text-xs text-gray-400 mono hidden md:inline-block">Updated: {now_formatted}</span>
-        <a href="https://t.me/sany_trader_bot" target="_blank" class="px-3.5 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow transition-colors">
-          <i data-lucide="send" class="w-3.5 h-3.5"></i> Telegram
-        </a>
-      </div>
+      <a href="https://t.me/sany_trader_bot" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center gap-1 shadow transition-colors">
+        <i data-lucide="send" class="w-3.5 h-3.5"></i> <span class="hidden xs:inline">Telegram</span>
+      </a>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="flex-1 max-w-6xl mx-auto w-full px-4 py-6 space-y-6">
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-6xl mx-auto w-full px-3 py-4 sm:px-4 sm:py-6 space-y-5">
 
-    <!-- Section 1: Morning Stock Picks Table -->
-    <div class="card rounded-xl p-5 shadow-lg">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#30363d] pb-3 mb-4">
+    <!-- Section 1: Morning Stock Picks (Responsive Cards on Mobile / Table on Desktop) -->
+    <div class="card rounded-xl p-4 sm:p-5 shadow-lg">
+      <div class="flex items-center justify-between border-b border-[#30363d] pb-3 mb-4">
         <div>
-          <h2 class="text-lg font-bold text-white flex items-center gap-2">
-            <i data-lucide="zap" class="w-5 h-5 text-amber-400"></i>
+          <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <i data-lucide="zap" class="w-4 h-4 sm:w-5 sm:h-5 text-amber-400"></i>
             Today's 08:30 AM Stock Picks
           </h2>
-          <p class="text-xs text-gray-400">Enter at 09:15 AM Market Open | Set Stop Loss & Targets</p>
+          <p class="text-[11px] sm:text-xs text-gray-400">Buy at 09:15 AM Market Open | Set Stop Loss & Targets</p>
         </div>
-        <span class="text-xs px-2.5 py-1 rounded bg-[#0d1117] text-gray-300 border border-[#30363d] mono">
-          {len(evaluated_picks)} Setups Found
+        <span class="text-[11px] px-2 py-0.5 rounded bg-[#0d1117] text-gray-300 border border-[#30363d] mono">
+          {len(evaluated_picks)} Stocks
         </span>
       </div>
 
-      <!-- Desktop Table / Mobile Responsive -->
-      <div class="overflow-x-auto">
+      <!-- MOBILE VIEW: Stacked Clean Cards (Zero Horizontal Scroll!) -->
+      <div class="block md:hidden space-y-3">
+"""
+
+    for p in evaluated_picks:
+        sym = p['symbol']
+        dirn = p['direction']
+        ent = p['entry']
+        sl = p['sl']
+        t1 = p['target1']
+        t2 = p['target2']
+        qty = p['qty']
+
+        html_content += f"""
+        <div class="bg-[#0d1117] border border-[#30363d] rounded-xl p-3.5 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <h3 class="text-lg font-bold text-white font-sans">{sym}</h3>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">{dirn}</span>
+            </div>
+            <button onclick="setCalculator('{ent}', '{qty}')" class="px-3 py-1 rounded bg-[#21262d] hover:bg-cyan-600 text-cyan-400 hover:text-white text-xs font-semibold flex items-center gap-1 transition-colors">
+              <i data-lucide="calculator" class="w-3 h-3"></i> Calculate
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 bg-[#161b22] p-2.5 rounded-lg mono text-xs">
+            <div>
+              <span class="text-[10px] text-gray-400 block font-sans">Buy Price</span>
+              <span class="text-white font-bold text-sm">₹{ent:,.2f}</span>
+            </div>
+            <div>
+              <span class="text-[10px] text-rose-400 block font-sans">Stop Loss (-2%)</span>
+              <span class="text-rose-400 font-bold text-sm">₹{sl:,.2f}</span>
+            </div>
+            <div>
+              <span class="text-[10px] text-emerald-400 block font-sans">Target 1 (+3%)</span>
+              <span class="text-emerald-400 font-bold text-sm">₹{t1:,.2f}</span>
+            </div>
+            <div>
+              <span class="text-[10px] text-cyan-400 block font-sans">Target 2 (+5%)</span>
+              <span class="text-cyan-400 font-bold text-sm">₹{t2:,.2f}</span>
+            </div>
+          </div>
+          
+          <div class="flex items-center justify-between text-[11px] text-gray-400 mono pt-1 border-t border-[#30363d]/60">
+            <span>Recommended Qty: <strong class="text-white">{qty} shares</strong></span>
+            <span>Est. Cost: <strong class="text-gray-300">₹{int(ent*qty):,}</strong></span>
+          </div>
+        </div>
+"""
+
+    html_content += f"""
+      </div>
+
+      <!-- DESKTOP VIEW: Full Wide Table -->
+      <div class="hidden md:block overflow-x-auto">
         <table class="w-full text-left text-xs mono">
           <thead class="bg-[#0d1117] text-gray-400 uppercase text-[11px] border-b border-[#30363d]">
             <tr>
@@ -260,16 +312,16 @@ def generate_site():
     </div>
 
     <!-- Section 2: Direct Investment Amount & Shares Calculator -->
-    <div class="card rounded-xl p-5 border-cyan-500/40 shadow-lg">
+    <div class="card rounded-xl p-4 sm:p-5 border-cyan-500/40 shadow-lg">
       <div class="flex items-center gap-2 border-b border-[#30363d] pb-3 mb-4">
         <i data-lucide="calculator" class="w-5 h-5 text-cyan-400"></i>
         <div>
-          <h3 class="text-base font-bold text-white">Investment & Position Size Calculator</h3>
-          <p class="text-xs text-gray-400">Enter your Total Investment Amount or Stock Buy Price to calculate exact shares and levels</p>
+          <h3 class="text-sm sm:text-base font-bold text-white">Investment & Position Size Calculator</h3>
+          <p class="text-[11px] sm:text-xs text-gray-400">Enter your Total Investment Amount to find exact shares & levels</p>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
         <!-- Input 1: Buy Price -->
         <div>
           <label class="block text-xs text-gray-400 mb-1 font-semibold">Stock Buy Price (₹)</label>
@@ -289,54 +341,54 @@ def generate_site():
         </div>
       </div>
 
-      <!-- Results Grid -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#0d1117] p-3.5 rounded-xl border border-[#30363d] mono text-center">
+      <!-- Mobile-Friendly 2x2 Grid Output -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-[#0d1117] p-3 rounded-xl border border-[#30363d] mono text-center">
         <div class="p-2 bg-[#161b22] rounded-lg border border-[#30363d]">
-          <span class="text-[11px] text-gray-400 block font-sans">TOTAL INVESTED</span>
-          <div id="outTotalInvested" class="text-base font-bold text-white mt-0.5">₹20,000</div>
+          <span class="text-[10px] sm:text-[11px] text-gray-400 block font-sans">TOTAL INVESTED</span>
+          <div id="outTotalInvested" class="text-sm sm:text-base font-bold text-white mt-0.5">₹20,000</div>
           <span id="outShareCount" class="text-[10px] text-gray-500 font-sans block">16 shares</span>
         </div>
 
         <div class="p-2 bg-[#161b22] rounded-lg border border-[#30363d]">
-          <span class="text-[11px] text-rose-400 block font-sans">STOP LOSS (-2%)</span>
-          <div id="outSL" class="text-base font-bold text-rose-400 mt-0.5">₹1,225.00</div>
+          <span class="text-[10px] sm:text-[11px] text-rose-400 block font-sans">STOP LOSS (-2%)</span>
+          <div id="outSL" class="text-sm sm:text-base font-bold text-rose-400 mt-0.5">₹1,225.00</div>
           <span id="outRiskAmt" class="text-[10px] text-rose-300/80 font-sans block">Loss: -₹400</span>
         </div>
 
         <div class="p-2 bg-[#161b22] rounded-lg border border-[#30363d]">
-          <span class="text-[11px] text-emerald-400 block font-sans">TARGET 1 (+3%)</span>
-          <div id="outT1" class="text-base font-bold text-emerald-400 mt-0.5">₹1,287.50</div>
+          <span class="text-[10px] sm:text-[11px] text-emerald-400 block font-sans">TARGET 1 (+3%)</span>
+          <div id="outT1" class="text-sm sm:text-base font-bold text-emerald-400 mt-0.5">₹1,287.50</div>
           <span id="outProfitT1" class="text-[10px] text-emerald-300/80 font-sans block">Profit: +₹600</span>
         </div>
 
         <div class="p-2 bg-[#161b22] rounded-lg border border-[#30363d]">
-          <span class="text-[11px] text-cyan-400 block font-sans">TARGET 2 (+5%)</span>
-          <div id="outT2" class="text-base font-bold text-cyan-400 mt-0.5">₹1,312.50</div>
+          <span class="text-[10px] sm:text-[11px] text-cyan-400 block font-sans">TARGET 2 (+5%)</span>
+          <div id="outT2" class="text-sm sm:text-base font-bold text-cyan-400 mt-0.5">₹1,312.50</div>
           <span id="outProfitT2" class="text-[10px] text-cyan-300/80 font-sans block">Profit: +₹1,000</span>
         </div>
       </div>
     </div>
 
     <!-- Section 3: Trading Rules & Stock Selection Guide -->
-    <div class="card rounded-xl p-5 shadow-lg border-emerald-500/30">
+    <div class="card rounded-xl p-4 sm:p-5 shadow-lg border-emerald-500/30">
       <div class="flex items-center gap-2 border-b border-[#30363d] pb-3 mb-4">
         <i data-lucide="book-open" class="w-5 h-5 text-emerald-400"></i>
         <div>
-          <h3 class="text-base font-bold text-white">How to Trade & Select the Best Stocks</h3>
-          <p class="text-xs text-gray-400">Simple 4-step rules to pick winning setups and protect capital</p>
+          <h3 class="text-sm sm:text-base font-bold text-white">How to Trade & Select the Best Stocks</h3>
+          <p class="text-[11px] sm:text-xs text-gray-400">Simple 4-step rules to pick winning setups and protect capital</p>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
         
-        <!-- Left: How to Pick the Best Stock -->
-        <div class="space-y-3 bg-[#0d1117] p-4 rounded-xl border border-[#30363d]">
-          <h4 class="font-bold text-white text-sm flex items-center gap-2 text-cyan-400">
+        <!-- How to Pick the Best Stock -->
+        <div class="space-y-2.5 bg-[#0d1117] p-3.5 rounded-xl border border-[#30363d]">
+          <h4 class="font-bold text-cyan-400 text-xs sm:text-sm flex items-center gap-1.5">
             <i data-lucide="check-circle" class="w-4 h-4 text-cyan-400"></i>
             How to Choose from the 4-5 Stocks:
           </h4>
           
-          <div class="space-y-2 text-gray-300">
+          <div class="space-y-2 text-gray-300 text-[11px] sm:text-xs">
             <div class="flex items-start gap-2">
               <span class="font-bold text-emerald-400 shrink-0">1.</span>
               <p><strong class="text-white">Buy Only Green Openers:</strong> At 09:15 AM, check which stocks open in <span class="text-emerald-400 font-semibold">GREEN</span> (ticking higher than open). Avoid stocks that open Red.</p>
@@ -349,19 +401,19 @@ def generate_site():
 
             <div class="flex items-start gap-2">
               <span class="font-bold text-cyan-400 shrink-0">3.</span>
-              <p><strong class="text-white">Split into Top 2 Stocks:</strong> Instead of 1 stock, divide your budget equally into the top 2 green stocks to catch big +5% runner trends.</p>
+              <p><strong class="text-white">Split into Top 2 Stocks:</strong> Divide your budget equally into the top 2 green stocks to catch big +5% runner trends.</p>
             </div>
           </div>
         </div>
 
-        <!-- Right: Execution & Risk Management Rules -->
-        <div class="space-y-3 bg-[#0d1117] p-4 rounded-xl border border-[#30363d]">
-          <h4 class="font-bold text-white text-sm flex items-center gap-2 text-emerald-400">
+        <!-- Execution & Risk Management Rules -->
+        <div class="space-y-2.5 bg-[#0d1117] p-3.5 rounded-xl border border-[#30363d]">
+          <h4 class="font-bold text-emerald-400 text-xs sm:text-sm flex items-center gap-1.5">
             <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
             Execution & Risk Rules:
           </h4>
           
-          <div class="space-y-2 text-gray-300">
+          <div class="space-y-2 text-gray-300 text-[11px] sm:text-xs">
             <div class="flex items-start gap-2">
               <span class="font-bold text-emerald-400 shrink-0">A.</span>
               <p><strong class="text-white">09:15 AM Entry:</strong> Place market or limit orders at open. Calculate quantity using the calculator above.</p>
@@ -383,26 +435,74 @@ def generate_site():
     </div>
 
     <!-- Section 4: Market Close Results (Reveals at 03:30 PM) -->
-    <div class="card rounded-xl p-5">
+    <div class="card rounded-xl p-4 sm:p-5">
       <div class="flex items-center justify-between border-b border-[#30363d] pb-3 mb-4">
         <div>
-          <h3 class="text-base font-bold text-white flex items-center gap-2">
-            <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400"></i>
-            Market Close Results & Profit/Loss ({today_date_display})
+          <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+            <i data-lucide="check-circle-2" class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400"></i>
+            Market Close Results & P&L ({today_date_display})
           </h3>
-          <p class="text-xs text-gray-400">Official intraday closing results updated daily at 03:30 PM IST</p>
+          <p class="text-[11px] sm:text-xs text-gray-400">Official intraday closing results updated daily at 03:30 PM IST</p>
         </div>
 """
 
     if is_market_closed:
         html_content += f"""
         <div class="text-right">
-          <span class="text-xs text-gray-400 block">Total Net P&L</span>
-          <span class="text-xl font-bold {total_pnl_color} mono">{total_pnl_sign}₹{total_day_pnl:,.2f}</span>
+          <span class="text-[10px] sm:text-xs text-gray-400 block">Total Net P&L</span>
+          <span class="text-base sm:text-xl font-bold {total_pnl_color} mono">{total_pnl_sign}₹{total_day_pnl:,.2f}</span>
         </div>
       </div>
 
-      <div class="overflow-x-auto">
+      <!-- Mobile Result Cards -->
+      <div class="block md:hidden space-y-2.5">
+"""
+        for p in evaluated_picks:
+            sym = p['symbol']
+            qty = p['qty']
+            ent = p['entry']
+            high = p['day_high']
+            low = p['day_low']
+            exit_p = p['exit_price']
+            out = p['outcome']
+            pnl = p['pnl']
+            
+            pnl_color = "text-emerald-400 font-bold" if pnl >= 0 else "text-rose-400 font-bold"
+            pnl_sign = "+" if pnl >= 0 else ""
+            badge = "text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-semibold text-[10px]" if "TARGET" in out else ("text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded font-semibold text-[10px]" if "LOSS" in out else "text-gray-300 bg-gray-800 px-2 py-0.5 rounded text-[10px]")
+
+            html_content += f"""
+        <div class="bg-[#0d1117] border border-[#30363d] rounded-xl p-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-white text-base font-sans">{sym}</h4>
+            <span class="{badge}">{out}</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 bg-[#161b22] p-2 rounded-lg mono text-[11px] text-center">
+            <div>
+              <span class="text-[9px] text-gray-400 block font-sans">Buy Price</span>
+              <span class="text-white font-semibold">₹{ent:,.2f}</span>
+            </div>
+            <div>
+              <span class="text-[9px] text-amber-300 block font-sans">Exit Price</span>
+              <span class="text-amber-300 font-bold">₹{exit_p:,.2f}</span>
+            </div>
+            <div>
+              <span class="text-[9px] text-gray-400 block font-sans">Net P&L</span>
+              <span class="{pnl_color} text-xs">{pnl_sign}₹{pnl:,.2f}</span>
+            </div>
+          </div>
+          <div class="flex justify-between text-[10px] text-gray-400 mono">
+            <span>Range: Low ₹{low:,.2f} / High ₹{high:,.2f}</span>
+            <span>Qty: {qty}</span>
+          </div>
+        </div>
+"""
+
+        html_content += f"""
+      </div>
+
+      <!-- Desktop Wide Table -->
+      <div class="hidden md:block overflow-x-auto">
         <table class="w-full text-left text-xs mono">
           <thead class="bg-[#0d1117] text-gray-400 uppercase text-[11px] border-b border-[#30363d]">
             <tr>
@@ -459,10 +559,10 @@ def generate_site():
     else:
         html_content += """
       </div>
-      <div class="text-center py-8 text-gray-400 space-y-2">
-        <i data-lucide="clock" class="w-8 h-8 mx-auto text-amber-400 mb-2"></i>
-        <p class="text-sm font-medium text-white">Market is currently LIVE</p>
-        <p class="text-xs text-gray-500">Official trade results and profit/loss calculation will appear automatically at 03:30 PM IST after market close.</p>
+      <div class="text-center py-6 sm:py-8 text-gray-400 space-y-2">
+        <i data-lucide="clock" class="w-7 h-7 sm:w-8 sm:h-8 mx-auto text-amber-400 mb-1"></i>
+        <p class="text-xs sm:text-sm font-medium text-white">Market is currently LIVE</p>
+        <p class="text-[11px] sm:text-xs text-gray-500">Official trade results and profit/loss calculation will appear automatically at 03:30 PM IST after market close.</p>
       </div>
 """
 
@@ -472,7 +572,7 @@ def generate_site():
   </main>
 
   <!-- Simple Footer -->
-  <footer class="border-t border-[#30363d] py-5 text-center text-xs text-gray-500 space-y-1">
+  <footer class="border-t border-[#30363d] py-4 text-center text-[11px] text-gray-500 space-y-0.5 px-3">
     <p class="text-gray-400 font-medium">NSE Intraday Breakout Terminal — Developed by Sanket Patel</p>
     <p>Data provided for quantitative intraday research. Always trade with strict risk management.</p>
   </footer>
@@ -487,7 +587,7 @@ def generate_site():
       const shares = Math.max(1, Math.floor(invest / p));
       document.getElementById('calcQty').value = shares;
       updateCalculations(p, shares);
-      window.scrollTo({ top: 220, behavior: 'smooth' });
+      window.scrollTo({ top: 280, behavior: 'smooth' });
     }
 
     function onInvestmentChange() {
@@ -547,7 +647,7 @@ def generate_site():
     with open(os.path.join(docs_dir, 'index.html'), 'w', encoding='utf-8') as f:
         f.write(html_content)
 
-    print(f"Website with Rules section generated successfully in {docs_dir}/index.html")
+    print(f"100% Mobile-Friendly website generated successfully in {docs_dir}/index.html")
     return True
 
 if __name__ == '__main__':
