@@ -49,7 +49,7 @@
       </div>
       
       <div class="flex items-center space-x-3 self-end sm:self-center">
-        <span class="text-xs text-gray-400 mono hidden md:inline-block">Updated: 20-Aug-2026 07:00 PM IST</span>
+        <span class="text-xs text-gray-400 mono hidden md:inline-block">Updated: 20-Aug-2026 07:03 PM IST</span>
         <a href="https://t.me/sany_trader_bot" target="_blank" class="px-3.5 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow transition-colors">
           <i data-lucide="send" class="w-3.5 h-3.5"></i> Telegram
         </a>
@@ -230,7 +230,72 @@
       </div>
     </div>
 
-    <!-- Section 3: Market Close Results (Reveals at 03:30 PM) -->
+    <!-- Section 3: Trading Rules & Stock Selection Guide -->
+    <div class="card rounded-xl p-5 shadow-lg border-emerald-500/30">
+      <div class="flex items-center gap-2 border-b border-[#30363d] pb-3 mb-4">
+        <i data-lucide="book-open" class="w-5 h-5 text-emerald-400"></i>
+        <div>
+          <h3 class="text-base font-bold text-white">How to Trade & Select the Best Stocks</h3>
+          <p class="text-xs text-gray-400">Simple 4-step rules to pick winning setups and protect capital</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
+        
+        <!-- Left: How to Pick the Best Stock -->
+        <div class="space-y-3 bg-[#0d1117] p-4 rounded-xl border border-[#30363d]">
+          <h4 class="font-bold text-white text-sm flex items-center gap-2 text-cyan-400">
+            <i data-lucide="check-circle" class="w-4 h-4 text-cyan-400"></i>
+            How to Choose from the 4-5 Stocks:
+          </h4>
+          
+          <div class="space-y-2 text-gray-300">
+            <div class="flex items-start gap-2">
+              <span class="font-bold text-emerald-400 shrink-0">1.</span>
+              <p><strong class="text-white">Buy Only Green Openers:</strong> At 09:15 AM, check which stocks open in <span class="text-emerald-400 font-semibold">GREEN</span> (ticking higher than open). Avoid stocks that open Red.</p>
+            </div>
+
+            <div class="flex items-start gap-2">
+              <span class="font-bold text-amber-400 shrink-0">2.</span>
+              <p><strong class="text-white">Skip Big Gap-Ups (> +2%):</strong> If a stock opens +2% higher, skip it to avoid morning profit-taking pullbacks. Look for flat or small (+0.5% to +1%) opens.</p>
+            </div>
+
+            <div class="flex items-start gap-2">
+              <span class="font-bold text-cyan-400 shrink-0">3.</span>
+              <p><strong class="text-white">Split into Top 2 Stocks:</strong> Instead of 1 stock, divide your budget equally into the top 2 green stocks to catch big +5% runner trends.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Execution & Risk Management Rules -->
+        <div class="space-y-3 bg-[#0d1117] p-4 rounded-xl border border-[#30363d]">
+          <h4 class="font-bold text-white text-sm flex items-center gap-2 text-emerald-400">
+            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+            Execution & Risk Rules:
+          </h4>
+          
+          <div class="space-y-2 text-gray-300">
+            <div class="flex items-start gap-2">
+              <span class="font-bold text-emerald-400 shrink-0">A.</span>
+              <p><strong class="text-white">09:15 AM Entry:</strong> Place market or limit orders at open. Calculate quantity using the calculator above.</p>
+            </div>
+
+            <div class="flex items-start gap-2">
+              <span class="font-bold text-rose-400 shrink-0">B.</span>
+              <p><strong class="text-white">Strict 2.0% Stop Loss:</strong> Always place your SL order immediately. Never hold below -2% (capital protection).</p>
+            </div>
+
+            <div class="flex items-start gap-2">
+              <span class="font-bold text-purple-400 shrink-0">C.</span>
+              <p><strong class="text-white">03:15 PM Square-off:</strong> Exit all remaining open positions before 03:30 PM. 100% intraday with zero overnight risk.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Section 4: Market Close Results (Reveals at 03:30 PM) -->
     <div class="card rounded-xl p-5">
       <div class="flex items-center justify-between border-b border-[#30363d] pb-3 mb-4">
         <div>
