@@ -1,21 +1,5 @@
 [
   {
-    "symbol": "ZENTEC",
-    "direction": "LONG",
-    "entry": 1982.4,
-    "sl": 1942.75,
-    "target1": 2041.88,
-    "target2": 2081.52,
-    "qty": 10,
-    "rs": 10.4,
-    "day_high": 1982.4,
-    "day_low": 1982.4,
-    "day_close": 1982.4,
-    "exit_price": 1982.4,
-    "outcome": "\ud83d\udfe1 OPEN / ACTIVE",
-    "pnl": 0.0
-  },
-  {
     "symbol": "WELSPUNLIV",
     "direction": "LONG",
     "entry": 181.24,
@@ -24,12 +8,12 @@
     "target2": 190.29,
     "qty": 110,
     "rs": 11.15,
-    "day_high": 181.87,
-    "day_low": 172.6,
-    "day_close": 181.24,
-    "exit_price": 177.62,
-    "outcome": "\ud83d\udd34 HIT STOP LOSS (-2.0%)",
-    "pnl": -398.2
+    "day_high": 191.35,
+    "day_low": 179.87,
+    "day_close": 188.75,
+    "exit_price": 190.29,
+    "outcome": "\ud83d\udfe2 HIT TARGET 2 (+5.0%)",
+    "pnl": 995.5
   },
   {
     "symbol": "ACE",
@@ -40,9 +24,9 @@
     "target2": 1244.05,
     "qty": 16,
     "rs": 11.85,
-    "day_high": 1196.0,
-    "day_low": 1160.0,
-    "day_close": 1181.2,
+    "day_high": 1186.7,
+    "day_low": 1156.6,
+    "day_close": 1164.4,
     "exit_price": 1161.1,
     "outcome": "\ud83d\udd34 HIT STOP LOSS (-2.0%)",
     "pnl": -379.2
@@ -56,12 +40,12 @@
     "target2": 85.76,
     "qty": 244,
     "rs": 12.58,
-    "day_high": 84.08,
-    "day_low": 81.0,
-    "day_close": 81.45,
-    "exit_price": 81.45,
+    "day_high": 82.5,
+    "day_low": 80.43,
+    "day_close": 81.05,
+    "exit_price": 81.05,
     "outcome": "\u26aa CLOSED AT 03:15 PM",
-    "pnl": -56.12
+    "pnl": -153.72
   },
   {
     "symbol": "JYOTICNC",
@@ -72,11 +56,27 @@
     "target2": 998.18,
     "qty": 21,
     "rs": 17.56,
-    "day_high": 962.0,
-    "day_low": 913.0,
-    "day_close": 950.65,
-    "exit_price": 931.64,
+    "day_high": 965.05,
+    "day_low": 944.15,
+    "day_close": 949.75,
+    "exit_price": 949.75,
+    "outcome": "\u26aa CLOSED AT 03:15 PM",
+    "pnl": -18.9
+  },
+  {
+    "symbol": "ZENTEC",
+    "direction": "LONG",
+    "entry": 1982.4,
+    "sl": 1942.75,
+    "target1": 2041.88,
+    "target2": 2081.52,
+    "qty": 10,
+    "rs": 10.4,
+    "day_high": 1944.7,
+    "day_low": 1882.9,
+    "day_close": 1912.0,
+    "exit_price": 1942.75,
     "outcome": "\ud83d\udd34 HIT STOP LOSS (-2.0%)",
-    "pnl": -399.21
+    "pnl": -396.5
   }
 ]

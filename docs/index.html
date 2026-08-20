@@ -60,7 +60,7 @@
       <div class="flex items-center space-x-3">
         <div class="hidden md:flex items-center gap-2 text-xs font-mono text-gray-400 bg-gray-950 px-3 py-1.5 rounded-lg border border-gray-800">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>20-Aug-2026 08:47 AM IST</span>
+          <span>20-Aug-2026 06:52 PM IST</span>
         </div>
         <a href="https://t.me/sany_trader_bot" target="_blank" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold shadow-md shadow-cyan-600/20 transition-all">
           <i data-lucide="send" class="w-3.5 h-3.5"></i>
@@ -90,8 +90,8 @@
 
         <div class="glass-card rounded-xl p-4 min-w-[220px] text-right border-gray-800 bg-gray-950/60">
           <span class="text-xs font-semibold text-gray-400 block uppercase tracking-wider">Today's Total Net P&L</span>
-          <div class="text-2xl sm:text-3xl font-mono font-extrabold text-rose-400 mt-1">
-            ₹-1,232.73
+          <div class="text-2xl sm:text-3xl font-mono font-extrabold text-emerald-400 mt-1">
+            +₹47.18
           </div>
           <span class="text-[11px] text-gray-500 font-mono">100% Intraday MIS Realized</span>
         </div>
@@ -188,43 +188,6 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-
-        <div class="glass-card rounded-2xl p-5 relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
-          <div class="flex items-start justify-between mb-3">
-            <div>
-              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">LONG</span>
-              <h4 class="text-2xl font-mono font-extrabold text-white mt-1">ZENTEC</h4>
-            </div>
-            <button onclick="setCalculator('1982.4', '10')" class="px-2.5 py-1 rounded bg-gray-800 hover:bg-cyan-600 text-gray-300 hover:text-white text-[11px] font-semibold transition-all flex items-center gap-1">
-              <i data-lucide="calculator" class="w-3 h-3"></i> Calculate
-            </button>
-          </div>
-
-          <div class="space-y-2 py-2.5 border-y border-gray-800/80 font-mono text-xs">
-            <div class="flex justify-between">
-              <span class="text-gray-400 font-sans">Actual Entry:</span>
-              <span class="text-white font-bold">₹1,982.40</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-rose-400 font-sans">Actual SL (-2%):</span>
-              <span class="text-rose-400 font-bold">₹1,942.75</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-emerald-400 font-sans">Actual T1 (+3%):</span>
-              <span class="text-emerald-400 font-bold">₹2,041.88</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-cyan-400 font-sans">Actual T2 (+5%):</span>
-              <span class="text-cyan-400 font-bold">₹2,081.52</span>
-            </div>
-          </div>
-
-          <div class="mt-3 flex items-center justify-between text-[11px] font-mono text-gray-400">
-            <span>Qty: <strong class="text-white">10</strong></span>
-            <span>RS: <strong class="text-emerald-400">+10.4%</strong></span>
-            <span>Risk: <strong class="text-rose-400">₹1,000</strong></span>
-          </div>
-        </div>
 
         <div class="glass-card rounded-2xl p-5 relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
           <div class="flex items-start justify-between mb-3">
@@ -374,6 +337,43 @@
           </div>
         </div>
 
+        <div class="glass-card rounded-2xl p-5 relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">LONG</span>
+              <h4 class="text-2xl font-mono font-extrabold text-white mt-1">ZENTEC</h4>
+            </div>
+            <button onclick="setCalculator('1982.4', '10')" class="px-2.5 py-1 rounded bg-gray-800 hover:bg-cyan-600 text-gray-300 hover:text-white text-[11px] font-semibold transition-all flex items-center gap-1">
+              <i data-lucide="calculator" class="w-3 h-3"></i> Calculate
+            </button>
+          </div>
+
+          <div class="space-y-2 py-2.5 border-y border-gray-800/80 font-mono text-xs">
+            <div class="flex justify-between">
+              <span class="text-gray-400 font-sans">Actual Entry:</span>
+              <span class="text-white font-bold">₹1,982.40</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-rose-400 font-sans">Actual SL (-2%):</span>
+              <span class="text-rose-400 font-bold">₹1,942.75</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-emerald-400 font-sans">Actual T1 (+3%):</span>
+              <span class="text-emerald-400 font-bold">₹2,041.88</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-cyan-400 font-sans">Actual T2 (+5%):</span>
+              <span class="text-cyan-400 font-bold">₹2,081.52</span>
+            </div>
+          </div>
+
+          <div class="mt-3 flex items-center justify-between text-[11px] font-mono text-gray-400">
+            <span>Qty: <strong class="text-white">10</strong></span>
+            <span>RS: <strong class="text-emerald-400">+10.4%</strong></span>
+            <span>Risk: <strong class="text-rose-400">₹1,000</strong></span>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -410,31 +410,17 @@
             <tbody class="divide-y divide-gray-800/60 text-gray-300">
 
               <tr class="hover:bg-gray-800/40 transition-colors">
-                <td class="px-4 py-3.5 font-bold text-white text-sm">ZENTEC</td>
-                <td class="px-4 py-3.5">10</td>
-                <td class="px-4 py-3.5 font-bold text-white">₹1,982.40</td>
-                <td class="px-4 py-3.5 text-rose-400 font-semibold">₹1,942.75</td>
-                <td class="px-4 py-3.5 text-emerald-400 font-semibold">₹2,041.88</td>
-                <td class="px-4 py-3.5 text-cyan-400 font-semibold">₹2,081.52</td>
-                <td class="px-4 py-3.5 text-rose-300">₹1,982.40</td>
-                <td class="px-4 py-3.5 text-emerald-300">₹1,982.40</td>
-                <td class="px-4 py-3.5 text-amber-300 font-extrabold text-sm">₹1,982.40</td>
-                <td class="px-4 py-3.5"><span class="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-bold border border-emerald-500/20">🟡 OPEN / ACTIVE</span></td>
-                <td class="px-4 py-3.5 text-right text-emerald-400 font-bold text-sm">+₹0.00</td>
-              </tr>
-
-              <tr class="hover:bg-gray-800/40 transition-colors">
                 <td class="px-4 py-3.5 font-bold text-white text-sm">WELSPUNLIV</td>
                 <td class="px-4 py-3.5">110</td>
                 <td class="px-4 py-3.5 font-bold text-white">₹181.24</td>
                 <td class="px-4 py-3.5 text-rose-400 font-semibold">₹177.62</td>
                 <td class="px-4 py-3.5 text-emerald-400 font-semibold">₹186.67</td>
                 <td class="px-4 py-3.5 text-cyan-400 font-semibold">₹190.29</td>
-                <td class="px-4 py-3.5 text-rose-300">₹172.60</td>
-                <td class="px-4 py-3.5 text-emerald-300">₹181.87</td>
-                <td class="px-4 py-3.5 text-amber-300 font-extrabold text-sm">₹177.62</td>
-                <td class="px-4 py-3.5"><span class="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-bold border border-emerald-500/20">🔴 HIT STOP LOSS (-2.0%)</span></td>
-                <td class="px-4 py-3.5 text-right text-rose-400 font-bold text-sm">₹-398.20</td>
+                <td class="px-4 py-3.5 text-rose-300">₹179.87</td>
+                <td class="px-4 py-3.5 text-emerald-300">₹191.35</td>
+                <td class="px-4 py-3.5 text-amber-300 font-extrabold text-sm">₹190.29</td>
+                <td class="px-4 py-3.5"><span class="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-bold border border-emerald-500/20">🟢 HIT TARGET 2 (+5.0%)</span></td>
+                <td class="px-4 py-3.5 text-right text-emerald-400 font-bold text-sm">+₹995.50</td>
               </tr>
 
               <tr class="hover:bg-gray-800/40 transition-colors">
@@ -444,8 +430,8 @@
                 <td class="px-4 py-3.5 text-rose-400 font-semibold">₹1,161.10</td>
                 <td class="px-4 py-3.5 text-emerald-400 font-semibold">₹1,220.35</td>
                 <td class="px-4 py-3.5 text-cyan-400 font-semibold">₹1,244.05</td>
-                <td class="px-4 py-3.5 text-rose-300">₹1,160.00</td>
-                <td class="px-4 py-3.5 text-emerald-300">₹1,196.00</td>
+                <td class="px-4 py-3.5 text-rose-300">₹1,156.60</td>
+                <td class="px-4 py-3.5 text-emerald-300">₹1,186.70</td>
                 <td class="px-4 py-3.5 text-amber-300 font-extrabold text-sm">₹1,161.10</td>
                 <td class="px-4 py-3.5"><span class="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-bold border border-emerald-500/20">🔴 HIT STOP LOSS (-2.0%)</span></td>
                 <td class="px-4 py-3.5 text-right text-rose-400 font-bold text-sm">₹-379.20</td>
@@ -458,11 +444,11 @@
                 <td class="px-4 py-3.5 text-rose-400 font-semibold">₹80.05</td>
                 <td class="px-4 py-3.5 text-emerald-400 font-semibold">₹84.12</td>
                 <td class="px-4 py-3.5 text-cyan-400 font-semibold">₹85.76</td>
-                <td class="px-4 py-3.5 text-rose-300">₹81.00</td>
-                <td class="px-4 py-3.5 text-emerald-300">₹84.08</td>
-                <td class="px-4 py-3.5 text-amber-300 font-extrabold text-sm">₹81.45</td>
+                <td class="px-4 py-3.5 text-rose-300">₹80.43</td>
+                <td class="px-4 py-3.5 text-emerald-300">₹82.50</td>
+                <td class="px-4 py-3.5 text-amber-300 font-extrabold text-sm">₹81.05</td>
                 <td class="px-4 py-3.5"><span class="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-bold border border-emerald-500/20">⚪ CLOSED AT 03:15 PM</span></td>
-                <td class="px-4 py-3.5 text-right text-rose-400 font-bold text-sm">₹-56.12</td>
+                <td class="px-4 py-3.5 text-right text-rose-400 font-bold text-sm">₹-153.72</td>
               </tr>
 
               <tr class="hover:bg-gray-800/40 transition-colors">
@@ -472,18 +458,32 @@
                 <td class="px-4 py-3.5 text-rose-400 font-semibold">₹931.64</td>
                 <td class="px-4 py-3.5 text-emerald-400 font-semibold">₹979.16</td>
                 <td class="px-4 py-3.5 text-cyan-400 font-semibold">₹998.18</td>
-                <td class="px-4 py-3.5 text-rose-300">₹913.00</td>
-                <td class="px-4 py-3.5 text-emerald-300">₹962.00</td>
-                <td class="px-4 py-3.5 text-amber-300 font-extrabold text-sm">₹931.64</td>
+                <td class="px-4 py-3.5 text-rose-300">₹944.15</td>
+                <td class="px-4 py-3.5 text-emerald-300">₹965.05</td>
+                <td class="px-4 py-3.5 text-amber-300 font-extrabold text-sm">₹949.75</td>
+                <td class="px-4 py-3.5"><span class="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-bold border border-emerald-500/20">⚪ CLOSED AT 03:15 PM</span></td>
+                <td class="px-4 py-3.5 text-right text-rose-400 font-bold text-sm">₹-18.90</td>
+              </tr>
+
+              <tr class="hover:bg-gray-800/40 transition-colors">
+                <td class="px-4 py-3.5 font-bold text-white text-sm">ZENTEC</td>
+                <td class="px-4 py-3.5">10</td>
+                <td class="px-4 py-3.5 font-bold text-white">₹1,982.40</td>
+                <td class="px-4 py-3.5 text-rose-400 font-semibold">₹1,942.75</td>
+                <td class="px-4 py-3.5 text-emerald-400 font-semibold">₹2,041.88</td>
+                <td class="px-4 py-3.5 text-cyan-400 font-semibold">₹2,081.52</td>
+                <td class="px-4 py-3.5 text-rose-300">₹1,882.90</td>
+                <td class="px-4 py-3.5 text-emerald-300">₹1,944.70</td>
+                <td class="px-4 py-3.5 text-amber-300 font-extrabold text-sm">₹1,942.75</td>
                 <td class="px-4 py-3.5"><span class="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-bold border border-emerald-500/20">🔴 HIT STOP LOSS (-2.0%)</span></td>
-                <td class="px-4 py-3.5 text-right text-rose-400 font-bold text-sm">₹-399.21</td>
+                <td class="px-4 py-3.5 text-right text-rose-400 font-bold text-sm">₹-396.50</td>
               </tr>
 
             </tbody>
             <tfoot class="bg-gray-950 font-bold text-sm border-t-2 border-gray-800">
               <tr>
                 <td colspan="10" class="px-4 py-3.5 text-right text-gray-400 font-sans">TOTAL REALIZED NET P&L TODAY:</td>
-                <td class="px-4 py-3.5 text-right text-rose-400">₹-1,232.73</td>
+                <td class="px-4 py-3.5 text-right text-emerald-400">+₹47.18</td>
               </tr>
             </tfoot>
           </table>

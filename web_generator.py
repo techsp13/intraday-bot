@@ -42,8 +42,15 @@ def generate_site():
         today_picks = [p for p in picks if p.get('date') == latest_date]
         today_str = latest_date or today_str
 
-    # Only take the morning batch (first 4-5 picks of the day)
-    today_picks = today_picks[:5]
+    # Deduplicate symbols and lock to the first 5 morning picks
+    seen_symbols = set()
+    deduped_today_picks = []
+    for p in reversed(today_picks): # Start from original 08:30 AM picks
+        sym = p.get('symbol')
+        if sym and sym not in seen_symbols:
+            seen_symbols.add(sym)
+            deduped_today_picks.append(p)
+    today_picks = list(reversed(deduped_today_picks))[:5]
 
     # Fetch live / EOD actual price outcomes for today's stocks
     total_day_pnl = 0.0
