@@ -44,7 +44,7 @@ def check_reward_risk(entry: float, sl: float, target1: float) -> bool:
     if risk <= 0:
         return False
         
-    return (reward / risk) >= config.MIN_REWARD_RISK_RATIO
+    return round(reward / risk, 2) >= 1.45
 
 class DailyRiskTracker:
     """
