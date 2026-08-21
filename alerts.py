@@ -149,18 +149,23 @@ def send_picks_batch(picks: list[dict]) -> int:
     
     for i, p in enumerate(picks, 1):
         sym = p.get('symbol', 'UNKNOWN')
-        dirn = p.get('direction', 'LONG')
+        dirn = p.get('direction', 'LONG').upper()
         ent = float(p.get('entry', 0.0))
-        sl = float(p.get('sl', round(ent * 0.98, 2)))
-        t1 = float(p.get('target1', round(ent * 1.03, 2)))
-        t2 = float(p.get('target2', round(ent * 1.05, 2)))
+        sl = float(p.get('sl', 0.0))
+        t1 = float(p.get('target1', 0.0))
+        t2 = float(p.get('target2', 0.0))
         qty = p.get('position_size', 10)
         rs = float(p.get('adx', 0.0))
         
-        msg += f"*{i}️⃣ {sym}* ({dirn})\n"
-        msg += f"▸ Entry: `₹{ent:,.2f}` | SL: `₹{sl:,.2f}` (-2%)\n"
-        msg += f"▸ T1: `₹{t1:,.2f}` (+3%) | T2: `₹{t2:,.2f}` (+5%)\n"
-        msg += f"▸ Qty: *{qty} shares* | RS: *+{rs:.1f}%*\n\n"
+        badge = "🟢 LONG (BUY)" if dirn == 'LONG' else "🔴 SHORT (SELL)"
+        sl_pct = "-2%" if dirn == 'LONG' else "+2%"
+        t1_pct = "+3%" if dirn == 'LONG' else "-3%"
+        t2_pct = "+5%" if dirn == 'LONG' else "-5%"
+        
+        msg += f"*{i}️⃣ {sym}* — {badge}\n"
+        msg += f"▸ Entry: `₹{ent:,.2f}` | SL: `₹{sl:,.2f}` ({sl_pct})\n"
+        msg += f"▸ T1: `₹{t1:,.2f}` ({t1_pct}) | T2: `₹{t2:,.2f}` ({t2_pct})\n"
+        msg += f"▸ Qty: *{qty} shares* | RS: *{rs:+.1f}%*\n\n"
         
     msg += f"━━━━━━━━━━━━━━━━━━━━━━━\n"
     msg += f"🌐 *Live Dashboard*: https://techsp13.github.io/intraday-bot/\n"

@@ -1,5 +1,6 @@
 """
 Clean, Simple & Mobile-Optimized Web Dashboard Generator for NSE Intraday Stock Pick Bot.
+- Supports both LONG (Buy) and SHORT (Sell) trades.
 - 100% Mobile Friendly: Zero horizontal scrolling on smartphones.
 - Adaptive UI: Modern Stacked Cards on Mobile + Clean Table on Desktop.
 - Developed by Sanket Patel.
@@ -63,10 +64,18 @@ def generate_site():
     for p in today_picks:
         symbol = p.get('symbol', 'STOCK')
         ticker = p.get('ticker', f"{symbol}.NS")
+        direction = p.get('direction', 'LONG').upper()
         entry = float(p.get('entry', 0.0))
-        sl = float(p.get('sl', round(entry * 0.98, 2)))
-        t1 = float(p.get('target1', round(entry * 1.03, 2)))
-        t2 = float(p.get('target2', round(entry * 1.05, 2)))
+        
+        if direction == 'LONG':
+            sl = float(p.get('sl', round(entry * 0.98, 2)))
+            t1 = float(p.get('target1', round(entry * 1.03, 2)))
+            t2 = float(p.get('target2', round(entry * 1.05, 2)))
+        else: # SHORT
+            sl = float(p.get('sl', round(entry * 1.02, 2)))
+            t1 = float(p.get('target1', round(entry * 0.97, 2)))
+            t2 = float(p.get('target2', round(entry * 0.95, 2)))
+            
         qty = int(p.get('position_size', 10))
         
         day_high, day_low, day_close = entry, entry, entry
@@ -86,29 +95,44 @@ def generate_site():
                     day_low = round(float(today_df['Low'].min()), 2)
                     day_close = round(float(today_df.iloc[-1]['Close']), 2)
                     
-                    if day_high >= t2:
-                        outcome = "HIT TARGET 2 (+5%)"
-                        exit_price = t2
-                    elif day_high >= t1:
-                        outcome = "HIT TARGET 1 (+3%)"
-                        exit_price = t1
-                    elif day_low <= sl:
-                        outcome = "HIT STOP LOSS (-2%)"
-                        exit_price = sl
-                    else:
-                        outcome = "CLOSED AT 03:15 PM"
-                        exit_price = day_close
+                    if direction == 'LONG':
+                        if day_high >= t2:
+                            outcome = "HIT TARGET 2 (+5%)"
+                            exit_price = t2
+                        elif day_high >= t1:
+                            outcome = "HIT TARGET 1 (+3%)"
+                            exit_price = t1
+                        elif day_low <= sl:
+                            outcome = "HIT STOP LOSS (-2%)"
+                            exit_price = sl
+                        else:
+                            outcome = "CLOSED AT 03:15 PM"
+                            exit_price = day_close
+                        pnl = round((exit_price - entry) * qty, 2)
+                    else: # SHORT
+                        if day_low <= t2:
+                            outcome = "HIT TARGET 2 (+5%)"
+                            exit_price = t2
+                        elif day_low <= t1:
+                            outcome = "HIT TARGET 1 (+3%)"
+                            exit_price = t1
+                        elif day_high >= sl:
+                            outcome = "HIT STOP LOSS (-2%)"
+                            exit_price = sl
+                        else:
+                            outcome = "CLOSED AT 03:15 PM"
+                            exit_price = day_close
+                        pnl = round((entry - exit_price) * qty, 2)
             except Exception:
-                pass
+                pnl = 0.0
 
-            pnl = round((exit_price - entry) * qty, 2)
             total_day_pnl += pnl
         else:
             pnl = 0.0
 
         evaluated_picks.append({
             'symbol': symbol,
-            'direction': p.get('direction', 'LONG'),
+            'direction': direction,
             'entry': entry,
             'sl': sl,
             'target1': t1,
@@ -200,7 +224,7 @@ def generate_site():
             <i data-lucide="zap" class="w-4 h-4 sm:w-5 sm:h-5 text-amber-400"></i>
             Today's 08:30 AM Stock Picks
           </h2>
-          <p class="text-[11px] sm:text-xs text-gray-400">Buy at 09:15 AM Market Open | Set Stop Loss & Targets</p>
+          <p class="text-[11px] sm:text-xs text-gray-400">Buy/Sell at 09:15 AM Market Open | Set Stop Loss & Targets</p>
         </div>
         <span class="text-[11px] px-2 py-0.5 rounded bg-[#0d1117] text-gray-300 border border-[#30363d] mono">
           {len(evaluated_picks)} Stocks
@@ -220,33 +244,38 @@ def generate_site():
         t2 = p['target2']
         qty = p['qty']
 
+        dirn_badge = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" if dirn == 'LONG' else "bg-rose-500/10 text-rose-400 border-rose-500/20"
+        sl_label = "Stop Loss (-2%)" if dirn == 'LONG' else "Stop Loss (+2%)"
+        t1_label = "Target 1 (+3%)" if dirn == 'LONG' else "Target 1 (-3%)"
+        t2_label = "Target 2 (+5%)" if dirn == 'LONG' else "Target 2 (-5%)"
+
         html_content += f"""
         <div class="bg-[#0d1117] border border-[#30363d] rounded-xl p-3.5 space-y-2.5">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <h3 class="text-lg font-bold text-white font-sans">{sym}</h3>
-              <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">{dirn}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded {dirn_badge} font-bold border">{dirn}</span>
             </div>
-            <button onclick="setCalculator('{ent}', '{qty}')" class="px-3 py-1 rounded bg-[#21262d] hover:bg-cyan-600 text-cyan-400 hover:text-white text-xs font-semibold flex items-center gap-1 transition-colors">
+            <button onclick="setCalculator('{ent}', '{qty}', '{dirn}')" class="px-3 py-1 rounded bg-[#21262d] hover:bg-cyan-600 text-cyan-400 hover:text-white text-xs font-semibold flex items-center gap-1 transition-colors">
               <i data-lucide="calculator" class="w-3 h-3"></i> Calculate
             </button>
           </div>
 
           <div class="grid grid-cols-2 gap-2 bg-[#161b22] p-2.5 rounded-lg mono text-xs">
             <div>
-              <span class="text-[10px] text-gray-400 block font-sans">Buy Price</span>
+              <span class="text-[10px] text-gray-400 block font-sans">Entry Price</span>
               <span class="text-white font-bold text-sm">₹{ent:,.2f}</span>
             </div>
             <div>
-              <span class="text-[10px] text-rose-400 block font-sans">Stop Loss (-2%)</span>
+              <span class="text-[10px] text-rose-400 block font-sans">{sl_label}</span>
               <span class="text-rose-400 font-bold text-sm">₹{sl:,.2f}</span>
             </div>
             <div>
-              <span class="text-[10px] text-emerald-400 block font-sans">Target 1 (+3%)</span>
+              <span class="text-[10px] text-emerald-400 block font-sans">{t1_label}</span>
               <span class="text-emerald-400 font-bold text-sm">₹{t1:,.2f}</span>
             </div>
             <div>
-              <span class="text-[10px] text-cyan-400 block font-sans">Target 2 (+5%)</span>
+              <span class="text-[10px] text-cyan-400 block font-sans">{t2_label}</span>
               <span class="text-cyan-400 font-bold text-sm">₹{t2:,.2f}</span>
             </div>
           </div>
@@ -268,10 +297,10 @@ def generate_site():
             <tr>
               <th class="px-4 py-3 font-sans">Stock</th>
               <th class="px-4 py-3">Direction</th>
-              <th class="px-4 py-3 text-white">Buy Price</th>
-              <th class="px-4 py-3 text-rose-400">Stop Loss (-2%)</th>
-              <th class="px-4 py-3 text-emerald-400">Target 1 (+3%)</th>
-              <th class="px-4 py-3 text-cyan-400">Target 2 (+5%)</th>
+              <th class="px-4 py-3 text-white">Entry Price</th>
+              <th class="px-4 py-3 text-rose-400">Stop Loss (2%)</th>
+              <th class="px-4 py-3 text-emerald-400">Target 1 (3%)</th>
+              <th class="px-4 py-3 text-cyan-400">Target 2 (5%)</th>
               <th class="px-4 py-3">Shares</th>
               <th class="px-4 py-3 text-right">Calculator</th>
             </tr>
@@ -288,17 +317,19 @@ def generate_site():
         t2 = p['target2']
         qty = p['qty']
 
+        dirn_color = "text-emerald-400" if dirn == 'LONG' else "text-rose-400"
+
         html_content += f"""
             <tr class="hover:bg-[#1f242c] transition-colors">
               <td class="px-4 py-3.5 font-bold text-white text-sm font-sans">{sym}</td>
-              <td class="px-4 py-3.5 text-emerald-400 font-bold">{dirn}</td>
+              <td class="px-4 py-3.5 {dirn_color} font-bold">{dirn}</td>
               <td class="px-4 py-3.5 font-bold text-white">₹{ent:,.2f}</td>
               <td class="px-4 py-3.5 text-rose-400 font-semibold">₹{sl:,.2f}</td>
               <td class="px-4 py-3.5 text-emerald-400 font-semibold">₹{t1:,.2f}</td>
               <td class="px-4 py-3.5 text-cyan-400 font-semibold">₹{t2:,.2f}</td>
               <td class="px-4 py-3.5 font-bold">{qty}</td>
               <td class="px-4 py-3.5 text-right">
-                <button onclick="setCalculator('{ent}', '{qty}')" class="px-2.5 py-1 rounded bg-[#21262d] hover:bg-cyan-600 text-gray-300 hover:text-white text-[11px] font-sans font-semibold transition-colors">
+                <button onclick="setCalculator('{ent}', '{qty}', '{dirn}')" class="px-2.5 py-1 rounded bg-[#21262d] hover:bg-cyan-600 text-gray-300 hover:text-white text-[11px] font-sans font-semibold transition-colors">
                   Calculate
                 </button>
               </td>
@@ -313,30 +344,35 @@ def generate_site():
 
     <!-- Section 2: Direct Investment Amount & Shares Calculator -->
     <div class="card rounded-xl p-4 sm:p-5 border-cyan-500/40 shadow-lg">
-      <div class="flex items-center gap-2 border-b border-[#30363d] pb-3 mb-4">
-        <i data-lucide="calculator" class="w-5 h-5 text-cyan-400"></i>
-        <div>
-          <h3 class="text-sm sm:text-base font-bold text-white">Investment & Position Size Calculator</h3>
-          <p class="text-[11px] sm:text-xs text-gray-400">Enter your Total Investment Amount to find exact shares & levels</p>
+      <div class="flex items-center justify-between border-b border-[#30363d] pb-3 mb-4">
+        <div class="flex items-center gap-2">
+          <i data-lucide="calculator" class="w-5 h-5 text-cyan-400"></i>
+          <div>
+            <h3 class="text-sm sm:text-base font-bold text-white">Investment & Position Size Calculator</h3>
+            <p class="text-[11px] sm:text-xs text-gray-400">Enter your Total Investment Amount to find exact shares & levels</p>
+          </div>
+        </div>
+
+        <!-- Direction Switcher -->
+        <div class="flex items-center bg-[#0d1117] p-1 rounded-lg border border-[#30363d] text-xs font-bold mono">
+          <button id="btnLong" onclick="setDirection('LONG')" class="px-3 py-1 rounded bg-emerald-500 text-gray-950 transition-all">LONG</button>
+          <button id="btnShort" onclick="setDirection('SHORT')" class="px-3 py-1 rounded text-gray-400 hover:text-white transition-all">SHORT</button>
         </div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
-        <!-- Input 1: Buy Price -->
         <div>
-          <label class="block text-xs text-gray-400 mb-1 font-semibold">Stock Buy Price (₹)</label>
+          <label class="block text-xs text-gray-400 mb-1 font-semibold">Stock Entry Price (₹)</label>
           <input type="number" id="calcPrice" step="0.05" value="1250.00" oninput="onPriceOrInvestmentChange()" class="w-full bg-[#0d1117] border border-[#30363d] focus:border-cyan-400 rounded-lg p-2.5 text-white mono font-bold text-base outline-none">
         </div>
 
-        <!-- Input 2: Total Investment Amount -->
         <div>
           <label class="block text-xs text-cyan-400 mb-1 font-semibold">Total Amount to Invest (₹)</label>
           <input type="number" id="calcInvestment" step="1000" value="20000" oninput="onInvestmentChange()" class="w-full bg-[#0d1117] border border-cyan-500/50 focus:border-cyan-400 rounded-lg p-2.5 text-cyan-300 mono font-bold text-base outline-none">
         </div>
 
-        <!-- Input 3: Quantity (Shares) -->
         <div>
-          <label class="block text-xs text-gray-400 mb-1 font-semibold">Quantity (Shares to Buy)</label>
+          <label class="block text-xs text-gray-400 mb-1 font-semibold">Quantity (Shares to Trade)</label>
           <input type="number" id="calcQty" value="16" oninput="onQtyChange()" class="w-full bg-[#0d1117] border border-[#30363d] focus:border-cyan-400 rounded-lg p-2.5 text-white mono font-bold text-base outline-none">
         </div>
       </div>
@@ -350,19 +386,19 @@ def generate_site():
         </div>
 
         <div class="p-2 bg-[#161b22] rounded-lg border border-[#30363d]">
-          <span class="text-[10px] sm:text-[11px] text-rose-400 block font-sans">STOP LOSS (-2%)</span>
+          <span id="lblSL" class="text-[10px] sm:text-[11px] text-rose-400 block font-sans">STOP LOSS (-2%)</span>
           <div id="outSL" class="text-sm sm:text-base font-bold text-rose-400 mt-0.5">₹1,225.00</div>
           <span id="outRiskAmt" class="text-[10px] text-rose-300/80 font-sans block">Loss: -₹400</span>
         </div>
 
         <div class="p-2 bg-[#161b22] rounded-lg border border-[#30363d]">
-          <span class="text-[10px] sm:text-[11px] text-emerald-400 block font-sans">TARGET 1 (+3%)</span>
+          <span id="lblT1" class="text-[10px] sm:text-[11px] text-emerald-400 block font-sans">TARGET 1 (+3%)</span>
           <div id="outT1" class="text-sm sm:text-base font-bold text-emerald-400 mt-0.5">₹1,287.50</div>
           <span id="outProfitT1" class="text-[10px] text-emerald-300/80 font-sans block">Profit: +₹600</span>
         </div>
 
         <div class="p-2 bg-[#161b22] rounded-lg border border-[#30363d]">
-          <span class="text-[10px] sm:text-[11px] text-cyan-400 block font-sans">TARGET 2 (+5%)</span>
+          <span id="lblT2" class="text-[10px] sm:text-[11px] text-cyan-400 block font-sans">TARGET 2 (+5%)</span>
           <div id="outT2" class="text-sm sm:text-base font-bold text-cyan-400 mt-0.5">₹1,312.50</div>
           <span id="outProfitT2" class="text-[10px] text-cyan-300/80 font-sans block">Profit: +₹1,000</span>
         </div>
@@ -375,33 +411,33 @@ def generate_site():
         <i data-lucide="book-open" class="w-5 h-5 text-emerald-400"></i>
         <div>
           <h3 class="text-sm sm:text-base font-bold text-white">How to Trade & Select the Best Stocks</h3>
-          <p class="text-[11px] sm:text-xs text-gray-400">Simple 4-step rules to pick winning setups and protect capital</p>
+          <p class="text-[11px] sm:text-xs text-gray-400">Simple rules to trade Long & Short setups safely</p>
         </div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
         
-        <!-- How to Pick the Best Stock -->
+        <!-- Long & Short Selection Rules -->
         <div class="space-y-2.5 bg-[#0d1117] p-3.5 rounded-xl border border-[#30363d]">
           <h4 class="font-bold text-cyan-400 text-xs sm:text-sm flex items-center gap-1.5">
             <i data-lucide="check-circle" class="w-4 h-4 text-cyan-400"></i>
-            How to Choose from the 4-5 Stocks:
+            Stock Selection Strategy:
           </h4>
           
           <div class="space-y-2 text-gray-300 text-[11px] sm:text-xs">
             <div class="flex items-start gap-2">
-              <span class="font-bold text-emerald-400 shrink-0">1.</span>
-              <p><strong class="text-white">Buy Only Green Openers:</strong> At 09:15 AM, check which stocks open in <span class="text-emerald-400 font-semibold">GREEN</span> (ticking higher than open). Avoid stocks that open Red.</p>
+              <span class="font-bold text-emerald-400 shrink-0">🟢</span>
+              <p><strong class="text-white">For LONG Trades:</strong> Pick stocks opening <span class="text-emerald-400 font-semibold">GREEN</span> at 09:15 AM. Buy at open, set SL at -2.0% below entry.</p>
             </div>
 
             <div class="flex items-start gap-2">
-              <span class="font-bold text-amber-400 shrink-0">2.</span>
-              <p><strong class="text-white">Skip Big Gap-Ups (> +2%):</strong> If a stock opens +2% higher, skip it to avoid morning profit-taking pullbacks. Look for flat or small (+0.5% to +1%) opens.</p>
+              <span class="font-bold text-rose-400 shrink-0">🔴</span>
+              <p><strong class="text-white">For SHORT Trades:</strong> Pick stocks opening <span class="text-rose-400 font-semibold">RED</span> at 09:15 AM. Sell at open, set SL at +2.0% above entry.</p>
             </div>
 
             <div class="flex items-start gap-2">
-              <span class="font-bold text-cyan-400 shrink-0">3.</span>
-              <p><strong class="text-white">Split into Top 2 Stocks:</strong> Divide your budget equally into the top 2 green stocks to catch big +5% runner trends.</p>
+              <span class="font-bold text-amber-400 shrink-0">⚡</span>
+              <p><strong class="text-white">Avoid Big Gaps (> ±2%):</strong> Skip any stock with huge opening gap to avoid opening reversals.</p>
             </div>
           </div>
         </div>
@@ -416,17 +452,17 @@ def generate_site():
           <div class="space-y-2 text-gray-300 text-[11px] sm:text-xs">
             <div class="flex items-start gap-2">
               <span class="font-bold text-emerald-400 shrink-0">A.</span>
-              <p><strong class="text-white">09:15 AM Entry:</strong> Place market or limit orders at open. Calculate quantity using the calculator above.</p>
+              <p><strong class="text-white">09:15 AM Entry:</strong> Place MIS orders at open. Calculate quantity using the calculator above.</p>
             </div>
 
             <div class="flex items-start gap-2">
               <span class="font-bold text-rose-400 shrink-0">B.</span>
-              <p><strong class="text-white">Strict 2.0% Stop Loss:</strong> Always place your SL order immediately. Never hold below -2% (capital protection).</p>
+              <p><strong class="text-white">Strict 2.0% Stop Loss:</strong> Always place your SL order immediately. Never hold below/above 2%.</p>
             </div>
 
             <div class="flex items-start gap-2">
               <span class="font-bold text-purple-400 shrink-0">C.</span>
-              <p><strong class="text-white">03:15 PM Square-off:</strong> Exit all remaining open positions before 03:30 PM. 100% intraday with zero overnight risk.</p>
+              <p><strong class="text-white">03:15 PM Square-off:</strong> Exit all open positions before 03:30 PM (100% intraday MIS).</p>
             </div>
           </div>
         </div>
@@ -459,6 +495,7 @@ def generate_site():
 """
         for p in evaluated_picks:
             sym = p['symbol']
+            dirn = p['direction']
             qty = p['qty']
             ent = p['entry']
             high = p['day_high']
@@ -470,20 +507,24 @@ def generate_site():
             pnl_color = "text-emerald-400 font-bold" if pnl >= 0 else "text-rose-400 font-bold"
             pnl_sign = "+" if pnl >= 0 else ""
             badge = "text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-semibold text-[10px]" if "TARGET" in out else ("text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded font-semibold text-[10px]" if "LOSS" in out else "text-gray-300 bg-gray-800 px-2 py-0.5 rounded text-[10px]")
+            dirn_color = "text-emerald-400" if dirn == 'LONG' else "text-rose-400"
 
             html_content += f"""
         <div class="bg-[#0d1117] border border-[#30363d] rounded-xl p-3 space-y-2">
           <div class="flex items-center justify-between">
-            <h4 class="font-bold text-white text-base font-sans">{sym}</h4>
+            <div class="flex items-center gap-1.5">
+              <h4 class="font-bold text-white text-base font-sans">{sym}</h4>
+              <span class="text-[10px] font-mono font-bold {dirn_color}">({dirn})</span>
+            </div>
             <span class="{badge}">{out}</span>
           </div>
           <div class="grid grid-cols-3 gap-2 bg-[#161b22] p-2 rounded-lg mono text-[11px] text-center">
             <div>
-              <span class="text-[9px] text-gray-400 block font-sans">Buy Price</span>
+              <span class="text-[9px] text-gray-400 block font-sans">Entry</span>
               <span class="text-white font-semibold">₹{ent:,.2f}</span>
             </div>
             <div>
-              <span class="text-[9px] text-amber-300 block font-sans">Exit Price</span>
+              <span class="text-[9px] text-amber-300 block font-sans">Exit</span>
               <span class="text-amber-300 font-bold">₹{exit_p:,.2f}</span>
             </div>
             <div>
@@ -507,8 +548,9 @@ def generate_site():
           <thead class="bg-[#0d1117] text-gray-400 uppercase text-[11px] border-b border-[#30363d]">
             <tr>
               <th class="px-4 py-3 font-sans">Stock</th>
+              <th class="px-4 py-3">Direction</th>
               <th class="px-4 py-3">Qty</th>
-              <th class="px-4 py-3">Buy Price</th>
+              <th class="px-4 py-3">Entry Price</th>
               <th class="px-4 py-3">Day High</th>
               <th class="px-4 py-3">Day Low</th>
               <th class="px-4 py-3 text-amber-300">Exit Price</th>
@@ -520,6 +562,7 @@ def generate_site():
 """
         for p in evaluated_picks:
             sym = p['symbol']
+            dirn = p['direction']
             qty = p['qty']
             ent = p['entry']
             high = p['day_high']
@@ -531,10 +574,12 @@ def generate_site():
             pnl_color = "text-emerald-400 font-bold" if pnl >= 0 else "text-rose-400 font-bold"
             pnl_sign = "+" if pnl >= 0 else ""
             badge = "text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-semibold" if "TARGET" in out else ("text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded font-semibold" if "LOSS" in out else "text-gray-300 bg-gray-800 px-2 py-0.5 rounded")
+            dirn_color = "text-emerald-400 font-bold" if dirn == 'LONG' else "text-rose-400 font-bold"
 
             html_content += f"""
             <tr class="hover:bg-[#1f242c]">
               <td class="px-4 py-3 font-bold text-white text-sm font-sans">{sym}</td>
+              <td class="px-4 py-3 {dirn_color}">{dirn}</td>
               <td class="px-4 py-3">{qty}</td>
               <td class="px-4 py-3">₹{ent:,.2f}</td>
               <td class="px-4 py-3 text-emerald-400">₹{high:,.2f}</td>
@@ -549,7 +594,7 @@ def generate_site():
           </tbody>
           <tfoot class="bg-[#0d1117] font-bold border-t border-[#30363d]">
             <tr>
-              <td colspan="7" class="px-4 py-3 text-right text-gray-400 font-sans">TOTAL REALIZED NET P&L:</td>
+              <td colspan="8" class="px-4 py-3 text-right text-gray-400 font-sans">TOTAL REALIZED NET P&L:</td>
               <td class="px-4 py-3 text-right {total_pnl_color} text-sm">{total_pnl_sign}₹{total_day_pnl:,.2f}</td>
             </tr>
           </tfoot>
@@ -579,9 +624,32 @@ def generate_site():
 
   <script>
     lucide.createIcons();
+    let currentDirection = 'LONG';
 
-    function setCalculator(price, qty) {
+    function setDirection(dir) {
+      currentDirection = dir;
+      const btnLong = document.getElementById('btnLong');
+      const btnShort = document.getElementById('btnShort');
+
+      if (dir === 'LONG') {
+        btnLong.className = 'px-3 py-1 rounded bg-emerald-500 text-gray-950 transition-all font-bold';
+        btnShort.className = 'px-3 py-1 rounded text-gray-400 hover:text-white transition-all font-bold';
+        document.getElementById('lblSL').innerText = 'STOP LOSS (-2%)';
+        document.getElementById('lblT1').innerText = 'TARGET 1 (+3%)';
+        document.getElementById('lblT2').innerText = 'TARGET 2 (+5%)';
+      } else {
+        btnShort.className = 'px-3 py-1 rounded bg-rose-500 text-white transition-all font-bold';
+        btnLong.className = 'px-3 py-1 rounded text-gray-400 hover:text-white transition-all font-bold';
+        document.getElementById('lblSL').innerText = 'STOP LOSS (+2%)';
+        document.getElementById('lblT1').innerText = 'TARGET 1 (-3%)';
+        document.getElementById('lblT2').innerText = 'TARGET 2 (-5%)';
+      }
+      onPriceOrInvestmentChange();
+    }
+
+    function setCalculator(price, qty, dir) {
       document.getElementById('calcPrice').value = price;
+      if (dir) setDirection(dir);
       const invest = parseFloat(document.getElementById('calcInvestment').value) || 20000;
       const p = parseFloat(price) || 1;
       const shares = Math.max(1, Math.floor(invest / p));
@@ -616,13 +684,25 @@ def generate_site():
     function updateCalculations(price, qty) {
       if (price <= 0 || qty <= 0) return;
 
-      const sl = price * 0.98;
-      const t1 = price * 1.03;
-      const t2 = price * 1.05;
+      let sl, t1, t2, maxLoss, profitT1, profitT2;
+
+      if (currentDirection === 'LONG') {
+        sl = price * 0.98;
+        t1 = price * 1.03;
+        t2 = price * 1.05;
+        maxLoss = (price - sl) * qty;
+        profitT1 = (t1 - price) * qty;
+        profitT2 = (t2 - price) * qty;
+      } else { // SHORT
+        sl = price * 1.02;
+        t1 = price * 0.97;
+        t2 = price * 0.95;
+        maxLoss = (sl - price) * qty;
+        profitT1 = (price - t1) * qty;
+        profitT2 = (price - t2) * qty;
+      }
+
       const totalInvested = price * qty;
-      const maxLoss = (price - sl) * qty;
-      const profitT1 = (t1 - price) * qty;
-      const profitT2 = (t2 - price) * qty;
 
       document.getElementById('outTotalInvested').innerText = '₹' + Math.round(totalInvested).toLocaleString('en-IN');
       document.getElementById('outShareCount').innerText = qty + ' shares';
@@ -647,7 +727,7 @@ def generate_site():
     with open(os.path.join(docs_dir, 'index.html'), 'w', encoding='utf-8') as f:
         f.write(html_content)
 
-    print(f"100% Mobile-Friendly website generated successfully in {docs_dir}/index.html")
+    print(f"Bidirectional LONG/SHORT website generated successfully in {docs_dir}/index.html")
     return True
 
 if __name__ == '__main__':
