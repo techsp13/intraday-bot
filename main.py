@@ -16,6 +16,7 @@ import risk_manager
 import logger
 import alerts
 import web_generator
+import nse_holidays
 
 def run_pipeline(dry_run: bool = False):
     """Run the complete intraday stock pick pipeline."""
@@ -26,6 +27,12 @@ def run_pipeline(dry_run: bool = False):
     print()
     
     try:
+        # Step 0: Check NSE Trading Holiday & Weekend
+        is_closed, holiday_reason = nse_holidays.is_market_holiday()
+        if is_closed and not dry_run:
+            print(f'MARKET CLOSED: {holiday_reason}. Skipping scan, Telegram alerts, and website update.')
+            return
+
         # Step 1: Check daily loss limit
         tracker = risk_manager.DailyRiskTracker()
         today_str = datetime.now().strftime('%Y-%m-%d')
