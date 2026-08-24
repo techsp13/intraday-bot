@@ -82,9 +82,15 @@ def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.Da
     long_candidates.sort(key=lambda x: x['rs'], reverse=True)
     short_candidates.sort(key=lambda x: x['rs'], reverse=False)
 
-    # Top 3 Longs + Top 2 Shorts (or fill available)
-    selected_longs = long_candidates[:3]
-    selected_shorts = short_candidates[:2]
+    # Top 1 Long (Rank #1 Outperformer) + Top 1 Short (Rank #1 Breakdown)
+    selected_longs = long_candidates[:1]
+    selected_shorts = short_candidates[:1]
+
+    # If one side is empty, take top 2 of available
+    if not selected_shorts and len(long_candidates) >= 2:
+        selected_longs = long_candidates[:2]
+    elif not selected_longs and len(short_candidates) >= 2:
+        selected_shorts = short_candidates[:2]
 
     combined = selected_longs + selected_shorts
     if not combined:
