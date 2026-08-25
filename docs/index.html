@@ -78,6 +78,42 @@
         <div class="bg-[#0d1117] border border-[#30363d] rounded-xl p-3.5 space-y-2.5">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
+              <h3 class="text-lg font-bold text-white font-sans">ASTERDM</h3>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border-rose-500/20 font-bold border">SHORT</span>
+            </div>
+            <button onclick="setCalculator('750.9', '26', 'SHORT')" class="px-3 py-1 rounded bg-[#21262d] hover:bg-cyan-600 text-cyan-400 hover:text-white text-xs font-semibold flex items-center gap-1 transition-colors">
+              <i data-lucide="calculator" class="w-3 h-3"></i> Calculate
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 bg-[#161b22] p-2.5 rounded-lg mono text-xs">
+            <div>
+              <span class="text-[10px] text-gray-400 block font-sans">Entry Price</span>
+              <span class="text-white font-bold text-sm">₹750.90</span>
+            </div>
+            <div>
+              <span class="text-[10px] text-rose-400 block font-sans">Stop Loss (+2%)</span>
+              <span class="text-rose-400 font-bold text-sm">₹765.92</span>
+            </div>
+            <div>
+              <span class="text-[10px] text-emerald-400 block font-sans">Target 1 (-3%)</span>
+              <span class="text-emerald-400 font-bold text-sm">₹728.37</span>
+            </div>
+            <div>
+              <span class="text-[10px] text-cyan-400 block font-sans">Target 2 (-5%)</span>
+              <span class="text-cyan-400 font-bold text-sm">₹713.35</span>
+            </div>
+          </div>
+          
+          <div class="flex items-center justify-between text-[11px] text-gray-400 mono pt-1 border-t border-[#30363d]/60">
+            <span>Recommended Qty: <strong class="text-white">26 shares</strong></span>
+            <span>Est. Cost: <strong class="text-gray-300">₹19,523</strong></span>
+          </div>
+        </div>
+
+        <div class="bg-[#0d1117] border border-[#30363d] rounded-xl p-3.5 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
               <h3 class="text-lg font-bold text-white font-sans">BLS</h3>
               <span class="text-[10px] px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border-rose-500/20 font-bold border">SHORT</span>
             </div>
@@ -219,42 +255,6 @@
           </div>
         </div>
 
-        <div class="bg-[#0d1117] border border-[#30363d] rounded-xl p-3.5 space-y-2.5">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <h3 class="text-lg font-bold text-white font-sans">WELCORP</h3>
-              <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-bold border">LONG</span>
-            </div>
-            <button onclick="setCalculator('2409.2', '8', 'LONG')" class="px-3 py-1 rounded bg-[#21262d] hover:bg-cyan-600 text-cyan-400 hover:text-white text-xs font-semibold flex items-center gap-1 transition-colors">
-              <i data-lucide="calculator" class="w-3 h-3"></i> Calculate
-            </button>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2 bg-[#161b22] p-2.5 rounded-lg mono text-xs">
-            <div>
-              <span class="text-[10px] text-gray-400 block font-sans">Entry Price</span>
-              <span class="text-white font-bold text-sm">₹2,409.20</span>
-            </div>
-            <div>
-              <span class="text-[10px] text-rose-400 block font-sans">Stop Loss (-2%)</span>
-              <span class="text-rose-400 font-bold text-sm">₹2,361.02</span>
-            </div>
-            <div>
-              <span class="text-[10px] text-emerald-400 block font-sans">Target 1 (+3%)</span>
-              <span class="text-emerald-400 font-bold text-sm">₹2,481.47</span>
-            </div>
-            <div>
-              <span class="text-[10px] text-cyan-400 block font-sans">Target 2 (+5%)</span>
-              <span class="text-cyan-400 font-bold text-sm">₹2,529.65</span>
-            </div>
-          </div>
-          
-          <div class="flex items-center justify-between text-[11px] text-gray-400 mono pt-1 border-t border-[#30363d]/60">
-            <span>Recommended Qty: <strong class="text-white">8 shares</strong></span>
-            <span>Est. Cost: <strong class="text-gray-300">₹19,273</strong></span>
-          </div>
-        </div>
-
       </div>
 
       <!-- DESKTOP VIEW: Full Wide Table -->
@@ -273,6 +273,21 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-[#30363d] text-gray-200">
+
+            <tr class="hover:bg-[#1f242c] transition-colors">
+              <td class="px-4 py-3.5 font-bold text-white text-sm font-sans">ASTERDM</td>
+              <td class="px-4 py-3.5 text-rose-400 font-bold">SHORT</td>
+              <td class="px-4 py-3.5 font-bold text-white">₹750.90</td>
+              <td class="px-4 py-3.5 text-rose-400 font-semibold">₹765.92</td>
+              <td class="px-4 py-3.5 text-emerald-400 font-semibold">₹728.37</td>
+              <td class="px-4 py-3.5 text-cyan-400 font-semibold">₹713.35</td>
+              <td class="px-4 py-3.5 font-bold">26</td>
+              <td class="px-4 py-3.5 text-right">
+                <button onclick="setCalculator('750.9', '26', 'SHORT')" class="px-2.5 py-1 rounded bg-[#21262d] hover:bg-cyan-600 text-gray-300 hover:text-white text-[11px] font-sans font-semibold transition-colors">
+                  Calculate
+                </button>
+              </td>
+            </tr>
 
             <tr class="hover:bg-[#1f242c] transition-colors">
               <td class="px-4 py-3.5 font-bold text-white text-sm font-sans">BLS</td>
@@ -329,21 +344,6 @@
               <td class="px-4 py-3.5 font-bold">118</td>
               <td class="px-4 py-3.5 text-right">
                 <button onclick="setCalculator('168.84', '118', 'LONG')" class="px-2.5 py-1 rounded bg-[#21262d] hover:bg-cyan-600 text-gray-300 hover:text-white text-[11px] font-sans font-semibold transition-colors">
-                  Calculate
-                </button>
-              </td>
-            </tr>
-
-            <tr class="hover:bg-[#1f242c] transition-colors">
-              <td class="px-4 py-3.5 font-bold text-white text-sm font-sans">WELCORP</td>
-              <td class="px-4 py-3.5 text-emerald-400 font-bold">LONG</td>
-              <td class="px-4 py-3.5 font-bold text-white">₹2,409.20</td>
-              <td class="px-4 py-3.5 text-rose-400 font-semibold">₹2,361.02</td>
-              <td class="px-4 py-3.5 text-emerald-400 font-semibold">₹2,481.47</td>
-              <td class="px-4 py-3.5 text-cyan-400 font-semibold">₹2,529.65</td>
-              <td class="px-4 py-3.5 font-bold">8</td>
-              <td class="px-4 py-3.5 text-right">
-                <button onclick="setCalculator('2409.2', '8', 'LONG')" class="px-2.5 py-1 rounded bg-[#21262d] hover:bg-cyan-600 text-gray-300 hover:text-white text-[11px] font-sans font-semibold transition-colors">
                   Calculate
                 </button>
               </td>

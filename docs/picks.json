@@ -1,5 +1,21 @@
 [
   {
+    "symbol": "ASTERDM",
+    "direction": "SHORT",
+    "entry": 750.9,
+    "sl": 765.92,
+    "target1": 728.37,
+    "target2": 713.35,
+    "qty": 26,
+    "rs": -8.12,
+    "day_high": 750.9,
+    "day_low": 750.9,
+    "day_close": 750.9,
+    "exit_price": 750.9,
+    "outcome": "ACTIVE",
+    "pnl": 0.0
+  },
+  {
     "symbol": "BLS",
     "direction": "SHORT",
     "entry": 241.51,
@@ -60,22 +76,6 @@
     "day_low": 168.84,
     "day_close": 168.84,
     "exit_price": 168.84,
-    "outcome": "ACTIVE",
-    "pnl": 0.0
-  },
-  {
-    "symbol": "WELCORP",
-    "direction": "LONG",
-    "entry": 2409.2,
-    "sl": 2361.02,
-    "target1": 2481.47,
-    "target2": 2529.65,
-    "qty": 8,
-    "rs": 28.3,
-    "day_high": 2409.2,
-    "day_low": 2409.2,
-    "day_close": 2409.2,
-    "exit_price": 2409.2,
     "outcome": "ACTIVE",
     "pnl": 0.0
   }
