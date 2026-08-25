@@ -1,17 +1,8 @@
 """
-Bidirectional NIFTY Relative Strength & Relative Weakness Strategy
-Supports both LONG (Outperformers) and SHORT (Underperformers) setups.
-
-Logic:
-1. Long Setups: Strongest 5-day Relative Strength vs NIFTY (RS >= +2.0%).
-   - Entry: 09:15 AM Market Open
-   - Stop Loss: -2.0% below entry
-   - Target 1: +3.0% (1.5R) | Target 2: +5.0% (2.5R)
-
-2. Short Setups: Weakest 5-day Relative Weakness vs NIFTY (RS <= -2.0%).
-   - Entry: 09:15 AM Market Open (Intraday MIS Short)
-   - Stop Loss: +2.0% above entry
-   - Target 1: -3.0% (1.5R) | Target 2: -5.0% (2.5R)
+Bidirectional NIFTY Relative Strength & Relative Weakness Strategy.
+Supports:
+1. 08:30 AM Full Watchlist (All Top 5 Stocks: Top 3 Longs + Top 2 Shorts).
+2. 09:00 AM Final Filtered Picks (Top 2 Best Stocks: Rank #1 Long + Rank #1 Short).
 """
 import pandas as pd
 import numpy as np
@@ -19,9 +10,11 @@ from typing import List, Dict
 import yfinance as yf
 import config
 
-def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.DataFrame], avg_volumes: Dict[str, float], avg_turnovers: Dict[str, float]) -> List[Dict]:
+def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.DataFrame], avg_volumes: Dict[str, float], avg_turnovers: Dict[str, float], top2_only: bool = False) -> List[Dict]:
     """
     Scans for both LONG (Relative Strength) and SHORT (Relative Weakness) setups.
+    top2_only=False -> Full 5-Stock Watchlist for 08:30 AM
+    top2_only=True  -> Final Top 2 Filtered Picks for 09:00 AM
     """
     try:
         # Fetch NIFTY 50 baseline
@@ -82,17 +75,21 @@ def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.Da
     long_candidates.sort(key=lambda x: x['rs'], reverse=True)
     short_candidates.sort(key=lambda x: x['rs'], reverse=False)
 
-    # Top 1 Long (Rank #1 Outperformer) + Top 1 Short (Rank #1 Breakdown)
-    selected_longs = long_candidates[:1]
-    selected_shorts = short_candidates[:1]
-
-    # If one side is empty, take top 2 of available
-    if not selected_shorts and len(long_candidates) >= 2:
-        selected_longs = long_candidates[:2]
-    elif not selected_longs and len(short_candidates) >= 2:
+    if top2_only:
+        # Final Top 2 Filter (Rank #1 Long + Rank #1 Short)
+        selected_longs = long_candidates[:1]
+        selected_shorts = short_candidates[:1]
+        if not selected_shorts and len(long_candidates) >= 2:
+            selected_longs = long_candidates[:2]
+        elif not selected_longs and len(short_candidates) >= 2:
+            selected_shorts = short_candidates[:2]
+        combined = selected_longs + selected_shorts
+    else:
+        # Full 08:30 AM Watchlist (Top 3 Longs + Top 2 Shorts)
+        selected_longs = long_candidates[:3]
         selected_shorts = short_candidates[:2]
+        combined = selected_longs + selected_shorts
 
-    combined = selected_longs + selected_shorts
     if not combined:
         return []
 
@@ -132,12 +129,11 @@ def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.Da
             'or_low': sl,
             'vwap': entry,
             'score': score,
-            'timestamp': '08:30 AM',
+            'timestamp': '09:00 AM' if top2_only else '08:30 AM',
             'breakout_time': '09:15 AM'
         })
 
-    max_picks = getattr(config, 'MAX_PICKS_PER_RUN', 5)
-    return picks[:max_picks]
+    return picks
 
 if __name__ == '__main__':
-    print('Bidirectional LONG & SHORT Relative Strength Screener loaded.')
+    print('Screener loaded with 08:30 AM Full Watchlist & 09:00 AM Top 2 Filter.')

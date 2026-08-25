@@ -2,17 +2,20 @@ name: NSE Intraday Stock Pick Bot
 
 on:
   schedule:
-    # Exactly ONE single morning scan at 08:30 AM IST (03:00 UTC) Mon-Fri
+    # 08:30 AM IST (03:00 UTC) Mon-Fri — Full 5-Stock Watchlist
     - cron: '0 3 * * 1-5'
+    # 09:00 AM IST (03:30 UTC) Mon-Fri — Final Filtered Top 2 Picks
+    - cron: '30 3 * * 1-5'
   workflow_dispatch:
     inputs:
       mode:
         description: 'Run mode'
         required: false
-        default: 'scan'
+        default: 'watchlist'
         type: choice
         options:
-          - scan
+          - watchlist
+          - top2
           - dry-run
 
 permissions:
@@ -36,12 +39,29 @@ jobs:
           python -m pip install --upgrade pip
           pip install --no-cache-dir -r requirements.txt
       
-      - name: Run morning scan
+      - name: Determine run flags
+        id: flags
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ "${{ github.event.inputs.mode }}" = "top2" ]; then
+              echo "args=--top2" >> $GITHUB_OUTPUT
+            elif [ "${{ github.event.inputs.mode }}" = "dry-run" ]; then
+              echo "args=--dry-run" >> $GITHUB_OUTPUT
+            else
+              echo "args=--watchlist" >> $GITHUB_OUTPUT
+            fi
+          elif [ "${{ github.event.schedule }}" = "30 3 * * 1-5" ]; then
+            echo "args=--top2" >> $GITHUB_OUTPUT
+          else
+            echo "args=--watchlist" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run intraday pipeline
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_ALERTS_ENABLED: 'TRUE'
-        run: python main.py
+        run: python main.py ${{ steps.flags.outputs.args }}
       
       - name: Commit database updates
         if: always()

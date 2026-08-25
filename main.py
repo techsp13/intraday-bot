@@ -18,10 +18,11 @@ import alerts
 import web_generator
 import nse_holidays
 
-def run_pipeline(dry_run: bool = False):
+def run_pipeline(dry_run: bool = False, top2_only: bool = False):
     """Run the complete intraday stock pick pipeline."""
     start_time = time.time()
-    print(f'=== Intraday Stock Pick Bot ===')
+    mode_label = "09:00 AM Top 2 Filtered Picks" if top2_only else "08:30 AM Full Watchlist"
+    print(f'=== Intraday Stock Pick Bot ({mode_label}) ===')
     print(f'Date: {datetime.now().strftime("%d-%b-%Y %H:%M")} IST')
     print(f'Capital: ₹{getattr(config, "CAPITAL_BASE", 100000):,.0f}')
     print()
@@ -68,7 +69,7 @@ def run_pipeline(dry_run: bool = False):
         
         # Step 5: Run screener
         print('Running screener...')
-        raw_picks = screener.scan_all(intraday_data, daily_data, avg_volumes, avg_turnovers)
+        raw_picks = screener.scan_all(intraday_data, daily_data, avg_volumes, avg_turnovers, top2_only=top2_only)
         print(f'Screener found {len(raw_picks)} raw picks')
         
         # Step 6: Risk management
@@ -87,8 +88,9 @@ def run_pipeline(dry_run: bool = False):
                 print(f"  {p.get('direction', 'LONG')} {p.get('symbol', 'UNKNOWN')} @ ₹{p.get('entry', 0.0):.2f} | SL: ₹{p.get('sl', 0.0):.2f} | T1: ₹{p.get('target1', 0.0):.2f} | Score: {p.get('score', 0)}")
         else:
             if sized_picks:
-                sent = alerts.send_picks_batch(sized_picks)
-                print(f'Sent {sent} alerts to Telegram')
+                alert_type = 'top2' if top2_only else 'watchlist'
+                sent = alerts.send_picks_batch(sized_picks, alert_type=alert_type)
+                print(f'Sent {sent} alerts to Telegram ({alert_type})')
             else:
                 alerts.send_no_picks_alert()
                 print('No picks — sent notification')
@@ -111,4 +113,5 @@ def run_pipeline(dry_run: bool = False):
 
 if __name__ == '__main__':
     dry_run = '--dry-run' in sys.argv
-    run_pipeline(dry_run=dry_run)
+    top2_only = '--top2' in sys.argv or ('--watchlist' not in sys.argv and datetime.now().hour == 9 and datetime.now().minute < 15)
+    run_pipeline(dry_run=dry_run, top2_only=top2_only)

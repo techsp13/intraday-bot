@@ -137,14 +137,20 @@ def send_pick_alert(pick: dict) -> bool:
 
     return send_telegram_message(msg)
 
-def send_picks_batch(picks: list[dict]) -> int:
-    """Send all daily stock picks in ONE single consolidated Telegram alert at 08:30 AM."""
+def send_picks_batch(picks: list[dict], alert_type: str = 'watchlist') -> int:
+    """Send stock picks in ONE single consolidated Telegram alert."""
     if not picks:
         return 0
         
     date_str = datetime.now().strftime("%d-%b-%Y")
     
-    msg = f"🚀 *NSE INTRADAY PICKS — {date_str} (08:30 AM)*\n"
+    if alert_type == 'top2' or len(picks) <= 2:
+        msg = f"🎯 *FINAL FILTERED TOP 2 PICKS — {date_str} (09:00 AM)*\n"
+        msg += f"▸ *Pre-Market Confirmation for 09:15 AM Entry*\n"
+    else:
+        msg = f"📋 *NSE INTRADAY WATCHLIST — {date_str} (08:30 AM)*\n"
+        msg += f"▸ *All {len(picks)} Qualifying Setups for Today*\n"
+        
     msg += f"━━━━━━━━━━━━━━━━━━━━━━━\n"
     
     for i, p in enumerate(picks, 1):
