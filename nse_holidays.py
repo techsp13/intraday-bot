@@ -1,12 +1,12 @@
 """
 NSE Trading Holiday Calendar & Market Schedule Validator.
-Prevents bot execution, Telegram alerts, and web updates on weekends and official NSE holidays.
+Prevents bot execution on weekends and official NSE trading holidays.
 """
 from datetime import datetime, date
 from typing import Optional, Tuple
+import yfinance as yf
 
 # Official NSE Trading Holidays (Cash Market & Derivatives)
-# Formatted as YYYY-MM-DD
 NSE_HOLIDAYS = {
     # 2026 NSE Holidays
     "2026-01-26": "Republic Day",
@@ -19,30 +19,12 @@ NSE_HOLIDAYS = {
     "2026-05-01": "Maharashtra Day",
     "2026-05-27": "Bakri Id / Eid ul-Adha",
     "2026-08-15": "Independence Day",
-    "2026-08-26": "Milad-un-Nabi",
     "2026-10-02": "Mahatma Gandhi Jayanti",
     "2026-10-20": "Dussehra",
     "2026-11-08": "Diwali (Laxmi Pujan)",
     "2026-11-10": "Diwali Balipratipada",
     "2026-11-24": "Gurunanak Jayanti",
     "2026-12-25": "Christmas",
-
-    # 2025 NSE Holidays (Reference)
-    "2025-01-26": "Republic Day",
-    "2025-02-26": "Mahashivratri",
-    "2025-03-14": "Holi",
-    "2025-03-31": "Id-Ul-Fitr",
-    "2025-04-10": "Mahavir Jayanti",
-    "2025-04-14": "Dr. Ambedkar Jayanti",
-    "2025-04-18": "Good Friday",
-    "2025-05-01": "Maharashtra Day",
-    "2025-08-15": "Independence Day",
-    "2025-08-27": "Ganesh Chaturthi",
-    "2025-10-02": "Gandhi Jayanti / Dussehra",
-    "2025-10-21": "Diwali",
-    "2025-10-22": "Diwali Balipratipada",
-    "2025-11-05": "Gurunanak Jayanti",
-    "2025-12-25": "Christmas",
 }
 
 def is_market_holiday(target_date: Optional[date] = None) -> Tuple[bool, str]:
