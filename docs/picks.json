@@ -8,12 +8,12 @@
     "target2": 630.65,
     "qty": 30,
     "rs": -12.71,
-    "day_high": 663.85,
-    "day_low": 663.85,
-    "day_close": 663.85,
-    "exit_price": 663.85,
-    "outcome": "ACTIVE",
-    "pnl": 0.0
+    "day_high": 674.45,
+    "day_low": 655.3,
+    "day_close": 665.55,
+    "exit_price": 665.55,
+    "outcome": "CLOSED AT 03:15 PM",
+    "pnl": -51.0
   },
   {
     "symbol": "CYIENT",
@@ -24,11 +24,11 @@
     "target2": 1097.45,
     "qty": 19,
     "rs": 15.65,
-    "day_high": 1045.2,
-    "day_low": 1045.2,
-    "day_close": 1045.2,
-    "exit_price": 1045.2,
-    "outcome": "ACTIVE",
-    "pnl": 0.0
+    "day_high": 1056.0,
+    "day_low": 985.5,
+    "day_close": 1047.0,
+    "exit_price": 1024.3,
+    "outcome": "HIT STOP LOSS (-2%)",
+    "pnl": -397.1
   }
 ]
