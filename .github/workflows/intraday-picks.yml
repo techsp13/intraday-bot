@@ -1,11 +1,6 @@
 name: NSE Intraday Stock Pick Bot
 
 on:
-  schedule:
-    # 08:30 AM IST (03:00 UTC) Mon-Fri — Full 5-Stock Watchlist
-    - cron: '0 3 * * 1-5'
-    # 08:45 AM IST (03:15 UTC) Mon-Fri — Final Filtered Top 2 Picks
-    - cron: '15 3 * * 1-5'
   workflow_dispatch:
     inputs:
       mode:
@@ -42,16 +37,10 @@ jobs:
       - name: Determine run flags
         id: flags
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            if [ "${{ github.event.inputs.mode }}" = "top2" ]; then
-              echo "args=--top2" >> $GITHUB_OUTPUT
-            elif [ "${{ github.event.inputs.mode }}" = "dry-run" ]; then
-              echo "args=--dry-run" >> $GITHUB_OUTPUT
-            else
-              echo "args=--watchlist" >> $GITHUB_OUTPUT
-            fi
-          elif [ "${{ github.event.schedule }}" = "15 3 * * 1-5" ]; then
+          if [ "${{ github.event.inputs.mode }}" = "top2" ]; then
             echo "args=--top2" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.inputs.mode }}" = "dry-run" ]; then
+            echo "args=--dry-run" >> $GITHUB_OUTPUT
           else
             echo "args=--watchlist" >> $GITHUB_OUTPUT
           fi
