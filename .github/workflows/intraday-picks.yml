@@ -4,8 +4,8 @@ on:
   schedule:
     # 08:30 AM IST (03:00 UTC) Mon-Fri — Full 5-Stock Watchlist
     - cron: '0 3 * * 1-5'
-    # 09:00 AM IST (03:30 UTC) Mon-Fri — Final Filtered Top 2 Picks
-    - cron: '30 3 * * 1-5'
+    # 08:45 AM IST (03:15 UTC) Mon-Fri — Final Filtered Top 2 Picks
+    - cron: '15 3 * * 1-5'
   workflow_dispatch:
     inputs:
       mode:
@@ -50,7 +50,7 @@ jobs:
             else
               echo "args=--watchlist" >> $GITHUB_OUTPUT
             fi
-          elif [ "${{ github.event.schedule }}" = "30 3 * * 1-5" ]; then
+          elif [ "${{ github.event.schedule }}" = "15 3 * * 1-5" ]; then
             echo "args=--top2" >> $GITHUB_OUTPUT
           else
             echo "args=--watchlist" >> $GITHUB_OUTPUT

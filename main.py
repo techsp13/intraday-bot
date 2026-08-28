@@ -21,7 +21,7 @@ import nse_holidays
 def run_pipeline(dry_run: bool = False, top2_only: bool = False):
     """Run the complete intraday stock pick pipeline."""
     start_time = time.time()
-    mode_label = "09:00 AM Top 2 Filtered Picks" if top2_only else "08:30 AM Full Watchlist"
+    mode_label = "08:45 AM Top 2 Filtered Picks" if top2_only else "08:30 AM Full Watchlist"
     print(f'=== Intraday Stock Pick Bot ({mode_label}) ===')
     print(f'Date: {datetime.now().strftime("%d-%b-%Y %H:%M")} IST')
     print(f'Capital: ₹{getattr(config, "CAPITAL_BASE", 100000):,.0f}')
