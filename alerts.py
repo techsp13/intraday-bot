@@ -8,34 +8,38 @@ import config
 from chart_generator import generate_candlestick_chart
 
 def send_telegram_message(message: str, parse_mode: str = 'Markdown') -> bool:
-    """Send a text message to Telegram via Bot API."""
+    """Send a text message to Telegram via Bot API (supports multiple comma-separated chat IDs)."""
     if not getattr(config, 'TELEGRAM_ALERTS_ENABLED', True):
         return False
         
     token = getattr(config, 'TELEGRAM_BOT_TOKEN', '')
-    chat_id = getattr(config, 'TELEGRAM_CHAT_ID', '')
+    raw_chat_ids = getattr(config, 'TELEGRAM_CHAT_ID', '')
     
-    if not token or not chat_id:
+    if not token or not raw_chat_ids:
         return False
         
-    url = f"https://api.telegram.org/bot{token}/sendMessage"
-    payload = {
-        "chat_id": chat_id,
-        "text": message,
-        "parse_mode": parse_mode
-    }
+    chat_ids = [c.strip() for c in str(raw_chat_ids).split(',') if c.strip()]
+    success_any = False
     
-    data = json.dumps(payload).encode('utf-8')
-    req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
-    
-    try:
-        with urllib.request.urlopen(req, timeout=10) as response:
-            if response.status == 200:
-                return True
-    except Exception:
-        pass
+    for cid in chat_ids:
+        url = f"https://api.telegram.org/bot{token}/sendMessage"
+        payload = {
+            "chat_id": cid,
+            "text": message,
+            "parse_mode": parse_mode
+        }
         
-    return False
+        data = json.dumps(payload).encode('utf-8')
+        req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
+        
+        try:
+            with urllib.request.urlopen(req, timeout=10) as response:
+                if response.status == 200:
+                    success_any = True
+        except Exception:
+            pass
+            
+    return success_any
 
 def send_photo_alert(photo_path: str, caption: str, parse_mode: str = 'Markdown') -> bool:
     """Send a photo with caption to Telegram using pure urllib multipart/form-data."""
