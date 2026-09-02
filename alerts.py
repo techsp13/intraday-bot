@@ -161,6 +161,8 @@ def send_picks_batch(picks: list[dict], alert_type: str = 'watchlist') -> int:
         sym = p.get('symbol', 'UNKNOWN')
         dirn = p.get('direction', 'LONG').upper()
         ent = float(p.get('entry', 0.0))
+        ent_min = float(p.get('entry_min', round(ent * 0.995, 2)))
+        ent_max = float(p.get('entry_max', round(ent * 1.005, 2)))
         sl = float(p.get('sl', 0.0))
         t1 = float(p.get('target1', 0.0))
         t2 = float(p.get('target2', 0.0))
@@ -168,12 +170,14 @@ def send_picks_batch(picks: list[dict], alert_type: str = 'watchlist') -> int:
         rs = float(p.get('adx', 0.0))
         
         badge = "🟢 LONG (BUY)" if dirn == 'LONG' else "🔴 SHORT (SELL)"
+        action_verb = "Buy" if dirn == 'LONG' else "Sell"
         sl_pct = "-2%" if dirn == 'LONG' else "+2%"
         t1_pct = "+3%" if dirn == 'LONG' else "-3%"
         t2_pct = "+5%" if dirn == 'LONG' else "-5%"
         
         msg += f"*{i}️⃣ {sym}* — {badge}\n"
-        msg += f"▸ Entry: `₹{ent:,.2f}` | SL: `₹{sl:,.2f}` ({sl_pct})\n"
+        msg += f"▸ *Entry Zone*: `₹{ent_min:,.2f} – ₹{ent_max:,.2f}` ({action_verb} around open)\n"
+        msg += f"▸ SL: `₹{sl:,.2f}` ({sl_pct}) | Ref: `₹{ent:,.2f}`\n"
         msg += f"▸ T1: `₹{t1:,.2f}` ({t1_pct}) | T2: `₹{t2:,.2f}` ({t2_pct})\n"
         msg += f"▸ Qty: *{qty} shares* | RS: *{rs:+.1f}%*\n\n"
         

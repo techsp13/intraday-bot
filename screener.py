@@ -2,7 +2,8 @@
 Bidirectional NIFTY Relative Strength & Relative Weakness Strategy.
 Supports:
 1. 08:30 AM Full Watchlist (All Top 5 Stocks: Top 3 Longs + Top 2 Shorts).
-2. 09:00 AM Final Filtered Picks (Top 2 Best Stocks: Rank #1 Long + Rank #1 Short).
+2. 08:45 AM Final Filtered Picks (Top 2 Best Stocks: Rank #1 Long + Rank #1 Short).
+Includes Entry Range Zones (±0.5% tolerance) for stress-free execution at market open.
 """
 import pandas as pd
 import numpy as np
@@ -14,7 +15,7 @@ def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.Da
     """
     Scans for both LONG (Relative Strength) and SHORT (Relative Weakness) setups.
     top2_only=False -> Full 5-Stock Watchlist for 08:30 AM
-    top2_only=True  -> Final Top 2 Filtered Picks for 09:00 AM
+    top2_only=True  -> Final Top 2 Filtered Picks for 08:45 AM
     """
     try:
         # Fetch NIFTY 50 baseline
@@ -97,6 +98,8 @@ def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.Da
     for cand in combined:
         entry = round(cand['last_close'], 2)
         direction = cand['direction']
+        entry_min = round(entry * 0.995, 2) # -0.5% lower entry bound
+        entry_max = round(entry * 1.005, 2) # +0.5% upper entry bound
 
         if direction == 'LONG':
             sl = round(entry * 0.98, 2)
@@ -119,6 +122,8 @@ def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.Da
             'ticker': cand['ticker'],
             'direction': direction,
             'entry': entry,
+            'entry_min': entry_min,
+            'entry_max': entry_max,
             'sl': sl,
             'target1': target1,
             'target2': target2,
@@ -129,11 +134,11 @@ def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.Da
             'or_low': sl,
             'vwap': entry,
             'score': score,
-            'timestamp': '09:00 AM' if top2_only else '08:30 AM',
+            'timestamp': '08:45 AM' if top2_only else '08:30 AM',
             'breakout_time': '09:15 AM'
         })
 
     return picks
 
 if __name__ == '__main__':
-    print('Screener loaded with 08:30 AM Full Watchlist & 09:00 AM Top 2 Filter.')
+    print('Screener loaded with Entry Range Zones (±0.5% tolerance).')
