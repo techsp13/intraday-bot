@@ -464,9 +464,14 @@ def generate_site():
           </div>
         </div>
 
-        <button onclick="resetJournalData()" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-rose-900/40 text-gray-400 hover:text-rose-300 text-xs font-semibold border border-[#30363d] flex items-center gap-1 transition-colors self-start sm:self-auto">
-          <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Reset to ₹6,800
-        </button>
+        <div class="flex items-center gap-2 self-start sm:self-auto">
+          <button onclick="exportJournalToCSV()" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-emerald-900/40 text-emerald-300 hover:text-emerald-200 text-xs font-semibold border border-emerald-500/40 flex items-center gap-1 transition-colors">
+            <i data-lucide="download" class="w-3 h-3 text-emerald-400"></i> Export to Excel (.csv)
+          </button>
+          <button onclick="resetJournalData()" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-rose-900/40 text-gray-400 hover:text-rose-300 text-xs font-semibold border border-[#30363d] flex items-center gap-1 transition-colors">
+            <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Reset to ₹6,800
+          </button>
+        </div>
       </div>
 
       <!-- ₹1 Crore Progress Bar -->
@@ -1024,6 +1029,31 @@ def generate_site():
         journal.trades.splice(idx, 1);
         renderJournal();
       }}
+    }}
+
+    function exportJournalToCSV() {{
+      const trades = journal.trades || [];
+      if (trades.length === 0) {{
+        alert('No trades logged yet to export. Log some trades first!');
+        return;
+      }}
+
+      let csv = 'Trade ID,Date,Stock,Direction,Shares,Entry Price (INR),Exit Price (INR),Net PnL (INR),Balance After (INR)\n';
+      let runningBal = journal.initial_balance || 6800.0;
+
+      trades.forEach((t, idx) => {{
+        runningBal += parseFloat(t.pnl || 0);
+        csv += `${{idx + 1}},${{t.date}},${{t.stock}},${{t.direction}},${{t.shares}},${{parseFloat(t.entry).toFixed(2)}},${{parseFloat(t.exit || t.entry).toFixed(2)}},${{parseFloat(t.pnl).toFixed(2)}},${{runningBal.toFixed(2)}}\n`;
+      }});
+
+      const blob = new Blob([csv], {{ type: 'text/csv;charset=utf-8;' }});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `sanket_trade_journal_${{new Date().toISOString().split('T')[0]}}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }}
 
     function resetJournalData() {{
