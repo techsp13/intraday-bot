@@ -1,12 +1,10 @@
 """
 Clean, Simple & Mobile-Optimized Web Dashboard Generator for NSE Intraday Stock Pick Bot.
-- Interactive Demat Portfolio Capital Allocator (e.g. Enter ₹6,800 -> Auto-splits across 5 stocks with 5x MIS leverage).
-- Supports both LONG (Buy) and SHORT (Sell) trades.
-- 100% Mobile Friendly: Zero horizontal scrolling on smartphones.
-- Adaptive UI: Modern Stacked Cards on Mobile + Clean Table on Desktop.
+- Always loads the latest active trading date and stock picks.
+- Interactive Demat Portfolio Capital Allocator (Enter ₹6,800 -> Auto-splits across stocks with 5x MIS leverage).
+- Supports both LONG (Buy) and SHORT (Sell) trades with Entry Zones.
 - Developed by Sanket Patel.
-- Trading Rules & Selection Guide.
-- Market Close Results & P&L reveal at 03:30 PM.
+- Market Close Results & P&L.
 """
 import os
 import json
@@ -21,28 +19,38 @@ def generate_site():
     os.makedirs(docs_dir, exist_ok=True)
     
     db_path = os.path.join(os.path.dirname(__file__), 'data', 'picks.db')
+    json_path = os.path.join(docs_dir, 'picks.json')
     
-    picks = []
-    if os.path.exists(db_path):
+    today_picks = []
+
+    # 1. Try reading from docs/picks.json first (most accurate)
+    if os.path.exists(json_path):
+        try:
+            with open(json_path, 'r') as f:
+                json_data = json.load(f)
+                if json_data and isinstance(json_data, list):
+                    today_picks = json_data
+        except Exception as e:
+            print(f"Error reading picks.json: {e}")
+
+    # 2. If empty, fallback to picks.db
+    if not today_picks and os.path.exists(db_path):
         try:
             conn = sqlite3.connect(db_path)
             conn.row_factory = sqlite3.Row
             c = conn.cursor()
             c.execute("SELECT * FROM picks ORDER BY date DESC, id DESC")
             rows = c.fetchall()
-            for r in rows:
-                picks.append(dict(r))
+            picks = [dict(r) for r in rows]
             conn.close()
+            
+            if picks:
+                latest_date = picks[0].get('date')
+                today_picks = [p for p in picks if p.get('date') == latest_date]
         except Exception as e:
             print(f"Error reading database: {e}")
 
-    today_str = datetime.now().strftime("%Y-%m-%d")
-    today_picks = [p for p in picks if p.get('date') == today_str]
-    if not today_picks and picks:
-        latest_date = picks[0].get('date')
-        today_picks = [p for p in picks if p.get('date') == latest_date]
-        today_str = latest_date or today_str
-
+    # Deduplicate symbols
     seen_symbols = set()
     deduped_today_picks = []
     for p in reversed(today_picks):
@@ -135,7 +143,7 @@ def generate_site():
             'target1': t1,
             'target2': t2,
             'qty': qty,
-            'rs': float(p.get('adx', 0.0)),
+            'rs': float(p.get('rs', p.get('adx', 0.0))),
             'day_high': day_high,
             'day_low': day_low,
             'day_close': day_close,
@@ -151,7 +159,6 @@ def generate_site():
     total_pnl_sign = "+" if total_day_pnl >= 0 else ""
     total_pnl_color = "text-emerald-400" if total_day_pnl >= 0 else "text-rose-400"
 
-    # Convert evaluated picks to JSON string for client-side JS
     picks_js_data = json.dumps([{
         'symbol': p['symbol'],
         'direction': p['direction'],
@@ -193,7 +200,7 @@ def generate_site():
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-  <!-- Mobile-Optimized Header -->
+  <!-- Header -->
   <header class="border-b border-[#30363d] bg-[#161b22]/95 sticky top-0 z-50 px-3 py-2.5 sm:px-4 sm:py-3">
     <div class="max-w-6xl mx-auto flex items-center justify-between">
       <div class="flex items-center space-x-2.5">
@@ -217,7 +224,7 @@ def generate_site():
     </div>
   </header>
 
-  <!-- Main Content Container -->
+  <!-- Main Container -->
   <main class="flex-1 max-w-6xl mx-auto w-full px-3 py-4 sm:px-4 sm:py-6 space-y-5">
 
     <!-- Section 1: Morning Stock Picks -->
@@ -343,7 +350,7 @@ def generate_site():
     </div>
 
     <!-- Section 2: SMART PORTFOLIO CAPITAL ALLOCATOR & 5x MIS SIZER -->
-    <div class="card rounded-xl p-4 sm:p-5 border-cyan-500/50 shadow-xl space-y-4">
+    <div id="calculatorSection" class="card rounded-xl p-4 sm:p-5 border-cyan-500/50 shadow-xl space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#30363d] pb-3 gap-2">
         <div class="flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
@@ -387,7 +394,7 @@ def generate_site():
         </div>
       </div>
 
-      <!-- Quick Preset Buttons -->
+      <!-- Quick Presets -->
       <div class="flex flex-wrap items-center gap-2 text-xs font-mono">
         <span class="text-gray-500 font-sans text-[11px]">Quick Presets:</span>
         <button onclick="setQuickPreset(6800)" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-[#21262d] text-cyan-300 border border-[#30363d]">₹6,800</button>
@@ -397,7 +404,7 @@ def generate_site():
         <button onclick="setQuickPreset(100000)" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-[#21262d] text-emerald-400 border border-emerald-500/30 font-bold">₹1,00,000 (1 Lakh)</button>
       </div>
 
-      <!-- Dynamic Stock Allocation Cards (Auto Populated via JS) -->
+      <!-- Dynamic Stock Allocation Cards -->
       <div class="space-y-2 pt-2 border-t border-[#30363d]">
         <h4 class="text-xs font-bold text-gray-300 uppercase font-mono tracking-wider flex items-center gap-1.5">
           <i data-lucide="layers" class="w-3.5 h-3.5 text-cyan-400"></i>
@@ -621,7 +628,7 @@ def generate_site():
 
   </main>
 
-  <!-- Simple Footer -->
+  <!-- Footer -->
   <footer class="border-t border-[#30363d] py-4 text-center text-[11px] text-gray-500 space-y-0.5 px-3">
     <p class="text-gray-400 font-medium">NSE Intraday Breakout Terminal — Developed by Sanket Patel</p>
     <p>Data provided for quantitative intraday research. Always trade with strict risk management.</p>
@@ -630,7 +637,7 @@ def generate_site():
   <script>
     lucide.createIcons();
 
-    // Today's stock list loaded from server
+    // Today's exact stock list loaded directly from server
     const currentStocks = {picks_js_data};
     let portfolioMode = 5; // 5 = All 5 stocks, 2 = Top 2 stocks
 
@@ -743,7 +750,8 @@ def generate_site():
     }}
 
     function calculateSingleStock(sym, price, dir) {{
-      window.scrollTo({{ top: 380, behavior: 'smooth' }});
+      const el = document.getElementById('calculatorSection');
+      if (el) el.scrollIntoView({{ behavior: 'smooth' }});
     }}
 
     // Initial run

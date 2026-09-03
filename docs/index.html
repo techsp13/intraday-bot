@@ -30,7 +30,7 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-  <!-- Mobile-Optimized Header -->
+  <!-- Header -->
   <header class="border-b border-[#30363d] bg-[#161b22]/95 sticky top-0 z-50 px-3 py-2.5 sm:px-4 sm:py-3">
     <div class="max-w-6xl mx-auto flex items-center justify-between">
       <div class="flex items-center space-x-2.5">
@@ -54,7 +54,7 @@
     </div>
   </header>
 
-  <!-- Main Content Container -->
+  <!-- Main Container -->
   <main class="flex-1 max-w-6xl mx-auto w-full px-3 py-4 sm:px-4 sm:py-6 space-y-5">
 
     <!-- Section 1: Morning Stock Picks -->
@@ -197,7 +197,7 @@
     </div>
 
     <!-- Section 2: SMART PORTFOLIO CAPITAL ALLOCATOR & 5x MIS SIZER -->
-    <div class="card rounded-xl p-4 sm:p-5 border-cyan-500/50 shadow-xl space-y-4">
+    <div id="calculatorSection" class="card rounded-xl p-4 sm:p-5 border-cyan-500/50 shadow-xl space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#30363d] pb-3 gap-2">
         <div class="flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
@@ -241,7 +241,7 @@
         </div>
       </div>
 
-      <!-- Quick Preset Buttons -->
+      <!-- Quick Presets -->
       <div class="flex flex-wrap items-center gap-2 text-xs font-mono">
         <span class="text-gray-500 font-sans text-[11px]">Quick Presets:</span>
         <button onclick="setQuickPreset(6800)" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-[#21262d] text-cyan-300 border border-[#30363d]">₹6,800</button>
@@ -251,7 +251,7 @@
         <button onclick="setQuickPreset(100000)" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-[#21262d] text-emerald-400 border border-emerald-500/30 font-bold">₹1,00,000 (1 Lakh)</button>
       </div>
 
-      <!-- Dynamic Stock Allocation Cards (Auto Populated via JS) -->
+      <!-- Dynamic Stock Allocation Cards -->
       <div class="space-y-2 pt-2 border-t border-[#30363d]">
         <h4 class="text-xs font-bold text-gray-300 uppercase font-mono tracking-wider flex items-center gap-1.5">
           <i data-lucide="layers" class="w-3.5 h-3.5 text-cyan-400"></i>
@@ -342,7 +342,7 @@
 
         <div class="text-right">
           <span class="text-[10px] sm:text-xs text-gray-400 block">Total Net P&L</span>
-          <span class="text-base sm:text-xl font-bold text-emerald-400 mono">+₹1,048.25</span>
+          <span class="text-base sm:text-xl font-bold text-emerald-400 mono">+₹541.00</span>
         </div>
       </div>
 
@@ -368,7 +368,7 @@
             </div>
             <div>
               <span class="text-[9px] text-gray-400 block font-sans">Net P&L</span>
-              <span class="text-emerald-400 font-bold text-xs">+₹55.50</span>
+              <span class="text-emerald-400 font-bold text-xs">+₹18.50</span>
             </div>
           </div>
           <div class="flex justify-between text-[10px] text-gray-400 mono">
@@ -396,7 +396,7 @@
             </div>
             <div>
               <span class="text-[9px] text-gray-400 block font-sans">Net P&L</span>
-              <span class="text-emerald-400 font-bold text-xs">+₹992.75</span>
+              <span class="text-emerald-400 font-bold text-xs">+₹522.50</span>
             </div>
           </div>
           <div class="flex justify-between text-[10px] text-gray-400 mono">
@@ -428,32 +428,32 @@
             <tr class="hover:bg-[#1f242c]">
               <td class="px-4 py-3 font-bold text-white text-sm font-sans">HSCL</td>
               <td class="px-4 py-3 text-rose-400 font-bold">SHORT</td>
-              <td class="px-4 py-3">30</td>
+              <td class="px-4 py-3">10</td>
               <td class="px-4 py-3">₹663.85</td>
               <td class="px-4 py-3 text-emerald-400">₹664.50</td>
               <td class="px-4 py-3 text-rose-400">₹658.80</td>
               <td class="px-4 py-3 text-amber-300 font-bold">₹662.00</td>
               <td class="px-4 py-3"><span class="text-gray-300 bg-gray-800 px-2 py-0.5 rounded">CLOSED AT 03:15 PM</span></td>
-              <td class="px-4 py-3 text-right text-emerald-400 font-bold text-sm">+₹55.50</td>
+              <td class="px-4 py-3 text-right text-emerald-400 font-bold text-sm">+₹18.50</td>
             </tr>
 
             <tr class="hover:bg-[#1f242c]">
               <td class="px-4 py-3 font-bold text-white text-sm font-sans">CYIENT</td>
               <td class="px-4 py-3 text-emerald-400 font-bold">LONG</td>
-              <td class="px-4 py-3">19</td>
+              <td class="px-4 py-3">10</td>
               <td class="px-4 py-3">₹1,045.20</td>
               <td class="px-4 py-3 text-emerald-400">₹1,127.00</td>
               <td class="px-4 py-3 text-rose-400">₹1,101.20</td>
               <td class="px-4 py-3 text-amber-300 font-bold">₹1,097.45</td>
               <td class="px-4 py-3"><span class="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-semibold">HIT TARGET 2 (+5%)</span></td>
-              <td class="px-4 py-3 text-right text-emerald-400 font-bold text-sm">+₹992.75</td>
+              <td class="px-4 py-3 text-right text-emerald-400 font-bold text-sm">+₹522.50</td>
             </tr>
 
           </tbody>
           <tfoot class="bg-[#0d1117] font-bold border-t border-[#30363d]">
             <tr>
               <td colspan="8" class="px-4 py-3 text-right text-gray-400 font-sans">TOTAL REALIZED NET P&L:</td>
-              <td class="px-4 py-3 text-right text-emerald-400 text-sm">+₹1,048.25</td>
+              <td class="px-4 py-3 text-right text-emerald-400 text-sm">+₹541.00</td>
             </tr>
           </tfoot>
         </table>
@@ -463,7 +463,7 @@
 
   </main>
 
-  <!-- Simple Footer -->
+  <!-- Footer -->
   <footer class="border-t border-[#30363d] py-4 text-center text-[11px] text-gray-500 space-y-0.5 px-3">
     <p class="text-gray-400 font-medium">NSE Intraday Breakout Terminal — Developed by Sanket Patel</p>
     <p>Data provided for quantitative intraday research. Always trade with strict risk management.</p>
@@ -472,7 +472,7 @@
   <script>
     lucide.createIcons();
 
-    // Today's stock list loaded from server
+    // Today's exact stock list loaded directly from server
     const currentStocks = [{"symbol": "HSCL", "direction": "SHORT", "entry": 663.85, "sl": 677.13, "t1": 643.93, "t2": 630.65}, {"symbol": "CYIENT", "direction": "LONG", "entry": 1045.2, "sl": 1024.3, "t1": 1076.55, "t2": 1097.45}];
     let portfolioMode = 5; // 5 = All 5 stocks, 2 = Top 2 stocks
 
@@ -585,7 +585,8 @@
     }
 
     function calculateSingleStock(sym, price, dir) {
-      window.scrollTo({ top: 380, behavior: 'smooth' });
+      const el = document.getElementById('calculatorSection');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
     }
 
     // Initial run
