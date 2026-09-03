@@ -2,7 +2,8 @@
 Clean, Simple & Mobile-Optimized Web Dashboard Generator for NSE Intraday Stock Pick Bot.
 - Always loads the latest active trading date and stock picks.
 - Interactive Demat Portfolio Capital Allocator (Enter ₹6,800 -> Auto-splits across stocks with 5x MIS leverage).
-- Supports both LONG (Buy) and SHORT (Sell) trades with Entry Zones.
+- Personal Trade Journal & ₹1 Crore Milestone Progress Tracker with local storage & test sample data.
+- Supports both LONG (Buy) and SHORT (Sell) trades with Entry Zones & 5x Margin indicators.
 - Developed by Sanket Patel.
 - Market Close Results & P&L.
 """
@@ -20,6 +21,7 @@ def generate_site():
     
     db_path = os.path.join(os.path.dirname(__file__), 'data', 'picks.db')
     json_path = os.path.join(docs_dir, 'picks.json')
+    journal_path = os.path.join(os.path.dirname(__file__), 'data', 'trade_journal.json')
     
     today_picks = []
 
@@ -155,6 +157,15 @@ def generate_site():
     with open(os.path.join(docs_dir, 'picks.json'), 'w') as f:
         json.dump(evaluated_picks, f, indent=2)
 
+    # Load Trade Journal
+    journal_data = {'initial_balance': 6800.0, 'current_balance': 7285.58, 'trades': []}
+    if os.path.exists(journal_path):
+        try:
+            with open(journal_path, 'r', encoding='utf-8') as f:
+                journal_data = json.load(f)
+        except Exception:
+            pass
+
     today_date_display = datetime.now().strftime("%d-%b-%Y")
     total_pnl_sign = "+" if total_day_pnl >= 0 else ""
     total_pnl_color = "text-emerald-400" if total_day_pnl >= 0 else "text-rose-400"
@@ -167,6 +178,8 @@ def generate_site():
         't1': p['target1'],
         't2': p['target2']
     } for p in evaluated_picks])
+
+    journal_js_data = json.dumps(journal_data)
 
     html_content = f"""<!DOCTYPE html>
 <html lang="en">
@@ -435,7 +448,147 @@ def generate_site():
       </div>
     </div>
 
-    <!-- Section 3: Trading Rules & Stock Selection Guide -->
+    <!-- Section 3: SANKET'S PERSONAL TRADE JOURNAL & ₹1 CRORE PROGRESS TRACKER -->
+    <div id="journalSection" class="card rounded-xl p-4 sm:p-5 border-amber-500/40 shadow-xl space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#30363d] pb-3 gap-2">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <i data-lucide="trophy" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm sm:text-base font-bold text-white">Sanket's Trade Journal & ₹1 Crore Goal Tracker</h3>
+              <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 font-bold border border-amber-500/30">JOURNAL</span>
+            </div>
+            <p class="text-[11px] sm:text-xs text-gray-400">Log daily manual trades, track compounding Demat cash, and watch the ₹1 Crore progress bar!</p>
+          </div>
+        </div>
+
+        <button onclick="resetJournalData()" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-rose-900/40 text-gray-400 hover:text-rose-300 text-xs font-semibold border border-[#30363d] flex items-center gap-1 transition-colors self-start sm:self-auto">
+          <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Reset to ₹6,800
+        </button>
+      </div>
+
+      <!-- ₹1 Crore Progress Bar -->
+      <div class="bg-[#0d1117] p-3.5 rounded-xl border border-[#30363d] space-y-2">
+        <div class="flex items-center justify-between text-xs font-mono">
+          <span class="text-gray-400 font-sans font-bold flex items-center gap-1.5">
+            <i data-lucide="flag" class="w-3.5 h-3.5 text-amber-400"></i> ₹1 CRORE GOAL PROGRESS
+          </span>
+          <span id="txtGoalProgress" class="text-amber-400 font-extrabold text-sm">₹7,285 / ₹1,00,00,000 (0.07%)</span>
+        </div>
+
+        <!-- Progress Bar Visual -->
+        <div class="w-full bg-[#161b22] h-3.5 rounded-full overflow-hidden border border-[#30363d] relative">
+          <div id="barGoalProgress" class="h-full bg-gradient-to-r from-emerald-500 via-cyan-400 to-amber-400 rounded-full transition-all duration-500" style="width: 0.1%;"></div>
+        </div>
+
+        <!-- Milestone Badges -->
+        <div class="flex flex-wrap items-center justify-between gap-1 text-[10px] font-mono text-gray-400 pt-1">
+          <span class="text-emerald-400 font-bold">🏁 ₹6.8k Start</span>
+          <span>🎯 ₹25k</span>
+          <span>🎯 ₹50k</span>
+          <span>🎯 ₹1 Lakh</span>
+          <span>🎯 ₹10 Lakhs</span>
+          <span>🎯 ₹50 Lakhs</span>
+          <span class="text-amber-400 font-bold">🏆 ₹1 CRORE!</span>
+        </div>
+      </div>
+
+      <!-- Journal 4-Metric Highlights -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mono text-center text-xs">
+        <div class="bg-[#0d1117] p-2.5 rounded-lg border border-[#30363d]">
+          <span class="text-[10px] text-gray-400 block font-sans">STARTING CASH</span>
+          <span class="text-white font-bold text-sm sm:text-base">₹6,800.00</span>
+        </div>
+        <div class="bg-[#0d1117] p-2.5 rounded-lg border border-cyan-500/40">
+          <span class="text-[10px] text-cyan-300 block font-sans font-bold">CURRENT DEMAT CASH</span>
+          <span id="txtJournalBalance" class="text-cyan-400 font-extrabold text-sm sm:text-base">₹7,285.58</span>
+        </div>
+        <div class="bg-[#0d1117] p-2.5 rounded-lg border border-emerald-500/40">
+          <span class="text-[10px] text-emerald-300 block font-sans font-bold">TOTAL REALIZED P&L</span>
+          <span id="txtJournalPnl" class="text-emerald-400 font-extrabold text-sm sm:text-base">+₹485.58</span>
+        </div>
+        <div class="bg-[#0d1117] p-2.5 rounded-lg border border-[#30363d]">
+          <span class="text-[10px] text-gray-400 block font-sans">WIN RATE (LOGGED)</span>
+          <span id="txtJournalWinRate" class="text-white font-bold text-sm sm:text-base">75.0% (3W/1L)</span>
+        </div>
+      </div>
+
+      <!-- Quick Log New Trade Form -->
+      <div class="bg-[#0d1117] p-3.5 rounded-xl border border-[#30363d] space-y-3">
+        <h4 class="text-xs font-bold text-white font-mono uppercase tracking-wider flex items-center gap-1.5">
+          <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-cyan-400"></i>
+          Log Manual Trade Result:
+        </h4>
+
+        <form id="formLogTrade" onsubmit="handleLogTradeSubmit(event)" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 text-xs font-mono">
+          <div>
+            <label class="block text-[10px] text-gray-400 mb-0.5">Date</label>
+            <input type="date" id="logDate" required class="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-1.5 text-white outline-none">
+          </div>
+          <div>
+            <label class="block text-[10px] text-gray-400 mb-0.5">Stock</label>
+            <input type="text" id="logStock" placeholder="e.g. IFCI" required class="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-1.5 text-white uppercase outline-none">
+          </div>
+          <div>
+            <label class="block text-[10px] text-gray-400 mb-0.5">Type</label>
+            <select id="logDirection" class="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-1.5 text-cyan-300 outline-none">
+              <option value="LONG">BUY (Long)</option>
+              <option value="SHORT">SELL (Short)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] text-gray-400 mb-0.5">Shares</label>
+            <input type="number" id="logShares" placeholder="Qty" required class="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-1.5 text-white outline-none">
+          </div>
+          <div>
+            <label class="block text-[10px] text-gray-400 mb-0.5">Entry (₹)</label>
+            <input type="number" id="logEntry" step="0.05" placeholder="Price" required class="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-1.5 text-white outline-none">
+          </div>
+          <div>
+            <label class="block text-[10px] text-gray-400 mb-0.5">Net P&L (₹)</label>
+            <input type="number" id="logPnl" step="0.05" placeholder="P&L" required class="w-full bg-[#161b22] border border-cyan-500/50 rounded-lg p-1.5 text-cyan-300 font-bold outline-none">
+          </div>
+          <div class="col-span-2 sm:col-span-4 lg:col-span-1 flex items-end">
+            <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold p-1.5 rounded-lg flex items-center justify-center gap-1 shadow transition-colors">
+              <i data-lucide="check" class="w-3.5 h-3.5"></i> Add Log
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Trade History Table -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-xs font-mono text-gray-400">
+          <span class="font-sans font-bold text-gray-300">Journal Trade History:</span>
+          <span id="txtJournalTradeCount">4 Trades Logged</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs mono">
+            <thead class="bg-[#0d1117] text-gray-400 uppercase text-[10px] border-b border-[#30363d]">
+              <tr>
+                <th class="px-3 py-2">Date</th>
+                <th class="px-3 py-2 font-sans">Stock</th>
+                <th class="px-3 py-2">Type</th>
+                <th class="px-3 py-2">Shares</th>
+                <th class="px-3 py-2">Entry</th>
+                <th class="px-3 py-2">Exit</th>
+                <th class="px-3 py-2 text-right">Net P&L (₹)</th>
+                <th class="px-3 py-2 text-right">Balance After</th>
+                <th class="px-3 py-2 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="journalTableBody" class="divide-y divide-[#30363d] text-gray-200">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: Trading Rules & Stock Selection Guide -->
     <div class="card rounded-xl p-4 sm:p-5 shadow-lg border-emerald-500/30">
       <div class="flex items-center gap-2 border-b border-[#30363d] pb-3 mb-4">
         <i data-lucide="book-open" class="w-5 h-5 text-emerald-400"></i>
@@ -500,7 +653,7 @@ def generate_site():
       </div>
     </div>
 
-    <!-- Section 4: Market Close Results (Reveals at 03:30 PM) -->
+    <!-- Section 5: Market Close Results (Reveals at 03:30 PM) -->
     <div class="card rounded-xl p-4 sm:p-5">
       <div class="flex items-center justify-between border-b border-[#30363d] pb-3 mb-4">
         <div>
@@ -655,7 +808,6 @@ def generate_site():
   <script>
     lucide.createIcons();
 
-    // Today's exact stock list loaded directly from server
     const currentStocks = {picks_js_data};
     let portfolioMode = 5; // Default: All 5 stocks
 
@@ -767,8 +919,129 @@ def generate_site():
       if (el) el.scrollIntoView({{ behavior: 'smooth' }});
     }}
 
-    // Initial run
+    // ==========================================
+    // TRADE JOURNAL & ₹1 CRORE TRACKER LOGIC
+    // ==========================================
+    const initialJournalData = {journal_js_data};
+    let journal = JSON.parse(localStorage.getItem('sanket_trade_journal')) || initialJournalData;
+
+    function renderJournal() {{
+      const trades = journal.trades || [];
+      const initBal = journal.initial_balance || 6800.0;
+      let currBal = initBal;
+
+      trades.forEach(t => {{
+        currBal += parseFloat(t.pnl || 0);
+      }});
+
+      journal.current_balance = Math.round(currBal * 100) / 100;
+      localStorage.setItem('sanket_trade_journal', JSON.stringify(journal));
+
+      const totalPnl = currBal - initBal;
+      const wins = trades.filter(t => (t.pnl || 0) > 0).length;
+      const losses = trades.filter(t => (t.pnl || 0) < 0).length;
+      const winRate = trades.length > 0 ? ((wins / trades.length) * 100).toFixed(1) : '0.0';
+
+      const goal = 10000000.0; // ₹1 Crore
+      const progressPct = Math.min(100, Math.max(0.05, (currBal / goal) * 100)).toFixed(2);
+
+      document.getElementById('txtGoalProgress').innerText = '₹' + Math.round(currBal).toLocaleString('en-IN') + ' / ₹1,00,00,000 (' + (currBal/goal*100).toFixed(3) + '%)';
+      document.getElementById('barGoalProgress').style.width = Math.max(0.5, (currBal / goal * 100)) + '%';
+
+      document.getElementById('txtJournalBalance').innerText = '₹' + currBal.toLocaleString('en-IN', {{ minimumFractionDigits: 2 }});
+      const pnlSign = totalPnl >= 0 ? '+' : '';
+      document.getElementById('txtJournalPnl').innerText = pnlSign + '₹' + totalPnl.toLocaleString('en-IN', {{ minimumFractionDigits: 2 }});
+      document.getElementById('txtJournalPnl').className = totalPnl >= 0 ? 'text-emerald-400 font-extrabold text-sm sm:text-base' : 'text-rose-400 font-extrabold text-sm sm:text-base';
+      document.getElementById('txtJournalWinRate').innerText = winRate + '% (' + wins + 'W/' + losses + 'L)';
+      document.getElementById('txtJournalTradeCount').innerText = trades.length + ' Trades Logged';
+
+      const tbody = document.getElementById('journalTableBody');
+      if (trades.length === 0) {{
+        tbody.innerHTML = '<tr><td colspan="9" class="px-3 py-4 text-center text-gray-500 font-sans">No trades logged yet. Start logging from tomorrow morning!</td></tr>';
+        return;
+      }}
+
+      let runningBal = initBal;
+      let rowsHtml = '';
+      trades.forEach((t, idx) => {{
+        runningBal += parseFloat(t.pnl || 0);
+        const pSign = t.pnl >= 0 ? '+' : '';
+        const pColor = t.pnl >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
+        const typeColor = t.direction === 'LONG' ? 'text-emerald-400' : 'text-rose-400';
+
+        rowsHtml += `
+        <tr class="hover:bg-[#1f242c]">
+          <td class="px-3 py-2 text-gray-400 text-[11px]">${{t.date}}</td>
+          <td class="px-3 py-2 font-bold text-white font-sans">${{t.stock}}</td>
+          <td class="px-3 py-2 ${{typeColor}} font-bold">${{t.direction}}</td>
+          <td class="px-3 py-2">${{t.shares}}</td>
+          <td class="px-3 py-2">₹${{parseFloat(t.entry).toFixed(2)}}</td>
+          <td class="px-3 py-2">₹${{parseFloat(t.exit || t.entry).toFixed(2)}}</td>
+          <td class="px-3 py-2 text-right ${{pColor}}">${{pSign}}₹${{parseFloat(t.pnl).toFixed(2)}}</td>
+          <td class="px-3 py-2 text-right font-bold text-white">₹${{runningBal.toLocaleString('en-IN', {{ minimumFractionDigits: 2 }})}}</td>
+          <td class="px-3 py-2 text-center">
+            <button onclick="deleteTradeEntry(${{idx}})" class="text-gray-500 hover:text-rose-400 px-1 py-0.5 transition-colors">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </td>
+        </tr>
+        `;
+      }});
+      tbody.innerHTML = rowsHtml;
+      lucide.createIcons();
+    }}
+
+    function handleLogTradeSubmit(e) {{
+      e.preventDefault();
+      const date = document.getElementById('logDate').value || new Date().toISOString().split('T')[0];
+      const stock = document.getElementById('logStock').value.trim().toUpperCase();
+      const direction = document.getElementById('logDirection').value;
+      const shares = parseInt(document.getElementById('logShares').value) || 1;
+      const entry = parseFloat(document.getElementById('logEntry').value) || 0;
+      const pnl = parseFloat(document.getElementById('logPnl').value) || 0;
+
+      if (!stock || entry <= 0) return;
+
+      const exit = direction === 'LONG' ? (entry + (pnl / shares)) : (entry - (pnl / shares));
+
+      journal.trades.push({{
+        date: date,
+        stock: stock,
+        direction: direction,
+        shares: shares,
+        entry: entry,
+        exit: Math.round(exit * 100) / 100,
+        pnl: pnl
+      }});
+
+      renderJournal();
+      document.getElementById('formLogTrade').reset();
+      document.getElementById('logDate').valueAsDate = new Date();
+    }}
+
+    function deleteTradeEntry(idx) {{
+      if (confirm('Delete this trade entry?')) {{
+        journal.trades.splice(idx, 1);
+        renderJournal();
+      }}
+    }}
+
+    function resetJournalData() {{
+      if (confirm('Reset trade journal to clean starting state (₹6,800 balance)? All test entries will be cleared.')) {{
+        journal = {{
+          initial_balance: 6800.0,
+          current_balance: 6800.0,
+          trades: []
+        }};
+        localStorage.setItem('sanket_trade_journal', JSON.stringify(journal));
+        renderJournal();
+      }}
+    }}
+
+    // Initial setup
+    document.getElementById('logDate').valueAsDate = new Date();
     recalculatePortfolio();
+    renderJournal();
   </script>
 </body>
 </html>
@@ -777,7 +1050,7 @@ def generate_site():
     with open(os.path.join(docs_dir, 'index.html'), 'w', encoding='utf-8') as f:
         f.write(html_content)
 
-    print(f"Smart Demat Portfolio Allocator website generated successfully in {docs_dir}/index.html")
+    print(f"Personal Trade Journal website generated successfully in {docs_dir}/index.html")
     return True
 
 if __name__ == '__main__':

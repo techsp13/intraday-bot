@@ -1,0 +1,55 @@
+{
+  "initial_balance": 6800.0,
+  "current_balance": 7285.58,
+  "target_goal": 10000000.0,
+  "trades": [
+    {
+      "id": 1,
+      "date": "2026-09-02",
+      "stock": "NSLNISP",
+      "direction": "LONG",
+      "shares": 149,
+      "entry": 45.61,
+      "exit": 47.19,
+      "pnl": 217.89,
+      "balance_after": 7017.89,
+      "notes": "Target 1 Hit (+3.0%)"
+    },
+    {
+      "id": 2,
+      "date": "2026-09-03",
+      "stock": "IFCI",
+      "direction": "LONG",
+      "shares": 69,
+      "entry": 98.32,
+      "exit": 101.28,
+      "pnl": 204.24,
+      "balance_after": 7222.13,
+      "notes": "Target 1 Hit (+3.0%)"
+    },
+    {
+      "id": 3,
+      "date": "2026-09-03",
+      "stock": "ZEEL",
+      "direction": "SHORT",
+      "shares": 75,
+      "entry": 90.57,
+      "exit": 92.38,
+      "pnl": -135.75,
+      "balance_after": 7086.38,
+      "notes": "Stop Loss Hit (-2.0%)"
+    },
+    {
+      "id": 4,
+      "date": "2026-09-03",
+      "stock": "ENGINERSIN",
+      "direction": "LONG",
+      "shares": 24,
+      "entry": 276.6,
+      "exit": 284.9,
+      "pnl": 199.2,
+      "balance_after": 7285.58,
+      "notes": "Target 1 Hit (+3.0%)"
+    }
+  ]
+}
