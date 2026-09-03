@@ -362,10 +362,18 @@ def generate_site():
           </div>
         </div>
 
-        <!-- Strategy Mode Selector -->
-        <div class="flex items-center bg-[#0d1117] p-1 rounded-lg border border-[#30363d] text-xs font-bold mono self-start sm:self-auto">
-          <button id="btnAll5" onclick="setPortfolioMode(5)" class="px-3 py-1 rounded bg-cyan-500 text-gray-950 font-bold transition-all">ALL 5 STOCKS</button>
-          <button id="btnTop2" onclick="setPortfolioMode(2)" class="px-3 py-1 rounded text-gray-400 hover:text-white transition-all">TOP 2 ONLY</button>
+        <!-- Stock Selection Dropdown (All 5, 4, 3, 2, 1) -->
+        <div class="flex items-center gap-2 self-start sm:self-auto">
+          <label class="text-xs text-gray-400 font-semibold hidden sm:inline">Stocks to Trade:</label>
+          <div class="relative">
+            <select id="selectStockCount" onchange="onStockCountSelect(this.value)" class="bg-[#0d1117] border border-cyan-500/60 focus:border-cyan-400 text-cyan-300 rounded-lg px-3 py-1.5 text-xs font-bold mono outline-none cursor-pointer">
+              <option value="5" selected>All 5 Stocks (20% Split)</option>
+              <option value="4">Top 4 Stocks (25% Split)</option>
+              <option value="3">Top 3 Stocks (33.3% Split)</option>
+              <option value="2">Top 2 Picks (50/50 Split)</option>
+              <option value="1">Top 1 Best Pick (100% Margin)</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -639,20 +647,10 @@ def generate_site():
 
     // Today's exact stock list loaded directly from server
     const currentStocks = {picks_js_data};
-    let portfolioMode = 5; // 5 = All 5 stocks, 2 = Top 2 stocks
+    let portfolioMode = 5; // Default: All 5 stocks
 
-    function setPortfolioMode(mode) {{
-      portfolioMode = mode;
-      const btnAll5 = document.getElementById('btnAll5');
-      const btnTop2 = document.getElementById('btnTop2');
-
-      if (mode === 5) {{
-        btnAll5.className = 'px-3 py-1 rounded bg-cyan-500 text-gray-950 font-bold transition-all';
-        btnTop2.className = 'px-3 py-1 rounded text-gray-400 hover:text-white transition-all';
-      }} else {{
-        btnTop2.className = 'px-3 py-1 rounded bg-cyan-500 text-gray-950 font-bold transition-all';
-        btnAll5.className = 'px-3 py-1 rounded text-gray-400 hover:text-white transition-all';
-      }}
+    function onStockCountSelect(val) {{
+      portfolioMode = parseInt(val) || 5;
       recalculatePortfolio();
     }}
 
