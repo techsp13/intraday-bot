@@ -293,6 +293,7 @@ def generate_site():
           
           <div class="flex items-center justify-between text-[11px] text-gray-400 mono pt-1 border-t border-[#30363d]/60">
             <span>Entry Zone: <strong class="text-white">₹{round(ent*0.995, 2):,.2f} – ₹{round(ent*1.005, 2):,.2f}</strong></span>
+            <span class="text-cyan-300 font-semibold">5x Margin: ₹{round(ent/5.0, 2):,.2f}/sh</span>
           </div>
         </div>
 """
@@ -308,6 +309,7 @@ def generate_site():
               <th class="px-4 py-3 font-sans">Stock</th>
               <th class="px-4 py-3">Direction</th>
               <th class="px-4 py-3 text-white">Entry Zone (±0.5%)</th>
+              <th class="px-4 py-3 text-cyan-300">5x Margin / Share</th>
               <th class="px-4 py-3 text-rose-400">Stop Loss (2%)</th>
               <th class="px-4 py-3 text-emerald-400">Target 1 (3%)</th>
               <th class="px-4 py-3 text-cyan-400">Target 2 (5%)</th>
@@ -332,6 +334,7 @@ def generate_site():
               <td class="px-4 py-3.5 font-bold text-white text-sm font-sans">{sym}</td>
               <td class="px-4 py-3.5 {dirn_color} font-bold">{dirn}</td>
               <td class="px-4 py-3.5 font-bold text-white">₹{round(ent*0.995, 2):,.2f} – ₹{round(ent*1.005, 2):,.2f}</td>
+              <td class="px-4 py-3.5 text-cyan-300 font-semibold">₹{round(ent/5.0, 2):,.2f} <span class="text-[10px] text-gray-500 font-normal">/share</span></td>
               <td class="px-4 py-3.5 text-rose-400 font-semibold">₹{sl:,.2f}</td>
               <td class="px-4 py-3.5 text-emerald-400 font-semibold">₹{t1:,.2f}</td>
               <td class="px-4 py-3.5 text-cyan-400 font-semibold">₹{t2:,.2f}</td>
@@ -712,22 +715,26 @@ def generate_site():
               <h4 class="text-sm sm:text-base font-bold text-white font-sans">${{stk.symbol}}</h4>
               <span class="text-[10px] px-2 py-0.5 rounded font-mono font-bold border ${{badgeClass}}">${{dirLabel}}</span>
             </div>
-            <div class="text-right">
-              <span class="text-[10px] text-gray-400 block font-sans">Cash Margin</span>
-              <span class="text-xs sm:text-sm font-bold text-cyan-300 mono">₹${{Math.round(actualMargin).toLocaleString('en-IN')}}</span>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-bold mono">5x MIS LEVERAGE</span>
             </div>
           </div>
 
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-[#161b22] p-2.5 rounded-lg mono text-center text-xs">
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-[#161b22] p-2.5 rounded-lg mono text-center text-xs">
+            <div class="p-1 bg-[#0d1117] rounded-lg border border-cyan-500/40">
+              <span class="text-[10px] text-cyan-300 block font-sans font-bold">ACTUAL 5x MARGIN</span>
+              <span class="text-sm sm:text-base font-extrabold text-cyan-400">₹${{Math.round(actualMargin).toLocaleString('en-IN')}}</span>
+              <span class="text-[9px] text-gray-400 block">5x Value: ₹${{Math.round(actualExposure).toLocaleString('en-IN')}}</span>
+            </div>
             <div class="p-1">
-              <span class="text-[10px] text-cyan-400 block font-sans font-bold">SHARES TO TRADE</span>
+              <span class="text-[10px] text-white block font-sans font-bold">SHARES TO TRADE</span>
               <span class="text-sm sm:text-base font-extrabold text-white">${{shares}} shares</span>
-              <span class="text-[9px] text-gray-500 block">Val: ₹${{Math.round(actualExposure).toLocaleString('en-IN')}}</span>
+              <span class="text-[9px] text-gray-500 block">@ ₹${{price.toFixed(2)}}</span>
             </div>
             <div class="p-1">
               <span class="text-[10px] text-rose-400 block font-sans font-semibold">STOP LOSS (-2%)</span>
               <span class="text-xs sm:text-sm font-bold text-rose-400">₹${{sl.toFixed(2)}}</span>
-              <span class="text-[9px] text-rose-300/80 block">Max Loss: -₹${{Math.round(maxLoss).toLocaleString('en-IN')}}</span>
+              <span class="text-[9px] text-rose-300/80 block">Risk: -₹${{Math.round(maxLoss).toLocaleString('en-IN')}}</span>
             </div>
             <div class="p-1">
               <span class="text-[10px] text-emerald-400 block font-sans font-semibold">TARGET 1 (+3%)</span>
