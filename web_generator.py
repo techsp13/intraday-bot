@@ -480,7 +480,7 @@ def generate_site():
           <span class="text-gray-400 font-sans font-bold flex items-center gap-1.5">
             <i data-lucide="flag" class="w-3.5 h-3.5 text-amber-400"></i> ₹1 CRORE GOAL PROGRESS
           </span>
-          <span id="txtGoalProgress" class="text-amber-400 font-extrabold text-sm">₹7,285 / ₹1,00,00,000 (0.07%)</span>
+          <span id="txtGoalProgress" class="text-amber-400 font-extrabold text-sm">₹6,800 / ₹1,00,00,000 (0.07%)</span>
         </div>
 
         <!-- Progress Bar Visual -->
@@ -508,15 +508,15 @@ def generate_site():
         </div>
         <div class="bg-[#0d1117] p-2.5 rounded-lg border border-cyan-500/40">
           <span class="text-[10px] text-cyan-300 block font-sans font-bold">CURRENT DEMAT CASH</span>
-          <span id="txtJournalBalance" class="text-cyan-400 font-extrabold text-sm sm:text-base">₹7,285.58</span>
+          <span id="txtJournalBalance" class="text-cyan-400 font-extrabold text-sm sm:text-base">₹6,800.00</span>
         </div>
         <div class="bg-[#0d1117] p-2.5 rounded-lg border border-emerald-500/40">
           <span class="text-[10px] text-emerald-300 block font-sans font-bold">TOTAL REALIZED P&L</span>
-          <span id="txtJournalPnl" class="text-emerald-400 font-extrabold text-sm sm:text-base">+₹485.58</span>
+          <span id="txtJournalPnl" class="text-emerald-400 font-extrabold text-sm sm:text-base">+₹0.00</span>
         </div>
         <div class="bg-[#0d1117] p-2.5 rounded-lg border border-[#30363d]">
           <span class="text-[10px] text-gray-400 block font-sans">WIN RATE (LOGGED)</span>
-          <span id="txtJournalWinRate" class="text-white font-bold text-sm sm:text-base">75.0% (3W/1L)</span>
+          <span id="txtJournalWinRate" class="text-white font-bold text-sm sm:text-base">0.0% (0 Trades)</span>
         </div>
       </div>
 
