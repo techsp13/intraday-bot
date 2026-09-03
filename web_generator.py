@@ -1,10 +1,10 @@
 """
 Clean, Simple & Mobile-Optimized Web Dashboard Generator for NSE Intraday Stock Pick Bot.
+- Interactive Demat Portfolio Capital Allocator (e.g. Enter ₹6,800 -> Auto-splits across 5 stocks with 5x MIS leverage).
 - Supports both LONG (Buy) and SHORT (Sell) trades.
 - 100% Mobile Friendly: Zero horizontal scrolling on smartphones.
 - Adaptive UI: Modern Stacked Cards on Mobile + Clean Table on Desktop.
 - Developed by Sanket Patel.
-- Investment Amount & Position Size Calculator.
 - Trading Rules & Selection Guide.
 - Market Close Results & P&L reveal at 03:30 PM.
 """
@@ -36,7 +36,6 @@ def generate_site():
         except Exception as e:
             print(f"Error reading database: {e}")
 
-    # Today's picks (or latest trading day)
     today_str = datetime.now().strftime("%Y-%m-%d")
     today_picks = [p for p in picks if p.get('date') == today_str]
     if not today_picks and picks:
@@ -44,7 +43,6 @@ def generate_site():
         today_picks = [p for p in picks if p.get('date') == latest_date]
         today_str = latest_date or today_str
 
-    # Lock to original morning 08:30 AM picks (deduplicate symbols)
     seen_symbols = set()
     deduped_today_picks = []
     for p in reversed(today_picks):
@@ -54,7 +52,6 @@ def generate_site():
             deduped_today_picks.append(p)
     today_picks = list(reversed(deduped_today_picks))[:5]
 
-    # Check if current time is after 03:30 PM IST
     now = datetime.now()
     is_market_closed = (now.hour > 15) or (now.hour == 15 and now.minute >= 30)
     
@@ -147,15 +144,22 @@ def generate_site():
             'pnl': pnl
         })
 
-    # Save JSON API
     with open(os.path.join(docs_dir, 'picks.json'), 'w') as f:
         json.dump(evaluated_picks, f, indent=2)
 
-    now_formatted = datetime.now().strftime("%d-%b-%Y %I:%M %p IST")
     today_date_display = datetime.now().strftime("%d-%b-%Y")
-    
     total_pnl_sign = "+" if total_day_pnl >= 0 else ""
     total_pnl_color = "text-emerald-400" if total_day_pnl >= 0 else "text-rose-400"
+
+    # Convert evaluated picks to JSON string for client-side JS
+    picks_js_data = json.dumps([{
+        'symbol': p['symbol'],
+        'direction': p['direction'],
+        'entry': p['entry'],
+        'sl': p['sl'],
+        't1': p['target1'],
+        't2': p['target2']
+    } for p in evaluated_picks])
 
     html_content = f"""<!DOCTYPE html>
 <html lang="en">
@@ -165,7 +169,7 @@ def generate_site():
   <title>NSE Intraday Terminal | Developed by Sanket Patel</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
@@ -208,7 +212,7 @@ def generate_site():
       </div>
       
       <a href="https://t.me/sany_trader_bot" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center gap-1 shadow transition-colors">
-        <i data-lucide="send" class="w-3.5 h-3.5"></i> <span class="hidden xs:inline">Telegram</span>
+        <i data-lucide="send" class="w-3.5 h-3.5"></i> <span class="hidden xs:inline">Telegram Group</span>
       </a>
     </div>
   </header>
@@ -216,7 +220,7 @@ def generate_site():
   <!-- Main Content Container -->
   <main class="flex-1 max-w-6xl mx-auto w-full px-3 py-4 sm:px-4 sm:py-6 space-y-5">
 
-    <!-- Section 1: Morning Stock Picks (Responsive Cards on Mobile / Table on Desktop) -->
+    <!-- Section 1: Morning Stock Picks -->
     <div class="card rounded-xl p-4 sm:p-5 shadow-lg">
       <div class="flex items-center justify-between border-b border-[#30363d] pb-3 mb-4">
         <div>
@@ -231,7 +235,7 @@ def generate_site():
         </span>
       </div>
 
-      <!-- MOBILE VIEW: Stacked Clean Cards (Zero Horizontal Scroll!) -->
+      <!-- MOBILE VIEW: Stacked Clean Cards -->
       <div class="block md:hidden space-y-3">
 """
 
@@ -245,9 +249,9 @@ def generate_site():
         qty = p['qty']
 
         dirn_badge = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" if dirn == 'LONG' else "bg-rose-500/10 text-rose-400 border-rose-500/20"
-        sl_label = "Stop Loss (-2%)" if dirn == 'LONG' else "Stop Loss (+2%)"
-        t1_label = "Target 1 (+3%)" if dirn == 'LONG' else "Target 1 (-3%)"
-        t2_label = "Target 2 (+5%)" if dirn == 'LONG' else "Target 2 (-5%)"
+        sl_label = "SL (-2%)" if dirn == 'LONG' else "SL (+2%)"
+        t1_label = "T1 (+3%)" if dirn == 'LONG' else "T1 (-3%)"
+        t2_label = "T2 (+5%)" if dirn == 'LONG' else "T2 (-5%)"
 
         html_content += f"""
         <div class="bg-[#0d1117] border border-[#30363d] rounded-xl p-3.5 space-y-2.5">
@@ -256,14 +260,14 @@ def generate_site():
               <h3 class="text-lg font-bold text-white font-sans">{sym}</h3>
               <span class="text-[10px] px-2 py-0.5 rounded {dirn_badge} font-bold border">{dirn}</span>
             </div>
-            <button onclick="setCalculator('{ent}', '{qty}', '{dirn}')" class="px-3 py-1 rounded bg-[#21262d] hover:bg-cyan-600 text-cyan-400 hover:text-white text-xs font-semibold flex items-center gap-1 transition-colors">
-              <i data-lucide="calculator" class="w-3 h-3"></i> Calculate
+            <button onclick="calculateSingleStock('{sym}', '{ent}', '{dirn}')" class="px-3 py-1 rounded bg-[#21262d] hover:bg-cyan-600 text-cyan-400 hover:text-white text-xs font-semibold flex items-center gap-1 transition-colors">
+              <i data-lucide="calculator" class="w-3 h-3"></i> Size Stock
             </button>
           </div>
 
           <div class="grid grid-cols-2 gap-2 bg-[#161b22] p-2.5 rounded-lg mono text-xs">
             <div>
-              <span class="text-[10px] text-gray-400 block font-sans">Entry Price</span>
+              <span class="text-[10px] text-gray-400 block font-sans">Entry Ref</span>
               <span class="text-white font-bold text-sm">₹{ent:,.2f}</span>
             </div>
             <div>
@@ -281,8 +285,7 @@ def generate_site():
           </div>
           
           <div class="flex items-center justify-between text-[11px] text-gray-400 mono pt-1 border-t border-[#30363d]/60">
-            <span>Recommended Qty: <strong class="text-white">{qty} shares</strong></span>
-            <span>Est. Cost: <strong class="text-gray-300">₹{int(ent*qty):,}</strong></span>
+            <span>Entry Zone: <strong class="text-white">₹{round(ent*0.995, 2):,.2f} – ₹{round(ent*1.005, 2):,.2f}</strong></span>
           </div>
         </div>
 """
@@ -297,11 +300,10 @@ def generate_site():
             <tr>
               <th class="px-4 py-3 font-sans">Stock</th>
               <th class="px-4 py-3">Direction</th>
-              <th class="px-4 py-3 text-white">Entry Price</th>
+              <th class="px-4 py-3 text-white">Entry Zone (±0.5%)</th>
               <th class="px-4 py-3 text-rose-400">Stop Loss (2%)</th>
               <th class="px-4 py-3 text-emerald-400">Target 1 (3%)</th>
               <th class="px-4 py-3 text-cyan-400">Target 2 (5%)</th>
-              <th class="px-4 py-3">Shares</th>
               <th class="px-4 py-3 text-right">Calculator</th>
             </tr>
           </thead>
@@ -315,7 +317,6 @@ def generate_site():
         sl = p['sl']
         t1 = p['target1']
         t2 = p['target2']
-        qty = p['qty']
 
         dirn_color = "text-emerald-400" if dirn == 'LONG' else "text-rose-400"
 
@@ -323,14 +324,13 @@ def generate_site():
             <tr class="hover:bg-[#1f242c] transition-colors">
               <td class="px-4 py-3.5 font-bold text-white text-sm font-sans">{sym}</td>
               <td class="px-4 py-3.5 {dirn_color} font-bold">{dirn}</td>
-              <td class="px-4 py-3.5 font-bold text-white">₹{ent:,.2f}</td>
+              <td class="px-4 py-3.5 font-bold text-white">₹{round(ent*0.995, 2):,.2f} – ₹{round(ent*1.005, 2):,.2f}</td>
               <td class="px-4 py-3.5 text-rose-400 font-semibold">₹{sl:,.2f}</td>
               <td class="px-4 py-3.5 text-emerald-400 font-semibold">₹{t1:,.2f}</td>
               <td class="px-4 py-3.5 text-cyan-400 font-semibold">₹{t2:,.2f}</td>
-              <td class="px-4 py-3.5 font-bold">{qty}</td>
               <td class="px-4 py-3.5 text-right">
-                <button onclick="setCalculator('{ent}', '{qty}', '{dirn}')" class="px-2.5 py-1 rounded bg-[#21262d] hover:bg-cyan-600 text-gray-300 hover:text-white text-[11px] font-sans font-semibold transition-colors">
-                  Calculate
+                <button onclick="calculateSingleStock('{sym}', '{ent}', '{dirn}')" class="px-2.5 py-1 rounded bg-[#21262d] hover:bg-cyan-600 text-gray-300 hover:text-white text-[11px] font-sans font-semibold transition-colors">
+                  Size Stock
                 </button>
               </td>
             </tr>
@@ -342,65 +342,70 @@ def generate_site():
       </div>
     </div>
 
-    <!-- Section 2: Direct Investment Amount & Shares Calculator -->
-    <div class="card rounded-xl p-4 sm:p-5 border-cyan-500/40 shadow-lg">
-      <div class="flex items-center justify-between border-b border-[#30363d] pb-3 mb-4">
-        <div class="flex items-center gap-2">
-          <i data-lucide="calculator" class="w-5 h-5 text-cyan-400"></i>
+    <!-- Section 2: SMART PORTFOLIO CAPITAL ALLOCATOR & 5x MIS SIZER -->
+    <div class="card rounded-xl p-4 sm:p-5 border-cyan-500/50 shadow-xl space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#30363d] pb-3 gap-2">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+            <i data-lucide="pie-chart" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+          </div>
           <div>
-            <h3 class="text-sm sm:text-base font-bold text-white">Investment & Position Size Calculator</h3>
-            <p class="text-[11px] sm:text-xs text-gray-400">Enter your Total Investment Amount to find exact shares & levels</p>
+            <h3 class="text-sm sm:text-base font-bold text-white">Demat Capital Allocator & 5x MIS Calculator</h3>
+            <p class="text-[11px] sm:text-xs text-gray-400">Enter your Total Demat Balance to auto-calculate exact shares for all stocks</p>
           </div>
         </div>
 
-        <!-- Direction Switcher -->
-        <div class="flex items-center bg-[#0d1117] p-1 rounded-lg border border-[#30363d] text-xs font-bold mono">
-          <button id="btnLong" onclick="setDirection('LONG')" class="px-3 py-1 rounded bg-emerald-500 text-gray-950 transition-all">LONG</button>
-          <button id="btnShort" onclick="setDirection('SHORT')" class="px-3 py-1 rounded text-gray-400 hover:text-white transition-all">SHORT</button>
+        <!-- Strategy Mode Selector -->
+        <div class="flex items-center bg-[#0d1117] p-1 rounded-lg border border-[#30363d] text-xs font-bold mono self-start sm:self-auto">
+          <button id="btnAll5" onclick="setPortfolioMode(5)" class="px-3 py-1 rounded bg-cyan-500 text-gray-950 font-bold transition-all">ALL 5 STOCKS</button>
+          <button id="btnTop2" onclick="setPortfolioMode(2)" class="px-3 py-1 rounded text-gray-400 hover:text-white transition-all">TOP 2 ONLY</button>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
+      <!-- Input Controls -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <div>
-          <label class="block text-xs text-gray-400 mb-1 font-semibold">Stock Entry Price (₹)</label>
-          <input type="number" id="calcPrice" step="0.05" value="1250.00" oninput="onPriceOrInvestmentChange()" class="w-full bg-[#0d1117] border border-[#30363d] focus:border-cyan-400 rounded-lg p-2.5 text-white mono font-bold text-base outline-none">
+          <label class="block text-xs text-cyan-400 mb-1 font-bold">Your Total Demat Cash Balance (₹)</label>
+          <div class="relative">
+            <input type="number" id="inputDematCash" step="100" value="6800" oninput="recalculatePortfolio()" class="w-full bg-[#0d1117] border border-cyan-500/60 focus:border-cyan-400 rounded-lg p-2.5 pl-7 text-cyan-300 mono font-bold text-base outline-none">
+            <span class="absolute left-2.5 top-2.5 text-gray-500 font-bold text-sm">₹</span>
+          </div>
         </div>
 
         <div>
-          <label class="block text-xs text-cyan-400 mb-1 font-semibold">Total Amount to Invest (₹)</label>
-          <input type="number" id="calcInvestment" step="1000" value="20000" oninput="onInvestmentChange()" class="w-full bg-[#0d1117] border border-cyan-500/50 focus:border-cyan-400 rounded-lg p-2.5 text-cyan-300 mono font-bold text-base outline-none">
+          <label class="block text-xs text-gray-400 mb-1 font-semibold">Cash Margin per Stock</label>
+          <div id="dispMarginPerStock" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2.5 text-white mono font-bold text-base">
+            ₹1,360 / stock
+          </div>
         </div>
 
         <div>
-          <label class="block text-xs text-gray-400 mb-1 font-semibold">Quantity (Shares to Trade)</label>
-          <input type="number" id="calcQty" value="16" oninput="onQtyChange()" class="w-full bg-[#0d1117] border border-[#30363d] focus:border-cyan-400 rounded-lg p-2.5 text-white mono font-bold text-base outline-none">
+          <label class="block text-xs text-emerald-400 mb-1 font-semibold">Total Buying Power (5x MIS Leverage)</label>
+          <div id="dispTotalBuyingPower" class="w-full bg-[#0d1117] border border-emerald-500/40 rounded-lg p-2.5 text-emerald-400 mono font-bold text-base">
+            ₹34,000 (5x MIS)
+          </div>
         </div>
       </div>
 
-      <!-- Mobile-Friendly 2x2 Grid Output -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-[#0d1117] p-3 rounded-xl border border-[#30363d] mono text-center">
-        <div class="p-2 bg-[#161b22] rounded-lg border border-[#30363d]">
-          <span class="text-[10px] sm:text-[11px] text-gray-400 block font-sans">TOTAL INVESTED</span>
-          <div id="outTotalInvested" class="text-sm sm:text-base font-bold text-white mt-0.5">₹20,000</div>
-          <span id="outShareCount" class="text-[10px] text-gray-500 font-sans block">16 shares</span>
-        </div>
+      <!-- Quick Preset Buttons -->
+      <div class="flex flex-wrap items-center gap-2 text-xs font-mono">
+        <span class="text-gray-500 font-sans text-[11px]">Quick Presets:</span>
+        <button onclick="setQuickPreset(6800)" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-[#21262d] text-cyan-300 border border-[#30363d]">₹6,800</button>
+        <button onclick="setQuickPreset(10000)" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-[#21262d] text-gray-300 border border-[#30363d]">₹10,000</button>
+        <button onclick="setQuickPreset(20000)" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-[#21262d] text-gray-300 border border-[#30363d]">₹20,000</button>
+        <button onclick="setQuickPreset(50000)" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-[#21262d] text-gray-300 border border-[#30363d]">₹50,000</button>
+        <button onclick="setQuickPreset(100000)" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-[#21262d] text-emerald-400 border border-emerald-500/30 font-bold">₹1,00,000 (1 Lakh)</button>
+      </div>
 
-        <div class="p-2 bg-[#161b22] rounded-lg border border-[#30363d]">
-          <span id="lblSL" class="text-[10px] sm:text-[11px] text-rose-400 block font-sans">STOP LOSS (-2%)</span>
-          <div id="outSL" class="text-sm sm:text-base font-bold text-rose-400 mt-0.5">₹1,225.00</div>
-          <span id="outRiskAmt" class="text-[10px] text-rose-300/80 font-sans block">Loss: -₹400</span>
-        </div>
-
-        <div class="p-2 bg-[#161b22] rounded-lg border border-[#30363d]">
-          <span id="lblT1" class="text-[10px] sm:text-[11px] text-emerald-400 block font-sans">TARGET 1 (+3%)</span>
-          <div id="outT1" class="text-sm sm:text-base font-bold text-emerald-400 mt-0.5">₹1,287.50</div>
-          <span id="outProfitT1" class="text-[10px] text-emerald-300/80 font-sans block">Profit: +₹600</span>
-        </div>
-
-        <div class="p-2 bg-[#161b22] rounded-lg border border-[#30363d]">
-          <span id="lblT2" class="text-[10px] sm:text-[11px] text-cyan-400 block font-sans">TARGET 2 (+5%)</span>
-          <div id="outT2" class="text-sm sm:text-base font-bold text-cyan-400 mt-0.5">₹1,312.50</div>
-          <span id="outProfitT2" class="text-[10px] text-cyan-300/80 font-sans block">Profit: +₹1,000</span>
+      <!-- Dynamic Stock Allocation Cards (Auto Populated via JS) -->
+      <div class="space-y-2 pt-2 border-t border-[#30363d]">
+        <h4 class="text-xs font-bold text-gray-300 uppercase font-mono tracking-wider flex items-center gap-1.5">
+          <i data-lucide="layers" class="w-3.5 h-3.5 text-cyan-400"></i>
+          Exact Position Sizing & Shares for Today's Stocks:
+        </h4>
+        
+        <div id="portfolioAllocationContainer" class="space-y-2">
+          <!-- Rendered by JS -->
         </div>
       </div>
     </div>
@@ -437,7 +442,7 @@ def generate_site():
 
             <div class="flex items-start gap-2">
               <span class="font-bold text-amber-400 shrink-0">⚡</span>
-              <p><strong class="text-white">Avoid Big Gaps (> ±2%):</strong> Skip any stock with huge opening gap to avoid opening reversals.</p>
+              <p><strong class="text-white">Avoid Big Gaps (> ±1.5%):</strong> Skip any stock with huge opening gap to avoid opening reversals.</p>
             </div>
           </div>
         </div>
@@ -462,7 +467,7 @@ def generate_site():
 
             <div class="flex items-start gap-2">
               <span class="font-bold text-purple-400 shrink-0">C.</span>
-              <p><strong class="text-white">03:15 PM Square-off:</strong> Exit all open positions before 03:30 PM (100% intraday MIS).</p>
+              <p><strong class="text-white">03:15 PM Square-off:</strong> Exit all open positions before 03:20 PM (100% intraday MIS).</p>
             </div>
           </div>
         </div>
@@ -534,7 +539,7 @@ def generate_site():
           </div>
           <div class="flex justify-between text-[10px] text-gray-400 mono">
             <span>Range: Low ₹{low:,.2f} / High ₹{high:,.2f}</span>
-            <span>Qty: {qty}</span>
+            <span>Outcome: {out}</span>
           </div>
         </div>
 """
@@ -611,7 +616,7 @@ def generate_site():
       </div>
 """
 
-    html_content += """
+    html_content += f"""
     </div>
 
   </main>
@@ -624,101 +629,125 @@ def generate_site():
 
   <script>
     lucide.createIcons();
-    let currentDirection = 'LONG';
 
-    function setDirection(dir) {
-      currentDirection = dir;
-      const btnLong = document.getElementById('btnLong');
-      const btnShort = document.getElementById('btnShort');
+    // Today's stock list loaded from server
+    const currentStocks = {picks_js_data};
+    let portfolioMode = 5; // 5 = All 5 stocks, 2 = Top 2 stocks
 
-      if (dir === 'LONG') {
-        btnLong.className = 'px-3 py-1 rounded bg-emerald-500 text-gray-950 transition-all font-bold';
-        btnShort.className = 'px-3 py-1 rounded text-gray-400 hover:text-white transition-all font-bold';
-        document.getElementById('lblSL').innerText = 'STOP LOSS (-2%)';
-        document.getElementById('lblT1').innerText = 'TARGET 1 (+3%)';
-        document.getElementById('lblT2').innerText = 'TARGET 2 (+5%)';
-      } else {
-        btnShort.className = 'px-3 py-1 rounded bg-rose-500 text-white transition-all font-bold';
-        btnLong.className = 'px-3 py-1 rounded text-gray-400 hover:text-white transition-all font-bold';
-        document.getElementById('lblSL').innerText = 'STOP LOSS (+2%)';
-        document.getElementById('lblT1').innerText = 'TARGET 1 (-3%)';
-        document.getElementById('lblT2').innerText = 'TARGET 2 (-5%)';
-      }
-      onPriceOrInvestmentChange();
-    }
+    function setPortfolioMode(mode) {{
+      portfolioMode = mode;
+      const btnAll5 = document.getElementById('btnAll5');
+      const btnTop2 = document.getElementById('btnTop2');
 
-    function setCalculator(price, qty, dir) {
-      document.getElementById('calcPrice').value = price;
-      if (dir) setDirection(dir);
-      const invest = parseFloat(document.getElementById('calcInvestment').value) || 20000;
-      const p = parseFloat(price) || 1;
-      const shares = Math.max(1, Math.floor(invest / p));
-      document.getElementById('calcQty').value = shares;
-      updateCalculations(p, shares);
-      window.scrollTo({ top: 280, behavior: 'smooth' });
-    }
+      if (mode === 5) {{
+        btnAll5.className = 'px-3 py-1 rounded bg-cyan-500 text-gray-950 font-bold transition-all';
+        btnTop2.className = 'px-3 py-1 rounded text-gray-400 hover:text-white transition-all';
+      }} else {{
+        btnTop2.className = 'px-3 py-1 rounded bg-cyan-500 text-gray-950 font-bold transition-all';
+        btnAll5.className = 'px-3 py-1 rounded text-gray-400 hover:text-white transition-all';
+      }}
+      recalculatePortfolio();
+    }}
 
-    function onInvestmentChange() {
-      const invest = parseFloat(document.getElementById('calcInvestment').value) || 0;
-      const price = parseFloat(document.getElementById('calcPrice').value) || 1;
-      if (price > 0 && invest > 0) {
-        const shares = Math.max(1, Math.floor(invest / price));
-        document.getElementById('calcQty').value = shares;
-        updateCalculations(price, shares);
-      }
-    }
+    function setQuickPreset(amount) {{
+      document.getElementById('inputDematCash').value = amount;
+      recalculatePortfolio();
+    }}
 
-    function onQtyChange() {
-      const price = parseFloat(document.getElementById('calcPrice').value) || 0;
-      const qty = parseInt(document.getElementById('calcQty').value) || 1;
-      if (price > 0 && qty > 0) {
-        document.getElementById('calcInvestment').value = Math.round(price * qty);
-        updateCalculations(price, qty);
-      }
-    }
+    function recalculatePortfolio() {{
+      const totalCash = parseFloat(document.getElementById('inputDematCash').value) || 0;
+      if (totalCash <= 0 || !currentStocks || currentStocks.length === 0) return;
 
-    function onPriceOrInvestmentChange() {
-      onInvestmentChange();
-    }
+      const count = Math.min(portfolioMode, currentStocks.length);
+      const activeStocks = currentStocks.slice(0, count);
 
-    function updateCalculations(price, qty) {
-      if (price <= 0 || qty <= 0) return;
+      const marginPerStock = totalCash / count;
+      const exposurePerStock = marginPerStock * 5.0; // 5x MIS Leverage
+      const totalBuyingPower = totalCash * 5.0;
 
-      let sl, t1, t2, maxLoss, profitT1, profitT2;
+      document.getElementById('dispMarginPerStock').innerText = '₹' + Math.round(marginPerStock).toLocaleString('en-IN') + ' / stock';
+      document.getElementById('dispTotalBuyingPower').innerText = '₹' + Math.round(totalBuyingPower).toLocaleString('en-IN') + ' (5x MIS)';
 
-      if (currentDirection === 'LONG') {
-        sl = price * 0.98;
-        t1 = price * 1.03;
-        t2 = price * 1.05;
-        maxLoss = (price - sl) * qty;
-        profitT1 = (t1 - price) * qty;
-        profitT2 = (t2 - price) * qty;
-      } else { // SHORT
-        sl = price * 1.02;
-        t1 = price * 0.97;
-        t2 = price * 0.95;
-        maxLoss = (sl - price) * qty;
-        profitT1 = (price - t1) * qty;
-        profitT2 = (price - t2) * qty;
-      }
+      const container = document.getElementById('portfolioAllocationContainer');
+      let html = '';
 
-      const totalInvested = price * qty;
+      activeStocks.forEach((stk, idx) => {{
+        const price = stk.entry;
+        const shares = Math.max(1, Math.floor(exposurePerStock / price));
+        const actualExposure = shares * price;
+        const actualMargin = actualExposure / 5.0;
 
-      document.getElementById('outTotalInvested').innerText = '₹' + Math.round(totalInvested).toLocaleString('en-IN');
-      document.getElementById('outShareCount').innerText = qty + ' shares';
+        let sl, t1, t2, maxLoss, profitT1, profitT2;
+        const isLong = stk.direction === 'LONG';
 
-      document.getElementById('outSL').innerText = '₹' + sl.toFixed(2);
-      document.getElementById('outRiskAmt').innerText = 'Loss: -₹' + Math.round(maxLoss).toLocaleString('en-IN');
+        if (isLong) {{
+          sl = price * 0.98;
+          t1 = price * 1.03;
+          t2 = price * 1.05;
+          maxLoss = (price - sl) * shares;
+          profitT1 = (t1 - price) * shares;
+          profitT2 = (t2 - price) * shares;
+        }} else {{
+          sl = price * 1.02;
+          t1 = price * 0.97;
+          t2 = price * 0.95;
+          maxLoss = (sl - price) * shares;
+          profitT1 = (price - t1) * shares;
+          profitT2 = (price - t2) * shares;
+        }}
 
-      document.getElementById('outT1').innerText = '₹' + t1.toFixed(2);
-      document.getElementById('outProfitT1').innerText = 'Profit: +₹' + Math.round(profitT1).toLocaleString('en-IN');
+        const badgeClass = isLong ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-rose-500/10 text-rose-400 border-rose-500/30';
+        const dirLabel = isLong ? '🟢 BUY (LONG)' : '🔴 SELL (SHORT)';
 
-      document.getElementById('outT2').innerText = '₹' + t2.toFixed(2);
-      document.getElementById('outProfitT2').innerText = 'Profit: +₹' + Math.round(profitT2).toLocaleString('en-IN');
-    }
+        html += `
+        <div class="bg-[#0d1117] border border-[#30363d] rounded-xl p-3 sm:p-4 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-[#161b22] border border-[#30363d] flex items-center justify-center text-[10px] text-gray-400 font-mono font-bold">${{idx + 1}}</span>
+              <h4 class="text-sm sm:text-base font-bold text-white font-sans">${{stk.symbol}}</h4>
+              <span class="text-[10px] px-2 py-0.5 rounded font-mono font-bold border ${{badgeClass}}">${{dirLabel}}</span>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] text-gray-400 block font-sans">Cash Margin</span>
+              <span class="text-xs sm:text-sm font-bold text-cyan-300 mono">₹${{Math.round(actualMargin).toLocaleString('en-IN')}}</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-[#161b22] p-2.5 rounded-lg mono text-center text-xs">
+            <div class="p-1">
+              <span class="text-[10px] text-cyan-400 block font-sans font-bold">SHARES TO TRADE</span>
+              <span class="text-sm sm:text-base font-extrabold text-white">${{shares}} shares</span>
+              <span class="text-[9px] text-gray-500 block">Val: ₹${{Math.round(actualExposure).toLocaleString('en-IN')}}</span>
+            </div>
+            <div class="p-1">
+              <span class="text-[10px] text-rose-400 block font-sans font-semibold">STOP LOSS (-2%)</span>
+              <span class="text-xs sm:text-sm font-bold text-rose-400">₹${{sl.toFixed(2)}}</span>
+              <span class="text-[9px] text-rose-300/80 block">Max Loss: -₹${{Math.round(maxLoss).toLocaleString('en-IN')}}</span>
+            </div>
+            <div class="p-1">
+              <span class="text-[10px] text-emerald-400 block font-sans font-semibold">TARGET 1 (+3%)</span>
+              <span class="text-xs sm:text-sm font-bold text-emerald-400">₹${{t1.toFixed(2)}}</span>
+              <span class="text-[9px] text-emerald-300/80 block">Profit: +₹${{Math.round(profitT1).toLocaleString('en-IN')}}</span>
+            </div>
+            <div class="p-1">
+              <span class="text-[10px] text-cyan-400 block font-sans font-semibold">TARGET 2 (+5%)</span>
+              <span class="text-xs sm:text-sm font-bold text-cyan-400">₹${{t2.toFixed(2)}}</span>
+              <span class="text-[9px] text-cyan-300/80 block">Profit: +₹${{Math.round(profitT2).toLocaleString('en-IN')}}</span>
+            </div>
+          </div>
+        </div>
+        `;
+      }});
+
+      container.innerHTML = html;
+    }}
+
+    function calculateSingleStock(sym, price, dir) {{
+      window.scrollTo({{ top: 380, behavior: 'smooth' }});
+    }}
 
     // Initial run
-    onInvestmentChange();
+    recalculatePortfolio();
   </script>
 </body>
 </html>
@@ -727,7 +756,7 @@ def generate_site():
     with open(os.path.join(docs_dir, 'index.html'), 'w', encoding='utf-8') as f:
         f.write(html_content)
 
-    print(f"Bidirectional LONG/SHORT website generated successfully in {docs_dir}/index.html")
+    print(f"Smart Demat Portfolio Allocator website generated successfully in {docs_dir}/index.html")
     return True
 
 if __name__ == '__main__':
