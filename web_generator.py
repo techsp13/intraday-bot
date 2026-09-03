@@ -530,10 +530,10 @@ def generate_site():
         <form id="formLogTrade" onsubmit="handleLogTradeSubmit(event)" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 text-xs font-mono">
           <div>
             <label class="block text-[10px] text-gray-400 mb-0.5">Date</label>
-            <input type="date" id="logDate" required class="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-1.5 text-white outline-none">
+            <input type="date" id="logDate" class="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-1.5 text-white outline-none">
           </div>
           <div>
-            <label class="block text-[10px] text-gray-400 mb-0.5">Stock</label>
+            <label class="block text-[10px] text-gray-400 mb-0.5">Stock *</label>
             <input type="text" id="logStock" placeholder="e.g. IFCI" required class="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-1.5 text-white uppercase outline-none">
           </div>
           <div>
@@ -545,15 +545,15 @@ def generate_site():
           </div>
           <div>
             <label class="block text-[10px] text-gray-400 mb-0.5">Shares</label>
-            <input type="number" id="logShares" placeholder="Qty" required class="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-1.5 text-white outline-none">
+            <input type="number" id="logShares" placeholder="e.g. 50" class="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-1.5 text-white outline-none">
           </div>
           <div>
-            <label class="block text-[10px] text-gray-400 mb-0.5">Entry (₹)</label>
-            <input type="number" id="logEntry" step="0.05" placeholder="Price" required class="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-1.5 text-white outline-none">
+            <label class="block text-[10px] text-gray-400 mb-0.5">Entry Price (₹)</label>
+            <input type="number" id="logEntry" step="0.05" placeholder="e.g. 98.50" class="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-1.5 text-white outline-none">
           </div>
           <div>
-            <label class="block text-[10px] text-gray-400 mb-0.5">Net P&L (₹)</label>
-            <input type="number" id="logPnl" step="0.05" placeholder="P&L" required class="w-full bg-[#161b22] border border-cyan-500/50 rounded-lg p-1.5 text-cyan-300 font-bold outline-none">
+            <label class="block text-[10px] text-cyan-300 mb-0.5 font-bold">Net P&L (₹) *</label>
+            <input type="number" id="logPnl" step="0.05" placeholder="e.g. 250 or -140" required class="w-full bg-[#161b22] border border-cyan-500/60 rounded-lg p-1.5 text-cyan-300 font-bold outline-none">
           </div>
           <div class="col-span-2 sm:col-span-4 lg:col-span-1 flex items-end">
             <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold p-1.5 rounded-lg flex items-center justify-center gap-1 shadow transition-colors">
@@ -561,13 +561,14 @@ def generate_site():
             </button>
           </div>
         </form>
+        <div id="logFeedback" class="hidden text-xs text-emerald-400 font-bold font-mono"></div>
       </div>
 
       <!-- Trade History Table -->
       <div class="space-y-2">
         <div class="flex items-center justify-between text-xs font-mono text-gray-400">
           <span class="font-sans font-bold text-gray-300">Journal Trade History:</span>
-          <span id="txtJournalTradeCount">4 Trades Logged</span>
+          <span id="txtJournalTradeCount">0 Trades Logged</span>
         </div>
 
         <div class="overflow-x-auto">
@@ -998,30 +999,56 @@ def generate_site():
 
     function handleLogTradeSubmit(e) {{
       e.preventDefault();
-      const date = document.getElementById('logDate').value || new Date().toISOString().split('T')[0];
-      const stock = document.getElementById('logStock').value.trim().toUpperCase();
-      const direction = document.getElementById('logDirection').value;
-      const shares = parseInt(document.getElementById('logShares').value) || 1;
-      const entry = parseFloat(document.getElementById('logEntry').value) || 0;
-      const pnl = parseFloat(document.getElementById('logPnl').value) || 0;
+      try {{
+        const dateInput = document.getElementById('logDate').value;
+        const date = dateInput ? dateInput : new Date().toISOString().split('T')[0];
+        const stock = document.getElementById('logStock').value.trim().toUpperCase();
+        const direction = document.getElementById('logDirection').value || 'LONG';
+        const shares = parseInt(document.getElementById('logShares').value) || 10;
+        let entry = parseFloat(document.getElementById('logEntry').value);
+        if (isNaN(entry) || entry <= 0) entry = 100.0;
+        const pnl = parseFloat(document.getElementById('logPnl').value);
 
-      if (!stock || entry <= 0) return;
+        if (!stock) {{
+          alert('Please enter a Stock symbol (e.g. IFCI)!');
+          return;
+        }}
+        if (isNaN(pnl)) {{
+          alert('Please enter a valid Net P&L amount (e.g. 250 or -140)!');
+          return;
+        }}
 
-      const exit = direction === 'LONG' ? (entry + (pnl / shares)) : (entry - (pnl / shares));
+        const exit = direction === 'LONG' ? (entry + (pnl / shares)) : (entry - (pnl / shares));
 
-      journal.trades.push({{
-        date: date,
-        stock: stock,
-        direction: direction,
-        shares: shares,
-        entry: entry,
-        exit: Math.round(exit * 100) / 100,
-        pnl: pnl
-      }});
+        if (!journal) journal = {{ initial_balance: 6800.0, current_balance: 6800.0, target_goal: 10000000.0, trades: [] }};
+        if (!journal.trades) journal.trades = [];
 
-      renderJournal();
-      document.getElementById('formLogTrade').reset();
-      document.getElementById('logDate').valueAsDate = new Date();
+        journal.trades.push({{
+          date: date,
+          stock: stock,
+          direction: direction,
+          shares: shares,
+          entry: entry,
+          exit: Math.round(exit * 100) / 100,
+          pnl: pnl
+        }});
+
+        renderJournal();
+
+        const fb = document.getElementById('logFeedback');
+        if (fb) {{
+          const pSign = pnl >= 0 ? '+' : '';
+          fb.innerText = `✅ Logged ${{stock}} (${{direction}}) with P&L: ${{pSign}}₹${{pnl.toFixed(2)}}!`;
+          fb.className = 'text-xs font-bold font-mono ' + (pnl >= 0 ? 'text-emerald-400' : 'text-rose-400');
+          setTimeout(() => fb.className = 'hidden', 4000);
+        }}
+
+        document.getElementById('formLogTrade').reset();
+        try {{ document.getElementById('logDate').valueAsDate = new Date(); }} catch(err) {{}}
+      }} catch(err) {{
+        console.error('Error logging trade:', err);
+        alert('Error saving trade: ' + err.message);
+      }}
     }}
 
     function deleteTradeEntry(idx) {{
