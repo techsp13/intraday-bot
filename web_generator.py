@@ -231,8 +231,8 @@ def generate_site():
         </div>
       </div>
       
-      <a href="https://t.me/sany_trader_bot" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center gap-1 shadow transition-colors">
-        <i data-lucide="send" class="w-3.5 h-3.5"></i> <span class="hidden xs:inline">Telegram Group</span>
+      <a href="https://t.me/Sany_Intraday_Bot" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center gap-1 shadow transition-colors">
+        <i data-lucide="send" class="w-3.5 h-3.5"></i> <span class="hidden xs:inline">Telegram Bot</span>
       </a>
     </div>
   </header>
