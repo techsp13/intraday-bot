@@ -26,9 +26,9 @@ MARKET_CLOSE = "15:30"
 SCAN_START = "09:45"                # Start scanning after OR completes
 
 # ── Telegram ──────────────────────────────────────────
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
-TELEGRAM_ALERTS_ENABLED = os.getenv("TELEGRAM_ALERTS_ENABLED", "FALSE").upper() == "TRUE"
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "8516916612:AAFCUz3l9wcLgaeOrKsp_QJfcEhjLIaYfIA")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "8620674286,-5302435145")
+TELEGRAM_ALERTS_ENABLED = os.getenv("TELEGRAM_ALERTS_ENABLED", "TRUE").upper() == "TRUE"
 
 # ── Paths ─────────────────────────────────────────────
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
