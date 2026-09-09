@@ -1,16 +1,21 @@
 name: NSE Intraday Stock Pick Bot
 
 on:
+  schedule:
+    # 03:00 UTC = 08:30 AM IST (Mon-Fri)
+    - cron: '0 3 * * 1-5'
+    # 03:15 UTC = 08:45 AM IST (Mon-Fri)
+    - cron: '15 3 * * 1-5'
   workflow_dispatch:
     inputs:
       mode:
         description: 'Run mode'
         required: false
-        default: 'watchlist'
+        default: 'top2'
         type: choice
         options:
-          - watchlist
           - top2
+          - watchlist
           - dry-run
 
 permissions:
@@ -37,18 +42,20 @@ jobs:
       - name: Determine run flags
         id: flags
         run: |
-          if [ "${{ github.event.inputs.mode }}" = "top2" ]; then
+          if [ "${{ github.event_name }}" = "schedule" ]; then
             echo "args=--top2" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.inputs.mode }}" = "watchlist" ]; then
+            echo "args=--watchlist" >> $GITHUB_OUTPUT
           elif [ "${{ github.event.inputs.mode }}" = "dry-run" ]; then
             echo "args=--dry-run" >> $GITHUB_OUTPUT
           else
-            echo "args=--watchlist" >> $GITHUB_OUTPUT
+            echo "args=--top2" >> $GITHUB_OUTPUT
           fi
 
       - name: Run intraday pipeline
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || '8877227380:AAFXG5gWUyrpBKVr2zBGFINc7DZVhumIJPc' }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || '8620674286,-5302435145' }}
           TELEGRAM_ALERTS_ENABLED: 'TRUE'
         run: python main.py ${{ steps.flags.outputs.args }}
       
