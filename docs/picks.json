@@ -8,12 +8,12 @@
     "target2": 103.24,
     "qty": 10,
     "rs": 16.8,
-    "day_high": 98.32,
-    "day_low": 98.32,
-    "day_close": 98.32,
-    "exit_price": 98.32,
-    "outcome": "ACTIVE",
-    "pnl": 0.0
+    "day_high": 93.53,
+    "day_low": 87.78,
+    "day_close": 89.1,
+    "exit_price": 96.35,
+    "outcome": "HIT STOP LOSS (-2%)",
+    "pnl": -19.7
   },
   {
     "symbol": "ZEEL",
@@ -24,12 +24,12 @@
     "target2": 86.04,
     "qty": 10,
     "rs": -11.54,
-    "day_high": 90.57,
-    "day_low": 90.57,
-    "day_close": 90.57,
-    "exit_price": 90.57,
-    "outcome": "ACTIVE",
-    "pnl": 0.0
+    "day_high": 87.18,
+    "day_low": 84.85,
+    "day_close": 85.55,
+    "exit_price": 86.04,
+    "outcome": "HIT TARGET 2 (+5%)",
+    "pnl": 45.3
   },
   {
     "symbol": "ENGINERSIN",
@@ -40,12 +40,12 @@
     "target2": 290.42,
     "qty": 10,
     "rs": 12.21,
-    "day_high": 276.6,
-    "day_low": 276.6,
-    "day_close": 276.6,
-    "exit_price": 276.6,
-    "outcome": "ACTIVE",
-    "pnl": 0.0
+    "day_high": 282.7,
+    "day_low": 272.4,
+    "day_close": 273.1,
+    "exit_price": 273.1,
+    "outcome": "CLOSED AT 03:15 PM",
+    "pnl": -35.0
   },
   {
     "symbol": "ATHERENERG",
@@ -56,12 +56,12 @@
     "target2": 1770.4,
     "qty": 10,
     "rs": 14.54,
-    "day_high": 1686.1,
-    "day_low": 1686.1,
-    "day_close": 1686.1,
-    "exit_price": 1686.1,
-    "outcome": "ACTIVE",
-    "pnl": 0.0
+    "day_high": 1599.4,
+    "day_low": 1573.0,
+    "day_close": 1580.0,
+    "exit_price": 1652.38,
+    "outcome": "HIT STOP LOSS (-2%)",
+    "pnl": -337.2
   },
   {
     "symbol": "KAYNES",
@@ -72,11 +72,11 @@
     "target2": 3403.85,
     "qty": 10,
     "rs": -9.41,
-    "day_high": 3583.0,
-    "day_low": 3583.0,
-    "day_close": 3583.0,
-    "exit_price": 3583.0,
-    "outcome": "ACTIVE",
-    "pnl": 0.0
+    "day_high": 3645.0,
+    "day_low": 3588.3,
+    "day_close": 3615.0,
+    "exit_price": 3615.0,
+    "outcome": "CLOSED AT 03:15 PM",
+    "pnl": -320.0
   }
 ]
