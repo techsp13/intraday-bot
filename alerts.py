@@ -47,57 +47,59 @@ def send_photo_alert(photo_path: str, caption: str, parse_mode: str = 'Markdown'
         return False
         
     token = getattr(config, 'TELEGRAM_BOT_TOKEN', '')
-    chat_id = getattr(config, 'TELEGRAM_CHAT_ID', '')
+    raw_chat_ids = getattr(config, 'TELEGRAM_CHAT_ID', '')
     
-    if not token or not chat_id or not os.path.exists(photo_path):
+    if not token or not raw_chat_ids or not os.path.exists(photo_path):
         return False
         
-    url = f"https://api.telegram.org/bot{token}/sendPhoto"
-    boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
+    chat_ids = [c.strip() for c in str(raw_chat_ids).split(',') if c.strip()]
+    filename = os.path.basename(photo_path)
     
     with open(photo_path, 'rb') as f:
         photo_bytes = f.read()
         
-    body = bytearray()
-    
-    # chat_id field
-    body.extend(f'--{boundary}\r\n'.encode())
-    body.extend(b'Content-Disposition: form-data; name="chat_id"\r\n\r\n')
-    body.extend(f'{chat_id}\r\n'.encode())
-    
-    # caption field
-    body.extend(f'--{boundary}\r\n'.encode())
-    body.extend(b'Content-Disposition: form-data; name="caption"\r\n\r\n')
-    body.extend(f'{caption}\r\n'.encode())
-    
-    # parse_mode field
-    body.extend(f'--{boundary}\r\n'.encode())
-    body.extend(b'Content-Disposition: form-data; name="parse_mode"\r\n\r\n')
-    body.extend(f'{parse_mode}\r\n'.encode())
-    
-    # photo file field
-    filename = os.path.basename(photo_path)
-    body.extend(f'--{boundary}\r\n'.encode())
-    body.extend(f'Content-Disposition: form-data; name="photo"; filename="{filename}"\r\n'.encode())
-    body.extend(b'Content-Type: image/png\r\n\r\n')
-    body.extend(photo_bytes)
-    body.extend(b'\r\n')
-    body.extend(f'--{boundary}--\r\n'.encode())
-    
-    headers = {
-        'Content-Type': f'multipart/form-data; boundary={boundary}',
-        'Content-Length': str(len(body))
-    }
-    
-    req = urllib.request.Request(url, data=bytes(body), headers=headers, method='POST')
-    try:
-        with urllib.request.urlopen(req, timeout=15) as response:
-            if response.status == 200:
-                return True
-    except Exception as e:
-        print(f"Error sending photo alert: {e}")
+    success_any = False
+    for cid in chat_ids:
+        boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
+        body = bytearray()
         
-    return False
+        # chat_id field
+        body.extend(f'--{boundary}\r\n'.encode())
+        body.extend(b'Content-Disposition: form-data; name="chat_id"\r\n\r\n')
+        body.extend(f'{cid}\r\n'.encode())
+        
+        # caption field
+        body.extend(f'--{boundary}\r\n'.encode())
+        body.extend(b'Content-Disposition: form-data; name="caption"\r\n\r\n')
+        body.extend(f'{caption}\r\n'.encode())
+        
+        # parse_mode field
+        body.extend(f'--{boundary}\r\n'.encode())
+        body.extend(b'Content-Disposition: form-data; name="parse_mode"\r\n\r\n')
+        body.extend(f'{parse_mode}\r\n'.encode())
+        
+        # photo file field
+        body.extend(f'--{boundary}\r\n'.encode())
+        body.extend(f'Content-Disposition: form-data; name="photo"; filename="{filename}"\r\n'.encode())
+        body.extend(b'Content-Type: image/png\r\n\r\n')
+        body.extend(photo_bytes)
+        body.extend(b'\r\n')
+        body.extend(f'--{boundary}--\r\n'.encode())
+        
+        headers = {
+            'Content-Type': f'multipart/form-data; boundary={boundary}',
+            'Content-Length': str(len(body))
+        }
+        
+        req = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendPhoto", data=bytes(body), headers=headers, method='POST')
+        try:
+            with urllib.request.urlopen(req, timeout=15) as response:
+                if response.status == 200:
+                    success_any = True
+        except Exception as e:
+            print(f"Error sending photo alert to {cid}: {e}")
+            
+    return success_any
 
 def send_pick_alert(pick: dict) -> bool:
     """Format and send an alert for a single stock pick with candlestick chart image."""
