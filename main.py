@@ -113,5 +113,5 @@ def run_pipeline(dry_run: bool = False, top2_only: bool = False):
 
 if __name__ == '__main__':
     dry_run = '--dry-run' in sys.argv
-    top2_only = '--top2' in sys.argv or ('--watchlist' not in sys.argv and datetime.now().hour == 9 and datetime.now().minute < 15)
+    top2_only = '--top2' in sys.argv
     run_pipeline(dry_run=dry_run, top2_only=top2_only)

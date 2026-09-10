@@ -86,10 +86,8 @@ def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.Da
             selected_shorts = short_candidates[:2]
         combined = selected_longs + selected_shorts
     else:
-        # Full 08:30 AM Watchlist (Top 3 Longs + Top 2 Shorts)
-        selected_longs = long_candidates[:3]
-        selected_shorts = short_candidates[:2]
-        combined = selected_longs + selected_shorts
+        # ALL qualifying setups — no artificial cap
+        combined = long_candidates + short_candidates
 
     if not combined:
         return []

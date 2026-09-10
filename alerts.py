@@ -96,12 +96,8 @@ def send_picks_batch(picks: list[dict], alert_type: str = 'watchlist') -> int:
         
     date_str = datetime.now().strftime("%d-%b-%Y")
     
-    if alert_type == 'top2' or len(picks) <= 2:
-        msg = f"🎯 *FINAL FILTERED TOP 2 PICKS — {date_str} (08:45 AM)*\n"
-        msg += f"▸ *Pre-Market Confirmation for 09:15 AM Entry*\n"
-    else:
-        msg = f"📋 *NSE INTRADAY WATCHLIST — {date_str} (08:30 AM)*\n"
-        msg += f"▸ *All {len(picks)} Qualifying Setups for Today*\n"
+    msg = f"📋 *NSE INTRADAY PICKS — {date_str} (08:30 AM)*\n"
+    msg += f"▸ *{len(picks)} Qualifying Setups for Today*\n"
         
     msg += f"━━━━━━━━━━━━━━━━━━━━━━━\n"
     
