@@ -7,13 +7,16 @@ from datetime import datetime
 import config
 from chart_generator import generate_candlestick_chart
 
-def send_telegram_message(message: str, parse_mode: str = 'Markdown') -> bool:
-    """Send a text message to Telegram via Bot API (supports multiple comma-separated chat IDs)."""
+def send_telegram_message(message: str, parse_mode: str = 'Markdown', personal_only: bool = False) -> bool:
+    """Send a text message to Telegram via Bot API. If personal_only=True, only sends to Sanket personal chat."""
     if not getattr(config, 'TELEGRAM_ALERTS_ENABLED', True):
         return False
         
     token = getattr(config, 'TELEGRAM_BOT_TOKEN', '')
-    raw_chat_ids = getattr(config, 'TELEGRAM_CHAT_ID', '')
+    if personal_only:
+        raw_chat_ids = getattr(config, 'PERSONAL_CHAT_ID', '8620674286')
+    else:
+        raw_chat_ids = getattr(config, 'TELEGRAM_CHAT_ID', '')
     
     if not token or not raw_chat_ids:
         return False
@@ -41,13 +44,20 @@ def send_telegram_message(message: str, parse_mode: str = 'Markdown') -> bool:
             
     return success_any
 
-def send_photo_alert(photo_path: str, caption: str, parse_mode: str = 'Markdown') -> bool:
+def send_test_alert(message: str, parse_mode: str = 'Markdown') -> bool:
+    """Strictly send test and debug messages ONLY to personal chat ID, NEVER to group."""
+    return send_telegram_message(message, parse_mode=parse_mode, personal_only=True)
+
+def send_photo_alert(photo_path: str, caption: str, parse_mode: str = 'Markdown', personal_only: bool = False) -> bool:
     """Send a photo with caption to Telegram using pure urllib multipart/form-data."""
     if not getattr(config, 'TELEGRAM_ALERTS_ENABLED', True):
         return False
         
     token = getattr(config, 'TELEGRAM_BOT_TOKEN', '')
-    raw_chat_ids = getattr(config, 'TELEGRAM_CHAT_ID', '')
+    if personal_only:
+        raw_chat_ids = getattr(config, 'PERSONAL_CHAT_ID', '8620674286')
+    else:
+        raw_chat_ids = getattr(config, 'TELEGRAM_CHAT_ID', '')
     
     if not token or not raw_chat_ids or not os.path.exists(photo_path):
         return False

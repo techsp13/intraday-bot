@@ -9,11 +9,11 @@ on:
       mode:
         description: 'Run mode'
         required: false
-        default: 'top2'
+        default: 'watchlist'
         type: choice
         options:
-          - top2
           - watchlist
+          - top2
           - dry-run
   repository_dispatch:
     types: [run-bot]
@@ -43,13 +43,15 @@ jobs:
         id: flags
         run: |
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            echo "args=--top2" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event.inputs.mode }}" = "watchlist" ]; then
             echo "args=--watchlist" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "args=--watchlist" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.inputs.mode }}" = "top2" ]; then
+            echo "args=--top2" >> $GITHUB_OUTPUT
           elif [ "${{ github.event.inputs.mode }}" = "dry-run" ]; then
             echo "args=--dry-run" >> $GITHUB_OUTPUT
           else
-            echo "args=--top2" >> $GITHUB_OUTPUT
+            echo "args=--watchlist" >> $GITHUB_OUTPUT
           fi
 
       - name: Run intraday pipeline
