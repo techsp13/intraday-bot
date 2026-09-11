@@ -1,9 +1,6 @@
 name: NSE Intraday Stock Pick Bot
 
 on:
-  schedule:
-    # 03:00 UTC = 08:30 AM IST (Monday to Friday)
-    - cron: '0 3 * * 1-5'
   workflow_dispatch:
     inputs:
       mode:
@@ -42,9 +39,7 @@ jobs:
       - name: Determine run flags
         id: flags
         run: |
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            echo "args=--watchlist" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
             echo "args=--watchlist" >> $GITHUB_OUTPUT
           elif [ "${{ github.event.inputs.mode }}" = "top2" ]; then
             echo "args=--top2" >> $GITHUB_OUTPUT
