@@ -23,24 +23,40 @@ def send_telegram_message(message: str, parse_mode: str = 'Markdown', personal_o
     chat_ids = [c.strip() for c in str(raw_chat_ids).split(',') if c.strip()]
     success_any = False
     
+    # Split message into chunks if longer than Telegram's 4096 character limit
+    chunks = []
+    if len(message) <= 3900:
+        chunks.append(message)
+    else:
+        current_chunk = ""
+        for line in message.split("\n"):
+            if len(current_chunk) + len(line) + 1 > 3900:
+                chunks.append(current_chunk)
+                current_chunk = line + "\n"
+            else:
+                current_chunk += line + "\n"
+        if current_chunk.strip():
+            chunks.append(current_chunk)
+
     for cid in chat_ids:
-        url = f"https://api.telegram.org/bot{token}/sendMessage"
-        payload = {
-            "chat_id": cid,
-            "text": message,
-            "parse_mode": parse_mode
-        }
-        
-        data = json.dumps(payload).encode('utf-8')
-        req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
-        
-        try:
-            with urllib.request.urlopen(req, timeout=10) as response:
-                if response.status == 200:
-                    success_any = True
-        except Exception:
-            pass
+        for chunk in chunks:
+            url = f"https://api.telegram.org/bot{token}/sendMessage"
+            payload = {
+                "chat_id": cid,
+                "text": chunk.strip(),
+                "parse_mode": parse_mode
+            }
             
+            data = json.dumps(payload).encode('utf-8')
+            req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
+            
+            try:
+                with urllib.request.urlopen(req, timeout=10) as response:
+                    if response.status == 200:
+                        success_any = True
+            except Exception as e:
+                print(f"Telegram error sending to {cid}: {e}")
+                
     return success_any
 
 def send_test_alert(message: str, parse_mode: str = 'Markdown') -> bool:
