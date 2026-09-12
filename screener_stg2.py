@@ -1,4 +1,4 @@
-﻿import os
+import os
 import json
 from datetime import datetime
 from angel_data_feed import get_angel_client, load_instrument_map
@@ -7,11 +7,11 @@ def scan_stg2(max_picks=2):
     smart = get_angel_client()
     imap = load_instrument_map()
     
+    # Focus strictly on high-beta explosive momentum stocks (ATR >= 2.5%)
+    # Mega-caps like HDFCBANK/INFY are banned to prevent small-capital brokerage bleed
     focus_symbols = [
-        "RELIANCE", "TATASTEEL", "HDFCBANK", "ICICIBANK", "INFY",
-        "SBIN", "KEI", "WOCKPHARMA", "CHENNPETRO", "GRAPHITE",
-        "HEG", "DIXON", "POLYCAB", "TRENT", "HAL", "BEL",
-        "COALINDIA", "VEDL", "VOLTAS", "TCS"
+        "GRAPHITE", "CHENNPETRO", "WOCKPHARMA", "KEI", "DIXON",
+        "POLYCAB", "TRENT", "HAL", "BEL", "VEDL", "VOLTAS", "HEG"
     ]
     
     tokens = []
@@ -48,34 +48,41 @@ def scan_stg2(max_picks=2):
         if ltp <= 0 or vwap <= 0 or open_p <= 0:
             continue
             
+        # 15-Minute Range Expansion Filter: Minimum 1.8% range to qualify as explosive runner
+        range_pct = ((high_p - low_p) / open_p) * 100.0
+        if range_pct < 1.8:
+            continue
+            
         ratio = buy_qty / sell_qty if sell_qty > 0 else (99.9 if buy_qty > 0 else 1.0)
         
-        # LONG Candidate: Price > VWAP and Buyer Dominance
-        if ltp > vwap and ltp >= open_p and ratio >= 1.5:
-            sl = round(max(vwap, open_p * 0.99), 2)
+        # LONG Candidate: Price > VWAP, Buyer Dominance (>= 1.8x), and 15m Range Expansion
+        if ltp > vwap and ltp >= open_p and ratio >= 1.8:
+            sl = round(max(vwap, low_p), 2)
             risk = round(abs(ltp - sl), 2)
             if risk > 0 and (risk / ltp) <= 0.025:
                 t1 = round(ltp + 1.5 * risk, 2)
                 t2 = round(ltp + 2.5 * risk, 2)
-                score = round(ratio * 10 + ((ltp - vwap) / vwap) * 100, 1)
+                score = round(ratio * 10 + range_pct * 5 + ((ltp - vwap) / vwap) * 100, 1)
                 candidates.append({
                     "symbol": sym, "direction": "LONG", "entry": ltp, "sl": sl,
-                    "target1": t1, "target2": t2, "vwap": vwap, "buy_qty": buy_qty,
-                    "sell_qty": sell_qty, "ratio": round(ratio, 2), "volume": volume, "score": score
+                    "target1": t1, "target2": t2, "vwap": vwap, "range_pct": round(range_pct, 2),
+                    "buy_qty": buy_qty, "sell_qty": sell_qty, "ratio": round(ratio, 2),
+                    "volume": volume, "score": score
                 })
                 
-        # SHORT Candidate: Price < VWAP and Seller Dominance
-        elif ltp < vwap and ltp <= open_p and ratio <= 0.67:
-            sl = round(min(vwap, open_p * 1.01), 2)
+        # SHORT Candidate: Price < VWAP, Seller Dominance (ratio <= 0.55), and 15m Range Expansion
+        elif ltp < vwap and ltp <= open_p and ratio <= 0.55:
+            sl = round(min(vwap, high_p), 2)
             risk = round(abs(sl - ltp), 2)
             if risk > 0 and (risk / ltp) <= 0.025:
                 t1 = round(ltp - 1.5 * risk, 2)
                 t2 = round(ltp - 2.5 * risk, 2)
-                score = round((1.0 / max(0.01, ratio)) * 10 + ((vwap - ltp) / vwap) * 100, 1)
+                score = round((1.0 / max(0.01, ratio)) * 10 + range_pct * 5 + ((vwap - ltp) / vwap) * 100, 1)
                 candidates.append({
                     "symbol": sym, "direction": "SHORT", "entry": ltp, "sl": sl,
-                    "target1": t1, "target2": t2, "vwap": vwap, "buy_qty": buy_qty,
-                    "sell_qty": sell_qty, "ratio": round(ratio, 2), "volume": volume, "score": score
+                    "target1": t1, "target2": t2, "vwap": vwap, "range_pct": round(range_pct, 2),
+                    "buy_qty": buy_qty, "sell_qty": sell_qty, "ratio": round(ratio, 2),
+                    "volume": volume, "score": score
                 })
                 
     candidates.sort(key=lambda x: x["score"], reverse=True)
