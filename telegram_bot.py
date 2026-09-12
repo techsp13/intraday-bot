@@ -16,8 +16,21 @@ logging.basicConfig(
     level=logging.INFO
 )
 
+def is_authorized(update: Update) -> bool:
+    """Ensure only authorized user or group can trigger bot commands."""
+    user_id = str(update.effective_user.id) if update.effective_user else ""
+    chat_id = str(update.effective_chat.id) if update.effective_chat else ""
+    allowed = [c.strip() for c in getattr(config, 'TELEGRAM_CHAT_ID', '').split(',') if c.strip()]
+    personal = getattr(config, 'PERSONAL_CHAT_ID', '').strip()
+    if personal:
+        allowed.append(personal)
+    return user_id in allowed or chat_id in allowed
+
 async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /start command."""
+    if not is_authorized(update):
+        await update.message.reply_text("⛔ Unauthorized access. This bot is strictly private.")
+        return
     msg = (
         "Welcome to the Intraday Stock Pick Bot! 🚀\n\n"
         "I provide daily breakout alerts and performance tracking.\n"
@@ -28,6 +41,9 @@ async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def stock_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /stock or /scan command — triggers a live market scan on demand."""
+    if not is_authorized(update):
+        await update.message.reply_text("⛔ Unauthorized access. This bot is strictly private.")
+        return
     await update.message.reply_text("⚡ *Scanning live NSE market data...* Please wait ~10 seconds.", parse_mode='Markdown')
     
     try:
@@ -45,6 +61,9 @@ async def stock_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def status_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /status command."""
+    if not is_authorized(update):
+        await update.message.reply_text("⛔ Unauthorized access. This bot is strictly private.")
+        return
     today_str = datetime.now().strftime('%Y-%m-%d')
     picks = logger.get_today_picks(today_str)
     
@@ -69,6 +88,9 @@ async def status_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def weekly_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /weekly command."""
+    if not is_authorized(update):
+        await update.message.reply_text("⛔ Unauthorized access. This bot is strictly private.")
+        return
     summary = logger.get_weekly_summary() if hasattr(logger, 'get_weekly_summary') else {}
     
     if not summary:
@@ -87,6 +109,9 @@ async def weekly_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def picks_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /picks command."""
+    if not is_authorized(update):
+        await update.message.reply_text("⛔ Unauthorized access. This bot is strictly private.")
+        return
     today_str = datetime.now().strftime('%Y-%m-%d')
     picks = logger.get_today_picks(today_str)
     
@@ -116,6 +141,9 @@ async def picks_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /help command."""
+    if not is_authorized(update):
+        await update.message.reply_text("⛔ Unauthorized access. This bot is strictly private.")
+        return
     msg = (
         "🛠 *Available Commands*\n"
         "/stock - Run live market scan & get stock picks instantly!\n"
