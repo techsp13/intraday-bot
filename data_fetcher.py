@@ -6,7 +6,6 @@ from pathlib import Path
 import requests
 import pandas as pd
 import numpy as np
-import yfinance as yf
 
 # Import config (assuming it exists in the same directory)
 try:
@@ -123,67 +122,53 @@ def _process_yf_download(df: pd.DataFrame, symbols: list[str], cache_prefix: str
                 
     return result
 
+from angel_data_feed import get_candle_df
+
 def fetch_intraday_data(symbols: list[str], period: str = '5d') -> dict[str, pd.DataFrame]:
     """
-    Fetch 5-minute intraday data for given symbols.
+    Fetch 5-minute intraday data for given symbols via AngelOne SmartAPI.
     Caches the results locally.
     """
     Path(config.DATA_DIR).mkdir(parents=True, exist_ok=True)
     all_data = {}
     
-    chunk_size = 50
-    chunks = [symbols[i:i + chunk_size] for i in range(0, len(symbols), chunk_size)]
-    
-    for i, chunk in enumerate(chunks):
-        logger.info(f"Fetching intraday chunk {i+1}/{len(chunks)} ({len(chunk)} symbols)...")
+    for sym in symbols:
         try:
-            df = yf.download(
-                tickers=chunk,
-                period=period,
-                interval='5m',
-                progress=False,
-                ignore_tz=True,
-                group_by='column' 
-            )
-            processed = _process_yf_download(df, chunk, "cache_5m")
-            all_data.update(processed)
+            df = get_candle_df(sym, interval='FIVE_MINUTE', days_back=7)
+            if not df.empty:
+                df.columns = [str(c).title() for c in df.columns]
+                df.index = strip_timezone(pd.DatetimeIndex(df.index))
+                clean_sym = sym.replace('.NS', '')
+                all_data[clean_sym] = df
+                all_data[f"{clean_sym}.NS"] = df
+                cache_file = Path(config.DATA_DIR) / f"cache_5m_{clean_sym}.parquet"
+                df.to_parquet(cache_file)
         except Exception as e:
-            logger.error(f"Error fetching intraday data for chunk {i+1}: {e}")
-            
-        if i < len(chunks) - 1:
-            time.sleep(2)
+            logger.error(f"Error fetching AngelOne intraday data for {sym}: {e}")
             
     return all_data
 
 def fetch_daily_data(symbols: list[str], period: str = '25d') -> dict[str, pd.DataFrame]:
     """
-    Fetch daily data for given symbols.
+    Fetch daily data for given symbols via AngelOne SmartAPI.
     Caches the results locally.
     """
     Path(config.DATA_DIR).mkdir(parents=True, exist_ok=True)
     all_data = {}
     
-    chunk_size = 50
-    chunks = [symbols[i:i + chunk_size] for i in range(0, len(symbols), chunk_size)]
-    
-    for i, chunk in enumerate(chunks):
-        logger.info(f"Fetching daily chunk {i+1}/{len(chunks)} ({len(chunk)} symbols)...")
+    for sym in symbols:
         try:
-            df = yf.download(
-                tickers=chunk,
-                period=period,
-                interval='1d',
-                progress=False,
-                ignore_tz=True,
-                group_by='column'
-            )
-            processed = _process_yf_download(df, chunk, "cache_1d")
-            all_data.update(processed)
+            df = get_candle_df(sym, interval='ONE_DAY', days_back=35)
+            if not df.empty:
+                df.columns = [str(c).title() for c in df.columns]
+                df.index = strip_timezone(pd.DatetimeIndex(df.index))
+                clean_sym = sym.replace('.NS', '')
+                all_data[clean_sym] = df
+                all_data[f"{clean_sym}.NS"] = df
+                cache_file = Path(config.DATA_DIR) / f"cache_1d_{clean_sym}.parquet"
+                df.to_parquet(cache_file)
         except Exception as e:
-            logger.error(f"Error fetching daily data for chunk {i+1}: {e}")
-            
-        if i < len(chunks) - 1:
-            time.sleep(2)
+            logger.error(f"Error fetching AngelOne daily data for {sym}: {e}")
             
     return all_data
 

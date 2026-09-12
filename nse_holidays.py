@@ -4,7 +4,6 @@ Prevents bot execution on weekends and official NSE trading holidays.
 """
 from datetime import datetime, date
 from typing import Optional, Tuple
-import yfinance as yf
 
 # Official NSE Trading Holidays (Cash Market & Derivatives)
 NSE_HOLIDAYS = {

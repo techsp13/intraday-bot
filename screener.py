@@ -8,32 +8,32 @@ Includes Entry Range Zones (±0.5% tolerance) for stress-free execution at marke
 import pandas as pd
 import numpy as np
 from typing import List, Dict
-import yfinance as yf
 import config
+from angel_data_feed import get_candle_df
 
 def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.DataFrame], avg_volumes: Dict[str, float], avg_turnovers: Dict[str, float], top2_only: bool = False) -> List[Dict]:
     """
-    Scans for both LONG (Relative Strength) and SHORT (Relative Weakness) setups.
+    Scans for both LONG (Relative Strength) and SHORT (Relative Weakness) setups using AngelOne SmartAPI.
     top2_only=False -> Full 5-Stock Watchlist for 08:30 AM
     top2_only=True  -> Final Top 2 Filtered Picks for 08:45 AM
     """
     try:
-        # Fetch NIFTY 50 baseline
-        nifty_daily = yf.download('^NSEI', period="60d", interval="1d", progress=False)
-        if isinstance(nifty_daily.columns, pd.MultiIndex):
-            nifty_daily.columns = nifty_daily.columns.get_level_values(0)
-        nifty_daily.index = nifty_daily.index.tz_localize(None) if nifty_daily.index.tz is not None else nifty_daily.index
+        # Fetch NIFTY 50 baseline via AngelOne
+        nifty_daily = get_candle_df('^NSEI', interval='ONE_DAY', days_back=60)
+        if nifty_daily.empty:
+            print("Warning: Could not fetch NIFTY 50 data from AngelOne.")
+            return []
 
-        nifty_daily['5d_Ret'] = nifty_daily['Close'].pct_change(5) * 100.0
+        col_close = 'close' if 'close' in nifty_daily.columns else 'Close'
+        nifty_daily['5d_Ret'] = nifty_daily[col_close].pct_change(5) * 100.0
         last_nifty = nifty_daily.iloc[-1]
         nifty_5d_ret = last_nifty['5d_Ret']
         if pd.isna(nifty_5d_ret):
             nifty_5d_ret = 0.0
 
         watchlist_symbols = list(daily_data.keys())
-        daily_batch = yf.download(watchlist_symbols, period="30d", interval="1d", progress=False, group_by="ticker")
     except Exception as e:
-        print(f"Warning: Failed to fetch market data: {e}")
+        print(f"Warning: Failed to fetch market data from AngelOne: {e}")
         return []
 
     long_candidates = []
@@ -41,12 +41,16 @@ def scan_all(intraday_data: Dict[str, pd.DataFrame], daily_data: Dict[str, pd.Da
 
     for ticker in watchlist_symbols:
         try:
-            s_df = daily_batch[ticker].dropna(subset=['Open', 'High', 'Low', 'Close']) if isinstance(daily_batch.columns, pd.MultiIndex) else daily_batch
+            # Use daily_data passed in, or fetch directly from AngelOne
+            s_df = daily_data.get(ticker)
+            if s_df is None or s_df.empty or len(s_df) < 6:
+                s_df = get_candle_df(ticker, interval='ONE_DAY', days_back=30)
             if s_df.empty or len(s_df) < 6:
                 continue
 
-            s_close = s_df.iloc[-1]['Close']
-            s_close_prev5 = s_df.iloc[-6]['Close']
+            c_col = 'close' if 'close' in s_df.columns else 'Close'
+            s_close = float(s_df.iloc[-1][c_col])
+            s_close_prev5 = float(s_df.iloc[-6][c_col])
             s_5d_ret = (s_close - s_close_prev5) / s_close_prev5 * 100.0
 
             rs = s_5d_ret - nifty_5d_ret  # Relative performance vs NIFTY

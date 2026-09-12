@@ -13,37 +13,32 @@ except ImportError:
     HAS_MATPLOTLIB = False
 
 import pandas as pd
-import yfinance as yf
+from angel_data_feed import get_candle_df
 
 def generate_candlestick_chart(pick: dict) -> str:
     """
-    Generates a zoomed-in, high-definition 5m intraday dark mode candlestick chart.
+    Generates a zoomed-in, high-definition 5m intraday dark mode candlestick chart via AngelOne SmartAPI.
     """
     if not HAS_MATPLOTLIB:
         print("Warning: matplotlib not installed. Skipping chart generation.")
         return ""
     symbol = pick.get('symbol', 'STOCK')
-    ticker = pick.get('ticker', f"{symbol}.NS")
     entry = pick.get('entry', 0.0)
     sl = pick.get('sl', 0.0)
     target1 = pick.get('target1', 0.0)
     target2 = pick.get('target2', 0.0)
 
     try:
-        df = yf.download(ticker, period="3d", interval="5m", progress=False)
-        if isinstance(df.columns, pd.MultiIndex):
-            df.columns = df.columns.get_level_values(0)
-        df = df.dropna(subset=['Open', 'High', 'Low', 'Close'])
-        
+        df = get_candle_df(symbol, interval='FIVE_MINUTE', days_back=3)
         if not df.empty:
-            df.index = df.index.tz_localize(None) if df.index.tz is not None else df.index
+            df.columns = [str(c).title() for c in df.columns]
             last_date = df.index.date[-1]
             df = df[df.index.date == last_date]
             # Zoomed focus: Last 35 candles (~3 hours of trading session)
             if len(df) > 35:
                 df = df.tail(35)
     except Exception as e:
-        print(f"Error downloading 5m intraday chart data for {symbol}: {e}")
+        print(f"Error fetching 5m intraday chart data from AngelOne for {symbol}: {e}")
         return ""
 
     if df.empty:

@@ -1,9 +1,9 @@
 import sqlite3
 import datetime
 import os
-import yfinance as yf
 import pandas as pd
 import pytz
+from angel_data_feed import get_candle_df
 from typing import List, Dict, Optional
 
 try:
@@ -151,21 +151,15 @@ def update_outcomes_eod(date_str: str):
                 
             symbol = pick['symbol']
             
-            # Request 1m data from yfinance for the date
-            start_dt = datetime.datetime.strptime(date_str, '%Y-%m-%d')
-            end_dt = start_dt + datetime.timedelta(days=1)
-            
-            # Optional: Add NSE suffix if needed
-            yf_symbol = symbol if symbol.endswith('.NS') else f"{symbol}.NS"
-            df = yf.download(yf_symbol, start=start_dt, end=end_dt, interval='1m', progress=False)
-            
+            # Fetch intraday candles from AngelOne
+            df = get_candle_df(symbol, interval='FIFTEEN_MINUTE', days_back=5)
             if df.empty:
                 continue
                 
-            # Filter candles that happened strictly after the breakout_time
-            breakout_time_str = pick.get('breakout_time', '09:15:00')
+            # Filter candles that happened on target date
             try:
-                df_filtered = df.between_time(breakout_time_str, '15:30:00')
+                target_d = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+                df_filtered = df[df.index.date == target_d]
             except Exception:
                 df_filtered = df
                 
@@ -185,9 +179,10 @@ def update_outcomes_eod(date_str: str):
             
             # Walk through candles chronologically to determine which level hits first
             for idx, row in df_filtered.iterrows():
-                # yfinance format handling for Series/Values
-                high = float(row['High'].iloc[0]) if isinstance(row['High'], pd.Series) else float(row['High'])
-                low = float(row['Low'].iloc[0]) if isinstance(row['Low'], pd.Series) else float(row['Low'])
+                h_val = row['high'] if 'high' in row else row['High']
+                l_val = row['low'] if 'low' in row else row['Low']
+                high = float(h_val.iloc[0]) if isinstance(h_val, pd.Series) else float(h_val)
+                low = float(l_val.iloc[0]) if isinstance(l_val, pd.Series) else float(l_val)
                 
                 if direction == 'LONG':
                     if high >= target1:

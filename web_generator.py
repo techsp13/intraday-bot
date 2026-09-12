@@ -11,8 +11,8 @@ import os
 import json
 import sqlite3
 from datetime import datetime
-import yfinance as yf
 import pandas as pd
+from angel_data_feed import get_candle_df
 
 def generate_site():
     """Generates a 100% mobile-friendly docs/index.html for GitHub Pages."""
@@ -91,16 +91,14 @@ def generate_site():
 
         if is_market_closed:
             try:
-                df = yf.download(ticker, period="5d", interval="5m", progress=False)
-                if isinstance(df.columns, pd.MultiIndex):
-                    df.columns = df.columns.get_level_values(0)
-                df.index = df.index.tz_localize(None) if df.index.tz is not None else df.index
-                
-                today_df = df[df.index.date == df.index.date[-1]]
-                if not today_df.empty:
-                    day_high = round(float(today_df['High'].max()), 2)
-                    day_low = round(float(today_df['Low'].min()), 2)
-                    day_close = round(float(today_df.iloc[-1]['Close']), 2)
+                df = get_candle_df(sym, interval='FIVE_MINUTE', days_back=5)
+                if not df.empty:
+                    df.columns = [str(c).title() for c in df.columns]
+                    today_df = df[df.index.date == df.index.date[-1]]
+                    if not today_df.empty:
+                        day_high = round(float(today_df['High'].max()), 2)
+                        day_low = round(float(today_df['Low'].min()), 2)
+                        day_close = round(float(today_df.iloc[-1]['Close']), 2)
                     
                     if direction == 'LONG':
                         if day_high >= t2:
