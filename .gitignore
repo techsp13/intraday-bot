@@ -9,3 +9,4 @@ dist/
 build/
 *.spec
 charts/*.png
+data/angel_instruments.json

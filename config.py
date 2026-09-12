@@ -32,6 +32,13 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "8877227380:AAFXG5gWUyrpBKV
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", f"{PERSONAL_CHAT_ID},{GROUP_CHAT_ID}")
 TELEGRAM_ALERTS_ENABLED = os.getenv("TELEGRAM_ALERTS_ENABLED", "TRUE").upper() == "TRUE"
 
+# ── AngelOne SmartAPI (Exclusive Real-Time Data Engine) ───────────
+ANGEL_API_KEY = os.getenv("ANGEL_API_KEY", "").strip()
+ANGEL_CLIENT_CODE = os.getenv("ANGEL_CLIENT_CODE", "").strip()
+ANGEL_MPIN = os.getenv("ANGEL_MPIN", "").strip()
+ANGEL_TOTP_KEY = os.getenv("ANGEL_TOTP_KEY", "").strip()
+REALTIME_DATA_SOURCE = "ANGELONE"
+
 # ── Paths ─────────────────────────────────────────────
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
