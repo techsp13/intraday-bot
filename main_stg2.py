@@ -6,6 +6,7 @@ import sys
 import os
 import io
 import time
+import json
 from datetime import datetime
 
 # Windows UTF-8 console fix
@@ -23,7 +24,17 @@ def run_stg2_pipeline(dry_run: bool = False, test_personal_only: bool = False):
     print(f"Data Source: AngelOne SmartAPI (Live Level-2 Depth & VWAP)")
     print(f"Capital: ₹{getattr(config, 'CAPITAL_BASE', 5000):,.0f}\n")
     
-    picks = scan_stg2(max_picks=2)
+    try:
+        picks = scan_stg2(max_picks=2)
+    except (ValueError, ConnectionError) as e:
+        print(f"\n[NOTICE] AngelOne SmartAPI authentication skipped: {e}")
+        print("If running in GitHub Actions, configure repository secrets if you wish to run cloud scans.")
+        print("Primary execution is handled by your local PC desktop monitor.")
+        return
+    except Exception as e:
+        print(f"\n[ERROR] Unexpected scan error: {e}")
+        return
+        
     print(f"STG2 Identified {len(picks)} High-Conviction Setups.")
     
     if not picks:
