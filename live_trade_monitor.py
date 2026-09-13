@@ -39,9 +39,23 @@ def load_active_trades():
             return []
     return []
 
-def save_active_trades(trades):
+def save_active_trades(trades, log_msg=""):
     with open(ACTIVE_TRADES_FILE, 'w', encoding='utf-8') as f:
         json.dump(trades, f, indent=2)
+    # Sync state for YouTube Live Stream HUD
+    try:
+        hud_file = os.path.join(config.DATA_DIR, "stream_hud_state.json")
+        primary_trade = trades[0] if trades else None
+        data = {
+            "timestamp": datetime.now().strftime("%H:%M:%S"),
+            "active_trade": primary_trade,
+            "all_trades": trades,
+            "log": log_msg or (f"Active tracking: {len(trades)} positions monitored." if trades else "Surveillance active.")
+        }
+        with open(hud_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2)
+    except Exception:
+        pass
 
 def is_trading_day():
     weekday = datetime.now().weekday()
