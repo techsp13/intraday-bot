@@ -51,11 +51,15 @@ jobs:
 
       - name: Run intraday pipeline
         env:
-          TELEGRAM_BOT_TOKEN: '8877227380:AAFXG5gWUyrpBKVr2zBGFINc7DZVhumIJPc'
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || '8766336885:AAHHXZ8JORt9RoseI40pPZKrDhoKfDUxCM8' }}
           TELEGRAM_CHAT_ID: '8620674286,-5302435145'
           TELEGRAM_ALERTS_ENABLED: 'TRUE'
-        run: python main.py ${{ steps.flags.outputs.args }}
-      
+          ANGEL_API_KEY: ${{ secrets.ANGEL_API_KEY }}
+          ANGEL_CLIENT_CODE: ${{ secrets.ANGEL_CLIENT_CODE }}
+          ANGEL_MPIN: ${{ secrets.ANGEL_MPIN }}
+          ANGEL_TOTP_KEY: ${{ secrets.ANGEL_TOTP_KEY }}
+        run: python main_stg2.py
+
       - name: Commit database updates
         if: always()
         run: |

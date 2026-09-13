@@ -1,4 +1,4 @@
-﻿"""
+"""
 STG2 Live Pipeline Runner (09:30 AM Golden Window)
 Powered exclusively by AngelOne SmartAPI.
 """
@@ -28,8 +28,47 @@ def run_stg2_pipeline(dry_run: bool = False, test_personal_only: bool = False):
     
     if not picks:
         print("No valid STG2 setups met the strict 15m ORB + VWAP + Buyer/Seller criteria today.")
+        if not dry_run:
+            no_picks_msg = (
+                f"🛡️ *STG2 MORNING SCAN: 09:30 AM*\n\n"
+                f"No high-conviction breakout setups detected today.\n"
+                f"▸ *Action*: 100% Cash Mode / Capital Protected.\n"
+                f"▸ *Reason*: Market choppy or volume surge < 1.8x. Avoiding false breakouts."
+            )
+            alerts.send_telegram_message(no_picks_msg)
         return
         
+    # Save to docs/picks.json and update web dashboard
+    try:
+        import web_generator
+        docs_dir = os.path.join(os.path.dirname(__file__), 'docs')
+        os.makedirs(docs_dir, exist_ok=True)
+        json_path = os.path.join(docs_dir, 'picks.json')
+        web_picks = []
+        for p in picks:
+            web_picks.append({
+                "symbol": p["symbol"],
+                "direction": p["direction"],
+                "entry": p["entry"],
+                "sl": p["sl"],
+                "target1": p["target1"],
+                "target2": p["target2"],
+                "qty": 10,
+                "rs": 0.0,
+                "day_high": p["entry"],
+                "day_low": p["sl"],
+                "day_close": p["entry"],
+                "exit_price": p["entry"],
+                "outcome": "ACTIVE",
+                "pnl": 0.0
+            })
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(web_picks, f, indent=2)
+        web_generator.generate_site()
+        print("Web dashboard updated with STG2 picks.")
+    except Exception as e:
+        print(f"Notice: Web dashboard update skipped: {e}")
+
     date_str = datetime.now().strftime("%d-%b-%Y")
     msg = f"🎯 *STG2: 15-MIN ORB + VWAP SNIPER — {date_str} (09:30 AM)*\n"
     msg += f"▸ *Live Market Depth & Order Book Imbalance Confirmed*\n"

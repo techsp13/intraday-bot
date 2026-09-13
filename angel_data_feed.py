@@ -24,15 +24,22 @@ def get_angel_client():
     if not all([api_key, client_code, mpin, totp_key]):
         raise ValueError('Missing AngelOne credentials in .env')
     
-    smart = SmartConnect(api_key=api_key)
-    totp = pyotp.TOTP(totp_key).now()
-    session = smart.generateSession(client_code, mpin, totp)
-    
-    if not session.get('status'):
-        raise ConnectionError(f"AngelOne Login Failed: {session.get('message')}")
-    
-    _smart_client = smart
-    return _smart_client
+    import time
+    last_err = None
+    for attempt in range(1, 4):
+        try:
+            smart = SmartConnect(api_key=api_key)
+            totp = pyotp.TOTP(totp_key).now()
+            session = smart.generateSession(client_code, mpin, totp)
+            if session.get('status'):
+                _smart_client = smart
+                return _smart_client
+            last_err = session.get('message')
+        except Exception as e:
+            last_err = str(e)
+        time.sleep(2)
+        
+    raise ConnectionError(f"AngelOne Login Failed after 3 attempts: {last_err}")
 
 def load_instrument_map():
     global _token_map

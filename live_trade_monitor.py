@@ -1,4 +1,4 @@
-﻿"""
+"""
 STG2 Full Trading Hours Live Monitor (09:15 AM to 03:30 PM IST)
 Powered by AngelOne SmartAPI.
 
@@ -80,48 +80,62 @@ def monitor_live_session(dry_run: bool = False):
             time.sleep(30)
             continue
             
-        # 4. 09:30 AM: Trigger STG2 Sniper Scan
+        # 4. 09:30 AM: Trigger STG3 Chart + Data Fusion Scan
         if dtime(9, 30) <= current_time < dtime(10, 15) and not scan_completed_today:
-            print(f"\n[{now.strftime('%H:%M:%S')}] ⏰ 09:30 AM TRIGGER! Running STG2 AngelOne Depth Scan...")
+            print(f"\n[{now.strftime('%H:%M:%S')}] ⏰ 09:30 AM TRIGGER! Running STG3 Fusion Scan (Chart + Data)...")
+            import chart_data_fusion
             picks = scan_stg2(max_picks=2)
             
             if picks:
-                print(f"Identified {len(picks)} high-conviction sniper picks.")
+                print(f"Identified {len(picks)} high-conviction momentum picks.")
                 active_list = []
                 for p in picks:
+                    sym = p['symbol']
+                    # Run Multi-Modal Fusion Analysis & Generate HD Chart
+                    fusion_res = chart_data_fusion.analyze_chart_and_data(sym, save_chart=True)
+                    chart_img = fusion_res.get('chart_path', '')
+                    score = fusion_res.get('score', p.get('score', 75))
+                    stars = fusion_res.get('stars', '[****]')
+                    
                     active_list.append({
-                        'symbol': p['symbol'],
+                        'symbol': sym,
                         'direction': p['direction'],
                         'entry': p['entry'],
                         'sl': p['sl'],
-                        'target1': p['target1'],
-                        'target2': p['target2'],
+                        'target1': p['target1'], # 1.2R Trail
+                        'target2': p['target2'], # 3.0R (1:3 Target)
                         't1_hit': False,
                         't2_hit': False,
                         'sl_hit': False,
                         'entry_time': now.strftime('%H:%M:%S')
                     })
-                save_active_trades(active_list)
-                
-                # Send Morning Telegram Alert
-                date_str = now.strftime("%d-%b-%Y")
-                msg = f"🎯 *STG2: 15-MIN ORB + VWAP SNIPER — {date_str} (09:30 AM)*\n"
-                msg += f"▸ *Live Market Depth & Buyer Dominance Confirmed*\n"
-                msg += "━━━━━━━━━━━━━━━━━━━━━━━\n"
-                for i, p in enumerate(picks, 1):
+                    
+                    # Send Morning Telegram Alert with Annotated Chart Photo
                     badge = "🟢 LONG (BUY)" if p["direction"] == "LONG" else "🔴 SHORT (SELL)"
-                    msg += f"*{i}️⃣ {p['symbol']}* — {badge}\n"
-                    msg += f"▸ Entry: `₹{p['entry']:,.2f}` | SL: `₹{p['sl']:,.2f}`\n"
-                    msg += f"▸ T1: `₹{p['target1']:,.2f}` (+1.5R) | T2: `₹{p['target2']:,.2f}` (+2.5R)\n"
-                    msg += f"▸ Order Book: *{p['buy_qty']:,} Buyers* vs *{p['sell_qty']:,} Sellers*\n\n"
-                msg += "━━━━━━━━━━━━━━━━━━━━━━━\n"
-                msg += "🤖 *Live Monitoring Active*: You will receive instant alerts on T1, T2 & SL."
-                
-                if not dry_run:
-                    alerts.send_telegram_message(msg)
-                print(msg)
+                    caption = (
+                        f"🎯 *STG3: CHART + DATA FUSION (09:30 AM)*\n\n"
+                        f"*{sym}* — {badge}\n"
+                        f"⭐ Confluence Score: *{score}/100* ({stars})\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"▸ Entry Trigger: `₹{p['entry']:,.2f}`\n"
+                        f"▸ Stop Loss: `₹{p['sl']:,.2f}` (VWAP Anchor)\n"
+                        f"▸ Target 1 (50%): `₹{p['target1']:,.2f}` (+1.2R Trail)\n"
+                        f"▸ Target 2 (1:3 RR): `₹{p['target2']:,.2f}` (+3.0R Target)\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"📊 Order Book: *{p['buy_qty']:,} Buyers* vs *{p['sell_qty']:,} Sellers*\n"
+                        f"🤖 *Live Bot Active*: Instant alerts on T1, T2, and Trailing SL."
+                    )
+                    
+                    if not dry_run:
+                        if chart_img and os.path.exists(chart_img):
+                            alerts.send_telegram_photo(chart_img, caption=caption)
+                        else:
+                            alerts.send_telegram_message(caption)
+                    print(caption)
+                    
+                save_active_trades(active_list)
             else:
-                print("No stocks met strict STG2 criteria today. Capital 100% protected.")
+                print("No stocks met strict STG3 criteria today. Capital 100% protected.")
                 
             scan_completed_today = True
             
@@ -144,13 +158,13 @@ def monitor_live_session(dry_run: bool = False):
                 if dirn == 'LONG':
                     if ltp >= t['target2'] and not t['t2_hit']:
                         t['t2_hit'] = True
-                        alert_msg = f"🎉 *TARGET 2 HIT on {sym}!* (+2.5R)\n▸ Current Price: `₹{ltp:,.2f}` (Target: `₹{t['target2']:,.2f}`)\n▸ *Action*: Complete exit! Full profit booked! 💰"
+                        alert_msg = f"🎉 *1:3 TARGET HIT on {sym}!* (+3.0R)\n▸ Current Price: `₹{ltp:,.2f}` (Target: `₹{t['target2']:,.2f}`)\n▸ *Action*: Complete exit! 1:3 profit booked! 💰"
                         print(alert_msg)
                         if not dry_run: alerts.send_telegram_message(alert_msg)
                     elif ltp >= t['target1'] and not t['t1_hit']:
                         t['t1_hit'] = True
                         t['sl'] = t['entry'] # Trail SL to entry
-                        alert_msg = f"🎯 *TARGET 1 HIT on {sym}!* (+1.5R)\n▸ Current Price: `₹{ltp:,.2f}`\n▸ *Action*: Book 50% profit now!\n▸ *Risk Free*: Trailing Stop Loss moved to Entry (`₹{t['entry']:,.2f}`)."
+                        alert_msg = f"🎯 *TARGET 1 HIT on {sym}!* (+1.2R)\n▸ Current Price: `₹{ltp:,.2f}`\n▸ *Action*: Book 50% profit now!\n▸ *Risk Free*: Trailing Stop Loss moved to Entry (`₹{t['entry']:,.2f}`)."
                         print(alert_msg)
                         if not dry_run: alerts.send_telegram_message(alert_msg)
                     elif ltp <= t['sl'] and not t['sl_hit']:
@@ -163,13 +177,13 @@ def monitor_live_session(dry_run: bool = False):
                 elif dirn == 'SHORT':
                     if ltp <= t['target2'] and not t['t2_hit']:
                         t['t2_hit'] = True
-                        alert_msg = f"🎉 *TARGET 2 HIT on {sym}!* (+2.5R)\n▸ Current Price: `₹{ltp:,.2f}` (Target: `₹{t['target2']:,.2f}`)\n▸ *Action*: Buy back to cover! Full profit booked! 💰"
+                        alert_msg = f"🎉 *1:3 TARGET HIT on {sym}!* (+3.0R)\n▸ Current Price: `₹{ltp:,.2f}` (Target: `₹{t['target2']:,.2f}`)\n▸ *Action*: Buy back to cover! 1:3 profit booked! 💰"
                         print(alert_msg)
                         if not dry_run: alerts.send_telegram_message(alert_msg)
                     elif ltp <= t['target1'] and not t['t1_hit']:
                         t['t1_hit'] = True
                         t['sl'] = t['entry']
-                        alert_msg = f"🎯 *TARGET 1 HIT on {sym}!* (+1.5R)\n▸ Current Price: `₹{ltp:,.2f}`\n▸ *Action*: Book 50% profit now!\n▸ *Risk Free*: Trailing Stop Loss moved to Entry (`₹{t['entry']:,.2f}`)."
+                        alert_msg = f"🎯 *TARGET 1 HIT on {sym}!* (+1.2R)\n▸ Current Price: `₹{ltp:,.2f}`\n▸ *Action*: Book 50% profit now!\n▸ *Risk Free*: Trailing Stop Loss moved to Entry (`₹{t['entry']:,.2f}`)."
                         print(alert_msg)
                         if not dry_run: alerts.send_telegram_message(alert_msg)
                     elif ltp >= t['sl'] and not t['sl_hit']:

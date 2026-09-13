@@ -59,6 +59,36 @@ def send_telegram_message(message: str, parse_mode: str = 'Markdown', personal_o
                 
     return success_any
 
+def send_telegram_photo(photo_path: str, caption: str = "", personal_only: bool = False) -> bool:
+    """Send an annotated chart photo to Telegram."""
+    if not getattr(config, 'TELEGRAM_ALERTS_ENABLED', True):
+        return False
+    token = getattr(config, 'TELEGRAM_BOT_TOKEN', '')
+    if personal_only:
+        raw_chat_ids = getattr(config, 'PERSONAL_CHAT_ID', '8620674286')
+    else:
+        raw_chat_ids = getattr(config, 'TELEGRAM_CHAT_ID', '')
+    if not token or not raw_chat_ids or not os.path.exists(photo_path):
+        return False
+        
+    import requests
+    chat_ids = [c.strip() for c in str(raw_chat_ids).split(',') if c.strip()]
+    success = False
+    for cid in chat_ids:
+        try:
+            with open(photo_path, 'rb') as f:
+                r = requests.post(
+                    f"https://api.telegram.org/bot{token}/sendPhoto",
+                    data={'chat_id': cid, 'caption': caption, 'parse_mode': 'Markdown'},
+                    files={'photo': f},
+                    timeout=15
+                )
+                if r.status_code == 200:
+                    success = True
+        except Exception as e:
+            print(f"Telegram error sending photo to {cid}: {e}")
+    return success
+
 def send_test_alert(message: str, parse_mode: str = 'Markdown') -> bool:
     """Strictly send test and debug messages ONLY to personal chat ID, NEVER to group."""
     return send_telegram_message(message, parse_mode=parse_mode, personal_only=True)
