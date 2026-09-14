@@ -18,6 +18,7 @@ NSE_HOLIDAYS = {
     "2026-05-01": "Maharashtra Day",
     "2026-05-27": "Bakri Id / Eid ul-Adha",
     "2026-08-15": "Independence Day",
+    "2026-09-14": "Eid-e-Milad (Milad-un-Nabi)",
     "2026-10-02": "Mahatma Gandhi Jayanti",
     "2026-10-20": "Dussehra",
     "2026-11-08": "Diwali (Laxmi Pujan)",

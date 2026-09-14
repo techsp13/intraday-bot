@@ -1,0 +1,26 @@
+[
+  {
+    "symbol": "GRAPHITE",
+    "direction": "LONG",
+    "entry": 825.8,
+    "sl": 814.82,
+    "target1": 838.98,
+    "target2": 858.74,
+    "t1_hit": false,
+    "t2_hit": false,
+    "sl_hit": false,
+    "entry_time": "09:30:00"
+  },
+  {
+    "symbol": "CHENNPETRO",
+    "direction": "SHORT",
+    "entry": 1572.9,
+    "sl": 1609.49,
+    "target1": 1528.99,
+    "target2": 1463.13,
+    "t1_hit": false,
+    "t2_hit": false,
+    "sl_hit": false,
+    "entry_time": "09:30:00"
+  }
+]

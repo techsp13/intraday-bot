@@ -35,6 +35,21 @@ def scan_stg2(max_picks=2):
     market_data = smart.getMarketData(mode="FULL", exchangeTokens={"NSE": tokens})
     if not (market_data.get("status") and market_data.get("data") and market_data["data"].get("fetched")):
         return []
+
+    # LIVE EXCHANGE HOLIDAY & FEED STALENESS DETECTOR
+    fetched_list = market_data["data"]["fetched"]
+    if fetched_list:
+        first_item = fetched_list[0]
+        exch_trade_time = first_item.get("exchTradeTime", "")
+        trade_date = None
+        if exch_trade_time:
+            try:
+                trade_date = datetime.strptime(exch_trade_time.split()[0], "%d-%b-%Y").date()
+            except Exception:
+                pass
+        if trade_date and trade_date < datetime.now().date():
+            print(f"\n[MARKET CLOSED TODAY] NSE is closed (Trading Holiday). Latest feed trade date is {trade_date}. Zero trades taken.")
+            return []
         
     candidates = []
     for item in market_data["data"]["fetched"]:

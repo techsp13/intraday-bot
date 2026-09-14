@@ -25,6 +25,7 @@ if sys.stdout.encoding != 'utf-8':
 
 import config
 import alerts
+import nse_holidays
 from angel_data_feed import get_angel_client, get_live_quote
 from screener_stg2 import scan_stg2
 
@@ -58,8 +59,8 @@ def save_active_trades(trades, log_msg=""):
         pass
 
 def is_trading_day():
-    weekday = datetime.now().weekday()
-    return weekday < 5 # 0=Mon, 4=Fri
+    is_closed, reason = nse_holidays.is_market_holiday()
+    return not is_closed, reason
 
 def monitor_live_session(dry_run: bool = False):
     print("==========================================================")
@@ -70,15 +71,27 @@ def monitor_live_session(dry_run: bool = False):
     print("==========================================================\n")
     
     scan_completed_today = False
+    holiday_alert_sent = False
     
     while True:
         now = datetime.now()
         current_time = now.time()
         
-        # 1. Weekend Check
-        if not is_trading_day() and not dry_run:
-            print(f"Market Closed: Today is weekend ({now.strftime('%A')}). Sleeping 60s...")
-            time.sleep(60)
+        # 1. Trading Holiday & Weekend Check
+        is_open, holiday_reason = is_trading_day()
+        if not is_open and not dry_run:
+            if not holiday_alert_sent:
+                print(f"[MARKET CLOSED TODAY] {holiday_reason}. Sleeping until tomorrow...")
+                holiday_msg = (
+                    f"🛑 *NSE MARKET CLOSED TODAY*\n\n"
+                    f"▸ *Reason*: {holiday_reason}\n"
+                    f"▸ *Action*: Zero trades taken today. Capital 100% protected in cash.\n"
+                    f"▸ *Status*: Monitor sleeping until tomorrow morning 09:00 AM IST."
+                )
+                alerts.send_telegram_message(holiday_msg)
+                save_active_trades([], log_msg=f"Market Closed: {holiday_reason}")
+                holiday_alert_sent = True
+            time.sleep(3600)
             continue
             
         # 2. Before 09:15 AM Pre-market
