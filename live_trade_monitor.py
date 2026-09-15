@@ -72,10 +72,20 @@ def monitor_live_session(dry_run: bool = False):
     
     scan_completed_today = False
     holiday_alert_sent = False
+    last_active_date = None
     
     while True:
         now = datetime.now()
         current_time = now.time()
+        today_date = now.date()
+        
+        # New Day State Reset
+        if last_active_date != today_date:
+            save_active_trades([], log_msg=f"Initializing clean session for {today_date.strftime('%d-%b-%Y')}")
+            scan_completed_today = False
+            holiday_alert_sent = False
+            last_active_date = today_date
+            print(f"[{now.strftime('%H:%M:%S')}] New Trading Session initialized ({today_date.strftime('%d-%b-%Y')}). Queue reset to 0.")
         
         # 1. Trading Holiday & Weekend Check
         is_open, holiday_reason = is_trading_day()
