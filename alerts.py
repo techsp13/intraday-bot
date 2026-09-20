@@ -179,11 +179,19 @@ def send_picks_batch(picks: list[dict], alert_type: str = 'watchlist') -> int:
         return len(picks)
     return 0
 
-def send_no_picks_alert() -> bool:
-    """Send alert when no picks are found."""
-    date_str = datetime.now().strftime("%d-%b-%Y")
-    msg = f"📭 *No qualifying setups today*\nAll filters active. Market Regime / RS filters active.\n📅 {date_str}"
-    return send_telegram_message(msg)
+def send_no_picks_alert(scan_title: str = "QUANT SNIPER SCAN", reason: str = "Market choppy / Range expansion < 2.0%. High-beta momentum leaders did not show institutional order flow conviction.", personal_only: bool = False) -> bool:
+    """Sends an explicit Telegram notification when zero stocks meet criteria."""
+    date_str = datetime.now().strftime("%d-%b-%Y %H:%M:%S")
+    msg = (
+        f"🛡️ *{scan_title} — NO STOCKS FOUND*\n\n"
+        f"📅 *Timestamp*: {date_str} IST\n"
+        f"▸ *Result*: *0 Qualifying Stocks Found Today*\n"
+        f"▸ *Status*: *100% Capital Protected in Cash*\n"
+        f"▸ *Market State*: {reason}\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"📌 *Discipline Rule*: Zero forced trades on choppy days. Protecting capital is Priority #1!"
+    )
+    return send_telegram_message(msg, personal_only=personal_only)
 
 def send_daily_loss_halt_alert(cumulative_pnl: float) -> bool:
     """Send alert when daily loss limit is hit."""

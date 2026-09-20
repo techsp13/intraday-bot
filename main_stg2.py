@@ -40,13 +40,11 @@ def run_stg2_pipeline(dry_run: bool = False, test_personal_only: bool = False):
     if not picks:
         print("No valid STG2 setups met the strict 15m ORB + VWAP + Buyer/Seller criteria today.")
         if not dry_run:
-            no_picks_msg = (
-                f"🛡️ *STG2 MORNING SCAN: 09:30 AM*\n\n"
-                f"No high-conviction breakout setups detected today.\n"
-                f"▸ *Action*: 100% Cash Mode / Capital Protected.\n"
-                f"▸ *Reason*: Market choppy or volume surge < 1.8x. Avoiding false breakouts."
+            alerts.send_no_picks_alert(
+                scan_title="09:30 AM STG2/STG3 FUSION SCAN",
+                reason="None of the 14 high-beta leaders met strict 2.0% range expansion + VWAP conviction.",
+                personal_only=test_personal_only
             )
-            alerts.send_telegram_message(no_picks_msg)
         return
         
     # Save to docs/picks.json and update web dashboard

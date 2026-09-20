@@ -173,6 +173,11 @@ def monitor_live_session(dry_run: bool = False):
                 save_active_trades(active_list)
             else:
                 print("No stocks met strict STG3 criteria today. Capital 100% protected.")
+                alerts.send_no_picks_alert(
+                    scan_title="09:30 AM LIVE MONITOR SCAN",
+                    reason="None of the 14 high-beta leaders met strict 2.0% range expansion + VWAP conviction."
+                )
+                save_active_trades([], log_msg="0 qualifying stocks today. Capital 100% in cash.")
                 
             scan_completed_today = True
             
