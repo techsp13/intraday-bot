@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "symbol": "HAL",
+    "direction": "LONG",
+    "entry": 4820.0,
+    "sl": 4820.0,
+    "target1": 4862.0,
+    "target2": 4925.0,
+    "ltp": 4925.0,
+    "t1_hit": true,
+    "t2_hit": true,
+    "sl_hit": false,
+    "entry_time": "09:30:00",
+    "net_pnl": 1005.0
+  }
+]
