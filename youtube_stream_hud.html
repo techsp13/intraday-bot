@@ -9,6 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- TradingView Lightweight Charts Standalone CDN -->
+  <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
   <style>
     body {
       background-color: #06090e;
@@ -23,7 +25,7 @@
     }
     .mono { font-family: 'JetBrains Mono', monospace; }
     .glass-panel {
-      background: rgba(13, 19, 30, 0.88);
+      background: rgba(13, 19, 30, 0.92);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(48, 63, 88, 0.6);
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
@@ -31,6 +33,14 @@
     .glow-green {
       box-shadow: 0 0 30px rgba(16, 185, 129, 0.35);
       border-color: rgba(16, 185, 129, 0.6);
+    }
+    .glow-alert {
+      box-shadow: 0 0 40px rgba(245, 158, 11, 0.5);
+      animation: alertPulse 1s infinite alternate;
+    }
+    @keyframes alertPulse {
+      from { transform: scale(1); filter: brightness(1); }
+      to { transform: scale(1.02); filter: brightness(1.2); }
     }
     .pulse-dot {
       animation: pulseAnimation 1.5s infinite;
@@ -40,235 +50,305 @@
       50% { transform: scale(1.15); opacity: 1; }
       100% { transform: scale(0.95); opacity: 0.8; }
     }
+    #chartContainer {
+      width: 100%;
+      height: 100%;
+      min-height: 240px;
+    }
+    /* Toast Animation */
+    #alertBanner {
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: translateY(-120%);
+    }
+    #alertBanner.show {
+      transform: translateY(0%);
+    }
   </style>
 </head>
-<body class="flex flex-col justify-between h-screen p-3 space-y-2.5">
+<body class="flex flex-col justify-between h-screen p-2.5 space-y-2 relative">
+
+  <!-- FLOATING AUDIO-VISUAL ALERT BANNER (OBS Broadcast Overlay) -->
+  <div id="alertBanner" class="absolute top-3 left-1/2 -translate-x-1/2 z-50 px-6 py-2.5 rounded-2xl glass-panel border-2 border-emerald-400 shadow-2xl flex items-center gap-4 glow-green pointer-events-none">
+    <div id="alertIconBox" class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-xl border border-emerald-400/40">
+      <i data-lucide="bell" id="alertIcon" class="w-6 h-6"></i>
+    </div>
+    <div>
+      <div id="alertTitle" class="text-sm font-black uppercase tracking-wider text-emerald-400">🚨 BUY SIGNAL TRIGGERED</div>
+      <div id="alertSubtitle" class="text-xs font-bold text-white mono">HAL ENTERED @ ₹4,820.00 • T1: ₹4,862.00 • T2: ₹4,925.00</div>
+    </div>
+  </div>
 
   <!-- 1. TOP HEADER BAR -->
-  <header class="glass-panel rounded-xl px-5 py-2.5 flex items-center justify-between border-slate-700/60">
-    <div class="flex items-center space-x-3.5">
-      <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-500 flex items-center justify-center font-extrabold text-slate-950 shadow-lg shadow-emerald-500/20">
-        <i data-lucide="activity" class="w-5 h-5"></i>
+  <header class="glass-panel rounded-xl px-4 py-2 flex items-center justify-between border-slate-700/60 shrink-0">
+    <div class="flex items-center space-x-3">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-500 flex items-center justify-center font-extrabold text-slate-950 shadow-lg shadow-emerald-500/20">
+        <i data-lucide="activity" class="w-4 h-4"></i>
       </div>
       <div>
         <div class="flex items-center gap-2">
-          <span class="text-base font-black tracking-tight text-white">QUANT SNIPER <span class="text-emerald-400">1:3 RR</span></span>
-          <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-rose-500 pulse-dot"></span> LIVE YOUTUBE STREAM
+          <span class="text-sm font-black tracking-tight text-white">QUANT SNIPER <span class="text-emerald-400">1:3 RR</span></span>
+          <span class="px-2 py-0.5 text-[9px] font-bold uppercase rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-500 pulse-dot"></span> YOUTUBE LIVE
           </span>
-          <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
-            <i data-lucide="shield-check" class="w-3 h-3"></i> AngelOne L2 Feeds
+          <span class="px-2 py-0.5 text-[9px] font-bold uppercase rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+            <i data-lucide="shield-check" class="w-3 h-3"></i> AngelOne SmartAPI L2
           </span>
         </div>
-        <p class="text-[11px] text-slate-400 font-medium">
-          Discrete 15m Confluence Engine • Anti-Wick Conviction • VWAP Anchor SL
+        <p class="text-[10px] text-slate-400 font-medium">
+          Bar-by-Bar Discrete Simulation • Anti-Wick Conviction • Strict 100% Tax Deducted
         </p>
       </div>
     </div>
 
     <!-- Center: Market Phase Pill -->
-    <div id="marketPhaseBadge" class="px-4 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 flex items-center gap-2 shadow-inner">
-      <span class="w-2.5 h-2.5 rounded-full bg-amber-400 pulse-dot" id="phaseDot"></span>
-      <span class="text-xs font-bold uppercase tracking-wider text-slate-200" id="phaseText">09:30 AM Breakout Window</span>
+    <div id="marketPhaseBadge" class="px-3 py-1 rounded-lg bg-slate-800/90 border border-slate-700 flex items-center gap-2 shadow-inner">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot" id="phaseDot"></span>
+      <span class="text-xs font-bold uppercase tracking-wider text-slate-200" id="phaseText">09:30 AM Momentum Breakout Window</span>
     </div>
 
-    <!-- Right: Digital IST Clock & Test Mode Button -->
-    <div class="flex items-center space-x-4">
+    <!-- Right: Digital Clock & Simulation Controls -->
+    <div class="flex items-center space-x-3">
       <div class="text-right">
-        <div class="text-xl font-extrabold mono text-white tracking-wider" id="liveClock">--:--:-- IST</div>
-        <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest" id="liveDate">Monday, 14-Sep-2026</div>
+        <div class="text-base font-extrabold mono text-white tracking-wider" id="liveClock">--:--:-- IST</div>
+        <div class="text-[9px] font-semibold text-slate-400 uppercase tracking-widest" id="liveDate">-- --- ----</div>
       </div>
-      <button onclick="toggleSimulationMode()" id="simBtn" class="px-3 py-1 text-xs font-bold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 transition flex items-center gap-1.5 shadow">
-        <i data-lucide="play" class="w-3.5 h-3.5 text-emerald-400"></i> <span id="simBtnText">Test Mode</span>
-      </button>
-      <button onclick="document.documentElement.requestFullscreen()" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-700 transition" title="Toggle Fullscreen">
-        <i data-lucide="maximize" class="w-3.5 h-3.5"></i>
-      </button>
+      
+      <!-- Simulation Controls -->
+      <div class="flex items-center gap-1 bg-slate-900/80 p-1 rounded-lg border border-slate-700">
+        <button onclick="toggleSimulation()" id="simBtn" class="px-2.5 py-1 text-xs font-bold rounded bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center gap-1 shadow">
+          <i data-lucide="play" id="simIcon" class="w-3 h-3"></i> <span id="simBtnText">Start Sim</span>
+        </button>
+        <button onclick="resetSimulation()" class="px-2 py-1 text-xs font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Reset Simulation">
+          <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
+        </button>
+        <button onclick="toggleSound()" id="soundBtn" class="px-2 py-1 text-xs font-semibold rounded bg-slate-800 hover:bg-slate-700 text-emerald-400 transition" title="Toggle Alert Chimes">
+          <i data-lucide="volume-2" id="soundIcon" class="w-3 h-3"></i>
+        </button>
+        <button onclick="document.documentElement.requestFullscreen()" class="px-2 py-1 text-xs font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-400 transition" title="Fullscreen for OBS">
+          <i data-lucide="maximize" class="w-3 h-3"></i>
+        </button>
+      </div>
     </div>
   </header>
 
   <!-- 2. MAIN 16:9 CONTENT GRID -->
-  <main class="flex-1 grid grid-cols-12 gap-3 min-h-0">
+  <main class="flex-1 grid grid-cols-12 gap-2.5 min-h-0">
 
-    <!-- LEFT COLUMN: ACTIVE TRADE HERO CARD (Cols 7) -->
-    <section class="col-span-7 flex flex-col space-y-3 min-h-0">
+    <!-- LEFT COLUMN: ACTIVE HERO CARD & LIVE CANDLESTICK CHART (Cols 8) -->
+    <section class="col-span-8 flex flex-col space-y-2 min-h-0">
       
-      <!-- HERO SIGNAL CARD -->
-      <div id="heroCard" class="glass-panel rounded-2xl p-5 flex-1 flex flex-col justify-between border-emerald-500/40 glow-green relative overflow-hidden transition-all duration-300">
+      <!-- TOP: ACTIVE TRADE HERO STATS CARD -->
+      <div id="heroCard" class="glass-panel rounded-xl p-3.5 border-emerald-500/40 glow-green relative overflow-hidden transition-all duration-300 shrink-0">
         
-        <!-- Ambient background aura -->
-        <div class="absolute -top-24 -right-24 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-        <!-- Top Row of Card -->
         <div class="flex items-start justify-between">
-          <div class="space-y-1">
-            <div class="flex items-center gap-2.5">
-              <span id="tradeBadge" class="px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/30 flex items-center gap-1.5">
-                <i data-lucide="trending-up" class="w-4 h-4"></i> <span id="tradeDirectionText">LONG (BUY)</span>
+          <div class="space-y-0.5">
+            <div class="flex items-center gap-2">
+              <span id="tradeBadge" class="px-2.5 py-0.5 rounded-md text-[11px] font-black uppercase tracking-wider bg-emerald-500 text-slate-950 flex items-center gap-1 shadow">
+                <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> <span id="tradeDirectionText">LONG (BUY)</span>
               </span>
-              <h2 id="tradeSymbol" class="text-4xl font-black text-white tracking-tight mono">HAL</h2>
-              <span class="text-xs text-slate-400 font-semibold px-2 py-0.5 rounded bg-slate-800 border border-slate-700">NSE Cash / MIS</span>
+              <h2 id="tradeSymbol" class="text-2xl font-black text-white tracking-tight mono">HAL</h2>
+              <span class="text-[10px] text-slate-400 font-semibold px-2 py-0.5 rounded bg-slate-800 border border-slate-700">NSE MIS (5x)</span>
             </div>
-            <p class="text-xs text-slate-400 flex items-center gap-1.5">
-              <span class="text-emerald-400 font-bold" id="scoreText">⭐ Confluence Score: 88/100 (High Conviction)</span>
+            <p class="text-[11px] text-slate-400 flex items-center gap-2 pt-0.5">
+              <span class="text-emerald-400 font-bold" id="scoreText">⭐ Score: 88/100 (5-Star Setup)</span>
               <span>•</span>
               <span class="text-slate-300" id="rangeExpansionText">15m Range: +2.4%</span>
+              <span>•</span>
+              <span class="text-cyan-400" id="volSurgeText">Vol Surge: 2.1x</span>
             </p>
           </div>
 
-          <!-- Live LTP Big Display -->
+          <!-- Live LTP Display -->
           <div class="text-right">
-            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Live AngelOne LTP</div>
-            <div class="text-4xl font-black mono text-emerald-400 flex items-center justify-end gap-1" id="tradeLtp">
-              <span>₹4,858.00</span>
+            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Live Replay LTP</div>
+            <div class="text-2xl font-black mono text-emerald-400 flex items-center justify-end gap-1" id="tradeLtp">
+              <span>₹4,820.00</span>
             </div>
-            <div class="text-xs font-bold text-emerald-400 mono" id="tradePctChg">+₹38.00 (+0.79%) from Entry</div>
+            <div class="text-[11px] font-bold text-emerald-400 mono" id="tradePctChg">+₹0.00 (+0.00%) from Entry</div>
           </div>
         </div>
 
-        <!-- Middle: Milestones & Key Price Grid -->
-        <div class="grid grid-cols-4 gap-2.5 my-2">
-          <div class="bg-slate-900/80 rounded-xl p-2.5 border border-slate-800">
-            <div class="text-[10px] font-bold text-slate-400 uppercase">Breakout Entry</div>
-            <div class="text-lg font-extrabold mono text-white mt-0.5" id="entryVal">₹4,820.00</div>
-            <div class="text-[9px] text-slate-500 font-medium">09:30 AM Trigger</div>
+        <!-- Middle: Key Target & Stop Levels -->
+        <div class="grid grid-cols-4 gap-2 my-2">
+          <div class="bg-slate-900/90 rounded-lg p-2 border border-slate-800">
+            <div class="text-[9px] font-bold text-slate-400 uppercase">09:30 Entry</div>
+            <div class="text-base font-black mono text-white" id="entryVal">₹4,820.00</div>
+            <div class="text-[8px] text-slate-500">Breakout Trigger</div>
           </div>
-          <div class="bg-slate-900/80 rounded-xl p-2.5 border border-slate-800">
-            <div class="text-[10px] font-bold text-rose-400 uppercase flex items-center gap-1">
+          <div class="bg-slate-900/90 rounded-lg p-2 border border-slate-800">
+            <div class="text-[9px] font-bold text-rose-400 uppercase flex items-center gap-1">
               <i data-lucide="shield-alert" class="w-3 h-3"></i> Stop Loss
             </div>
-            <div class="text-lg font-extrabold mono text-rose-400 mt-0.5" id="slVal">₹4,785.00</div>
-            <div class="text-[9px] text-slate-500 font-medium" id="slLabel">VWAP Dynamic Anchor</div>
+            <div class="text-base font-black mono text-rose-400" id="slVal">₹4,785.00</div>
+            <div class="text-[8px] text-slate-500" id="slLabel">VWAP Dynamic Anchor</div>
           </div>
-          <div class="bg-slate-900/80 rounded-xl p-2.5 border border-slate-800">
-            <div class="text-[10px] font-bold text-teal-400 uppercase flex items-center gap-1">
+          <div class="bg-slate-900/90 rounded-lg p-2 border border-slate-800">
+            <div class="text-[9px] font-bold text-teal-400 uppercase flex items-center gap-1">
               <i data-lucide="crosshair" class="w-3 h-3"></i> Target 1 (+1.2R)
             </div>
-            <div class="text-lg font-extrabold mono text-teal-300 mt-0.5" id="t1Val">₹4,862.00</div>
-            <div class="text-[9px] text-teal-400/80 font-medium">50% Profit & Trail to BE</div>
+            <div class="text-base font-black mono text-teal-300" id="t1Val">₹4,862.00</div>
+            <div class="text-[8px] text-teal-400/80">Lock 50% & Trail to BE</div>
           </div>
-          <div class="bg-slate-900/80 rounded-xl p-2.5 border border-emerald-500/30 bg-emerald-500/5">
-            <div class="text-[10px] font-bold text-emerald-400 uppercase flex items-center gap-1">
-              <i data-lucide="trophy" class="w-3 h-3"></i> 1:3 RR Target 2 (+3.0R)
+          <div class="bg-slate-900/90 rounded-lg p-2 border border-emerald-500/30 bg-emerald-500/5">
+            <div class="text-[9px] font-bold text-emerald-400 uppercase flex items-center gap-1">
+              <i data-lucide="trophy" class="w-3 h-3"></i> 1:3 Target (+3.0R)
             </div>
-            <div class="text-lg font-extrabold mono text-emerald-300 mt-0.5" id="t2Val">₹4,925.00</div>
-            <div class="text-[9px] text-emerald-400 font-semibold">Full 1:3 Exit 💰</div>
+            <div class="text-base font-black mono text-emerald-300" id="t2Val">₹4,925.00</div>
+            <div class="text-[8px] text-emerald-400 font-semibold">Full Target 2 Exit 💰</div>
           </div>
         </div>
 
-        <!-- Target Milestone Progress Visualizer -->
-        <div class="space-y-1.5 bg-slate-900/90 rounded-xl p-3 border border-slate-800">
-          <div class="flex items-center justify-between text-xs font-bold">
+        <!-- Target Progress Bar -->
+        <div class="space-y-1 bg-slate-900/90 rounded-lg p-2 border border-slate-800">
+          <div class="flex items-center justify-between text-[11px] font-bold">
             <span class="text-slate-400 flex items-center gap-1">
-              <i data-lucide="gauge" class="w-3.5 h-3.5 text-cyan-400"></i> Target Progress Visualizer
+              <i data-lucide="gauge" class="w-3 h-3 text-cyan-400"></i> Target Progress Meter
             </span>
-            <span class="mono text-cyan-300 font-extrabold" id="progressPctText">72% Towards Target 1</span>
+            <span class="mono text-cyan-300 font-extrabold" id="progressPctText">0% Towards Target</span>
           </div>
-          <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden flex relative p-0.5 border border-slate-700">
+          <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden flex relative p-0.5 border border-slate-700">
             <div class="absolute left-[40%] top-0 bottom-0 w-0.5 bg-amber-400 z-10 shadow" title="Target 1 (1.2R)"></div>
             <div class="absolute right-0 top-0 bottom-0 w-1 bg-emerald-400 z-10 shadow" title="Target 2 (3.0R)"></div>
-            <div id="progressBarFill" class="h-full bg-gradient-to-r from-teal-500 to-emerald-400 rounded-full transition-all duration-500" style="width: 72%;"></div>
+            <div id="progressBarFill" class="h-full bg-gradient-to-r from-teal-500 to-emerald-400 rounded-full transition-all duration-300" style="width: 0%;"></div>
           </div>
-          <div class="flex justify-between text-[10px] font-semibold text-slate-500">
+          <div class="flex justify-between text-[9px] font-semibold text-slate-500">
             <span>Entry (0R)</span>
             <span class="text-amber-400 pl-4">▲ T1 (+1.2R) Lock BE</span>
             <span class="text-emerald-400">▲ 1:3 Target (+3.0R)</span>
           </div>
         </div>
 
-        <!-- Bottom Row: Risk Status & Net P&L (100% Tax Deducted) -->
-        <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
+        <!-- Risk Status & Net P&L (Statutory Deductions) -->
+        <div class="flex items-center justify-between pt-2 border-t border-slate-800 mt-2">
           <div class="flex items-center gap-2">
-            <span id="riskStatusBadge" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
-              <i data-lucide="shield" class="w-3.5 h-3.5"></i> Active Risk: ₹350 (Capped)
+            <span id="riskStatusBadge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+              <i data-lucide="shield" class="w-3 h-3"></i> Active Risk: ₹350 (Capped)
             </span>
-            <span class="text-[11px] text-slate-400 font-medium">Qty: <strong class="text-white mono" id="tradeQty">10 shares</strong> (5x MIS Margin)</span>
+            <span class="text-[10px] text-slate-400">Qty: <strong class="text-white mono">10 shares</strong></span>
           </div>
 
-          <div class="flex items-center gap-3">
-            <div class="text-right">
-              <div class="text-[9px] text-slate-400 uppercase font-semibold">Simulated Net P&L (All Taxes Deducted)</div>
-              <div class="text-xl font-black mono text-emerald-400" id="netPnlVal">+₹358.50</div>
-            </div>
+          <div class="text-right flex items-center gap-2">
+            <span class="text-[9px] text-slate-400 uppercase font-semibold">Net P&L (All Taxes Deducted):</span>
+            <span class="text-base font-black mono text-slate-300" id="netPnlVal">₹0.00</span>
           </div>
         </div>
 
       </div>
 
-      <!-- LEVEL-2 ORDER BOOK DEPTH METER -->
-      <div class="glass-panel rounded-xl p-3 border-slate-700/60">
-        <div class="flex items-center justify-between text-xs font-bold mb-1.5">
-          <span class="text-slate-300 flex items-center gap-1.5">
-            <i data-lucide="layers" class="w-4 h-4 text-emerald-400"></i> Live Level-2 Order Book Imbalance
+      <!-- MIDDLE: LIVE TRADINGVIEW CANDLESTICK CHART -->
+      <div class="glass-panel rounded-xl p-2.5 flex-1 flex flex-col min-h-0 border-slate-700/60 relative">
+        <div class="flex items-center justify-between pb-1.5 border-b border-slate-800 shrink-0">
+          <div class="flex items-center gap-2">
+            <i data-lucide="candlestick-chart" class="w-4 h-4 text-emerald-400"></i>
+            <span class="text-xs font-black uppercase tracking-wider text-white">Live Institutional Candlestick Chart (5-Minute)</span>
+            <span class="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-cyan-400 border border-slate-700">VWAP + CPR Pivots</span>
+          </div>
+          <div class="flex items-center gap-3 text-[10px] font-semibold text-slate-400">
+            <span class="flex items-center gap-1"><span class="w-2.5 h-0.5 bg-cyan-400"></span> VWAP</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-0.5 bg-rose-500"></span> Stop Loss</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-0.5 bg-amber-400"></span> Target 1</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-0.5 bg-emerald-400"></span> Target 2 (1:3)</span>
+          </div>
+        </div>
+        <div class="flex-1 w-full relative min-h-0 pt-1">
+          <div id="chartContainer"></div>
+        </div>
+      </div>
+
+      <!-- BOTTOM: ORDER BOOK DEPTH -->
+      <div class="glass-panel rounded-xl px-3 py-2 border-slate-700/60 shrink-0">
+        <div class="flex items-center justify-between text-xs font-bold mb-1">
+          <span class="text-slate-300 flex items-center gap-1.5 text-[11px]">
+            <i data-lucide="layers" class="w-3.5 h-3.5 text-emerald-400"></i> Level-2 Order Flow Depth
           </span>
-          <span class="text-[11px] font-semibold mono text-emerald-400" id="orderRatioText">1.9x Buyer Demand Dominance</span>
+          <span class="text-[10px] font-semibold mono text-emerald-400" id="orderRatioText">2.1x Buyer Dominance</span>
         </div>
-        <div class="w-full h-4 bg-slate-900 rounded-lg overflow-hidden flex border border-slate-700">
-          <div id="buyDepthBar" class="bg-emerald-500 h-full flex items-center justify-start pl-2 text-[9px] font-black text-slate-950 transition-all duration-500" style="width: 65%;">
-            65% BUYERS
+        <div class="w-full h-3.5 bg-slate-900 rounded-md overflow-hidden flex border border-slate-700">
+          <div id="buyDepthBar" class="bg-emerald-500 h-full flex items-center justify-start pl-2 text-[8px] font-black text-slate-950 transition-all duration-300" style="width: 68%;">
+            68% BUYERS
           </div>
-          <div id="sellDepthBar" class="bg-rose-500 h-full flex items-center justify-end pr-2 text-[9px] font-black text-slate-950 transition-all duration-500" style="width: 35%;">
-            35% SELLERS
+          <div id="sellDepthBar" class="bg-rose-500 h-full flex items-center justify-end pr-2 text-[8px] font-black text-slate-950 transition-all duration-300" style="width: 32%;">
+            32% SELLERS
           </div>
-        </div>
-        <div class="flex justify-between text-[10px] text-slate-400 font-medium mt-1">
-          <span id="buyQtyText">Total Buy Depth: 248,500 shares</span>
-          <span id="sellQtyText">Total Sell Depth: 132,100 shares</span>
         </div>
       </div>
 
     </section>
 
-    <!-- RIGHT COLUMN: 14-MOMENTUM RADAR & RULES (Cols 5) -->
-    <section class="col-span-5 flex flex-col space-y-3 min-h-0">
+    <!-- RIGHT COLUMN: RADAR & RULES (Cols 4) -->
+    <section class="col-span-4 flex flex-col space-y-2 min-h-0">
       
-      <!-- 14-MOMENTUM LEADERBOARD -->
-      <div class="glass-panel rounded-xl p-3.5 flex-1 flex flex-col min-h-0 border-slate-700/60">
-        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+      <!-- 14-MOMENTUM RADAR TABLE -->
+      <div class="glass-panel rounded-xl p-3 flex-1 flex flex-col min-h-0 border-slate-700/60">
+        <div class="flex items-center justify-between pb-1.5 border-b border-slate-800 shrink-0">
           <div class="flex items-center gap-1.5">
-            <i data-lucide="radar" class="w-4 h-4 text-cyan-400"></i>
+            <i data-lucide="radar" class="w-3.5 h-3.5 text-cyan-400"></i>
             <h3 class="text-xs font-black uppercase tracking-wider text-white">14-Stock Momentum Radar</h3>
           </div>
-          <span class="text-[10px] text-cyan-400 font-semibold px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20">09:30 AM Snapshot</span>
+          <span class="text-[9px] text-emerald-400 font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">LIVE FEED</span>
         </div>
 
-        <!-- Table Container -->
-        <div class="flex-1 overflow-hidden mt-1">
+        <div class="flex-1 overflow-y-auto mt-1 min-h-0">
           <table class="w-full text-left text-xs">
             <thead>
-              <tr class="text-[10px] font-bold text-slate-400 uppercase border-b border-slate-800/80">
-                <th class="py-1.5">Symbol</th>
-                <th class="py-1.5 text-right">LTP (₹)</th>
-                <th class="py-1.5 text-right">15m Range</th>
-                <th class="py-1.5 text-right">Score</th>
-                <th class="py-1.5 text-right">Status</th>
+              <tr class="text-[9px] font-bold text-slate-400 uppercase border-b border-slate-800">
+                <th class="py-1">Symbol</th>
+                <th class="py-1 text-right">LTP</th>
+                <th class="py-1 text-right">15m Rng</th>
+                <th class="py-1 text-right">Score</th>
+                <th class="py-1 text-right">Status</th>
               </tr>
             </thead>
-            <tbody id="radarTableBody" class="divide-y divide-slate-800/50 mono font-semibold text-[11px]">
-              <!-- Dynamically populated -->
+            <tbody id="radarTableBody" class="divide-y divide-slate-800/60 mono font-semibold text-[10px]">
+              <!-- Dynamic Rows -->
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- STRATEGY RULES HUD -->
-      <div class="glass-panel rounded-xl p-3 border-slate-700/60 bg-gradient-to-br from-slate-900/90 to-slate-950/90">
-        <div class="text-[11px] font-black uppercase tracking-wider text-slate-300 mb-1.5 flex items-center gap-1.5">
-          <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-400"></i> Institutional Quality Filters
+      <!-- INSTITUTIONAL CONFLUENCE CRITERIA CARD -->
+      <div class="glass-panel rounded-xl p-3 border-slate-700/60 shrink-0 space-y-1.5">
+        <div class="flex items-center justify-between text-xs font-bold text-white pb-1 border-b border-slate-800">
+          <span class="flex items-center gap-1.5 text-emerald-400">
+            <i data-lucide="check-check" class="w-4 h-4"></i> Quantitative Confluence Gate
+          </span>
+          <span class="text-[9px] text-slate-400">Audit Rulebook</span>
         </div>
         <div class="grid grid-cols-2 gap-1.5 text-[10px]">
-          <div class="flex items-center gap-1 text-emerald-400">
-            <i data-lucide="check" class="w-3 h-3"></i> 15m Range &ge; 2.0%
+          <div class="bg-slate-900/80 p-1.5 rounded border border-slate-800">
+            <div class="text-slate-400">15m Range Expansion</div>
+            <div class="font-bold text-emerald-400 flex items-center gap-1 mt-0.5">
+              <i data-lucide="check-circle" class="w-3 h-3"></i> ≥ 2.0% (Passed: 2.4%)
+            </div>
           </div>
-          <div class="flex items-center gap-1 text-emerald-400">
-            <i data-lucide="check" class="w-3 h-3"></i> 1.8x Volume Surge
+          <div class="bg-slate-900/80 p-1.5 rounded border border-slate-800">
+            <div class="text-slate-400">Volume Surge (20-bar)</div>
+            <div class="font-bold text-emerald-400 flex items-center gap-1 mt-0.5">
+              <i data-lucide="check-circle" class="w-3 h-3"></i> ≥ 1.8x (Passed: 2.1x)
+            </div>
           </div>
-          <div class="flex items-center gap-1 text-emerald-400">
-            <i data-lucide="check" class="w-3 h-3"></i> Anti-Wick Body &ge; 70%
+          <div class="bg-slate-900/80 p-1.5 rounded border border-slate-800">
+            <div class="text-slate-400">Candle Body Conviction</div>
+            <div class="font-bold text-emerald-400 flex items-center gap-1 mt-0.5">
+              <i data-lucide="check-circle" class="w-3 h-3"></i> Anti-Wick (Top 25%)
+            </div>
           </div>
-          <div class="flex items-center gap-1 text-emerald-400">
-            <i data-lucide="check" class="w-3 h-3"></i> 1:3 Risk-Reward Payout
+          <div class="bg-slate-900/80 p-1.5 rounded border border-slate-800">
+            <div class="text-slate-400">VWAP Trend Alignment</div>
+            <div class="font-bold text-emerald-400 flex items-center gap-1 mt-0.5">
+              <i data-lucide="check-circle" class="w-3 h-3"></i> Price > Upward VWAP
+            </div>
           </div>
+        </div>
+      </div>
+
+      <!-- LIVE LOG FEED -->
+      <div class="glass-panel rounded-xl p-2.5 border-slate-700/60 shrink-0">
+        <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase text-slate-400 mb-1">
+          <i data-lucide="terminal" class="w-3 h-3 text-cyan-400"></i> Execution Terminal Log
+        </div>
+        <div id="liveLogText" class="text-[10px] mono text-slate-300 leading-tight bg-slate-950/80 p-2 rounded border border-slate-800/80 h-11 overflow-hidden flex items-center">
+          [09:30:00] Initialized 14-Stock Radar Surveillance. Waiting for 09:30 AM Opening Range breakout...
         </div>
       </div>
 
@@ -276,55 +356,407 @@
 
   </main>
 
-  <!-- 3. FOOTER BAR (LIVE LOG + SEBI LEGAL DISCLAIMER) -->
-  <footer class="glass-panel rounded-xl px-4 py-2 border-slate-700/60 flex flex-col space-y-1">
-    <!-- Top line: Live Log Ticker -->
-    <div class="flex items-center gap-2 overflow-hidden text-xs">
-      <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-slate-800 text-cyan-400 border border-slate-700 flex items-center gap-1 whitespace-nowrap">
-        <i data-lucide="terminal" class="w-3 h-3"></i> BOT LOG
+  <!-- 3. BOTTOM FOOTER TICKER -->
+  <footer class="glass-panel rounded-xl px-4 py-1.5 flex items-center justify-between text-[10px] border-slate-700/60 shrink-0">
+    <div class="flex items-center space-x-4">
+      <span class="font-bold text-slate-400 flex items-center gap-1">
+        <i data-lucide="cpu" class="w-3.5 h-3.5 text-emerald-400"></i> Engine: <span class="text-slate-200">AngelOne SmartAPI L2</span>
       </span>
-      <div class="overflow-hidden whitespace-nowrap w-full">
-        <div id="liveLogText" class="text-[11px] mono text-slate-300 font-medium transition-all">
-          [09:30:00] Initializing STG3 Chart + Data Fusion Scan across 14 High-Beta momentum leaders...
-        </div>
-      </div>
+      <span class="text-slate-600">•</span>
+      <span class="text-slate-400">Trailing Rule: <strong class="text-amber-400">T1 (+1.2R) Locks BE Stop</strong></span>
+      <span class="text-slate-600">•</span>
+      <span class="text-slate-400">Target 2: <strong class="text-emerald-400">1:3 RR (+3.0R)</strong></span>
+      <span class="text-slate-600">•</span>
+      <span class="text-slate-400">Telegram Bot: <strong class="text-cyan-400">@Sany_Stock_Bot</strong></span>
     </div>
-
-    <!-- Bottom line: SEBI Legal Disclaimer Banner -->
-    <div class="text-[9.5px] font-semibold text-slate-500 uppercase tracking-wide border-t border-slate-800/80 pt-1 flex items-center justify-between">
-      <span class="flex items-center gap-1 text-amber-500/90">
-        <i data-lucide="alert-triangle" class="w-3 h-3"></i> 
-        EDUCATIONAL & QUANTITATIVE ALGORITHMIC SIMULATION DEMO ONLY • NOT SEBI REGISTERED • NO FINANCIAL ADVICE • NO TRADE CALLS
-      </span>
-      <span class="text-slate-500">Developed by Sanket Patel • Powered by AngelOne SmartAPI</span>
+    <div class="flex items-center gap-2">
+      <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-semibold">16:9 OBS Optimized</span>
+      <span class="text-slate-500 font-mono">v3.2-Live</span>
     </div>
   </footer>
 
-  <!-- JAVASCRIPT LOGIC -->
+  <!-- JAVASCRIPT LOGIC & LIGHTWEIGHT CHARTS SIMULATION ENGINE -->
   <script>
     lucide.createIcons();
 
-    let isSimulationMode = false;
-    let simInterval = null;
+    let chart, candleSeries, vwapSeries;
+    let entryLine, slLine, t1Line, t2Line;
+    let soundEnabled = true;
+    let isSimulating = false;
+    let simTimer = null;
+    let simStep = 0;
 
-    // 14 Momentum Stocks
+    // 14 Momentum Stocks for Radar
     const STOCKS = [
-      { sym: 'HAL', ltp: 4858.00, chg: '+2.4%', range: '2.4%', score: 88, status: 'IN TRADE', color: 'emerald' },
-      { sym: 'TRENT', ltp: 7140.00, chg: '+1.9%', range: '2.1%', score: 78, status: 'WATCHING', color: 'slate' },
-      { sym: 'MCX', ltp: 5680.00, chg: '+1.5%', range: '2.0%', score: 74, status: 'WATCHING', color: 'slate' },
-      { sym: 'BSE', ltp: 2420.00, chg: '+1.2%', range: '1.8%', score: 68, status: 'WATCHING', color: 'slate' },
-      { sym: 'DIXON', ltp: 12450.00, chg: '+0.8%', range: '1.6%', score: 62, status: 'WATCHING', color: 'slate' },
-      { sym: 'POLYCAB', ltp: 6850.00, chg: '-0.3%', range: '1.4%', score: 54, status: 'WATCHING', color: 'slate' },
-      { sym: 'BEL', ltp: 312.00, chg: '+0.9%', range: '1.5%', score: 58, status: 'WATCHING', color: 'slate' },
-      { sym: 'VEDL', ltp: 465.00, chg: '+0.4%', range: '1.2%', score: 50, status: 'WATCHING', color: 'slate' },
+      { sym: 'HAL', ltp: 4820.00, chg: '+2.4%', range: '2.4%', score: 88, status: 'IN TRADE', color: 'emerald' },
+      { sym: 'MCX', ltp: 3300.00, chg: '+1.8%', range: '2.1%', score: 78, status: 'WATCHING', color: 'slate' },
+      { sym: 'BSE', ltp: 3250.00, chg: '-1.4%', range: '2.4%', score: 74, status: 'WATCHING', color: 'slate' },
+      { sym: 'CHENNPETRO', ltp: 1403.00, chg: '-2.9%', range: '2.9%', score: 72, status: 'IN TRADE', color: 'emerald' },
+      { sym: 'GRAPHITE', ltp: 825.00, chg: '+2.4%', range: '2.5%', score: 68, status: 'WATCHING', color: 'slate' },
+      { sym: 'WOCKPHARMA', ltp: 2062.00, chg: '-2.3%', range: '2.3%', score: 66, status: 'WATCHING', color: 'slate' },
+      { sym: 'DIXON', ltp: 12450.00, chg: '+0.8%', range: '1.6%', score: 60, status: 'WATCHING', color: 'slate' },
+      { sym: 'POLYCAB', ltp: 8220.00, chg: '+1.6%', range: '1.6%', score: 56, status: 'WATCHING', color: 'slate' },
+      { sym: 'TRENT', ltp: 7140.00, chg: '+1.2%', range: '1.5%', score: 54, status: 'WATCHING', color: 'slate' },
+      { sym: 'BEL', ltp: 312.00, chg: '+0.9%', range: '1.4%', score: 52, status: 'WATCHING', color: 'slate' },
+      { sym: 'VEDL', ltp: 465.00, chg: '+0.4%', range: '1.2%', score: 48, status: 'WATCHING', color: 'slate' },
       { sym: 'VOLTAS', ltp: 1720.00, chg: '-0.6%', range: '1.1%', score: 45, status: 'WATCHING', color: 'slate' },
-      { sym: 'KEI', ltp: 4320.00, chg: '+0.5%', range: '1.3%', score: 52, status: 'WATCHING', color: 'slate' },
-      { sym: 'GRAPHITE', ltp: 525.00, chg: '+0.2%', range: '1.0%', score: 42, status: 'WATCHING', color: 'slate' },
-      { sym: 'WOCKPHARMA', ltp: 1045.00, chg: '-0.8%', range: '1.5%', score: 48, status: 'WATCHING', color: 'slate' },
-      { sym: 'CHENNPETRO', ltp: 910.00, chg: '+0.1%', range: '0.9%', score: 40, status: 'WATCHING', color: 'slate' },
-      { sym: 'HEG', ltp: 2240.00, chg: '-0.4%', range: '1.1%', score: 44, status: 'WATCHING', color: 'slate' }
+      { sym: 'KEI', ltp: 4320.00, chg: '+0.5%', range: '1.3%', score: 44, status: 'WATCHING', color: 'slate' },
+      { sym: 'HEG', ltp: 2240.00, chg: '-0.4%', range: '1.1%', score: 42, status: 'WATCHING', color: 'slate' }
     ];
 
+    // Initialize TradingView Lightweight Chart
+    function initChart() {
+      const container = document.getElementById('chartContainer');
+      container.innerHTML = '';
+
+      chart = LightweightCharts.createChart(container, {
+        layout: {
+          background: { type: 'solid', color: '#090d16' },
+          textColor: '#94a3b8',
+          fontSize: 10,
+          fontFamily: "'JetBrains Mono', monospace"
+        },
+        grid: {
+          vertLines: { color: 'rgba(30, 41, 59, 0.4)' },
+          horzLines: { color: 'rgba(30, 41, 59, 0.4)' },
+        },
+        crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+        rightPriceScale: {
+          borderColor: 'rgba(51, 65, 85, 0.6)',
+          scaleMargins: { top: 0.15, bottom: 0.15 },
+        },
+        timeScale: {
+          borderColor: 'rgba(51, 65, 85, 0.6)',
+          timeVisible: true,
+          secondsVisible: false,
+        },
+      });
+
+      candleSeries = chart.addCandlestickSeries({
+        upColor: '#10b981',
+        downColor: '#f43f5e',
+        borderUpColor: '#10b981',
+        borderDownColor: '#f43f5e',
+        wickUpColor: '#10b981',
+        wickDownColor: '#f43f5e',
+      });
+
+      vwapSeries = chart.addLineSeries({
+        color: '#38bdf8',
+        lineWidth: 2,
+        title: 'VWAP',
+      });
+
+      // Initial Seed Candles for HAL (09:15 to 09:30)
+      const baseTime = Math.floor(new Date().setHours(9, 15, 0, 0) / 1000);
+      const initialCandles = [
+        { time: baseTime, open: 4780, high: 4805, low: 4775, close: 4800 },
+        { time: baseTime + 300, open: 4800, high: 4815, low: 4792, close: 4810 },
+        { time: baseTime + 600, open: 4810, high: 4825, low: 4805, close: 4820 },
+      ];
+      candleSeries.setData(initialCandles);
+
+      const vwapData = [
+        { time: baseTime, value: 4785 },
+        { time: baseTime + 300, value: 4792 },
+        { time: baseTime + 600, value: 4798 },
+      ];
+      vwapSeries.setData(vwapData);
+
+      // Price Lines
+      const entry = 4820.00;
+      const sl = 4785.00;
+      const t1 = 4862.00;
+      const t2 = 4925.00;
+
+      entryLine = candleSeries.createPriceLine({
+        price: entry,
+        color: '#38bdf8',
+        lineWidth: 2,
+        lineStyle: LightweightCharts.LineStyle.Dashed,
+        axisLabelVisible: true,
+        title: 'ENTRY ₹4,820.00',
+      });
+
+      slLine = candleSeries.createPriceLine({
+        price: sl,
+        color: '#f43f5e',
+        lineWidth: 2,
+        lineStyle: LightweightCharts.LineStyle.Solid,
+        axisLabelVisible: true,
+        title: 'STOP LOSS ₹4,785.00',
+      });
+
+      t1Line = candleSeries.createPriceLine({
+        price: t1,
+        color: '#f59e0b',
+        lineWidth: 2,
+        lineStyle: LightweightCharts.LineStyle.Dashed,
+        axisLabelVisible: true,
+        title: 'TARGET 1 (+1.2R) ₹4,862.00',
+      });
+
+      t2Line = candleSeries.createPriceLine({
+        price: t2,
+        color: '#10b981',
+        lineWidth: 2,
+        lineStyle: LightweightCharts.LineStyle.Solid,
+        axisLabelVisible: true,
+        title: 'TARGET 2 (+3.0R) ₹4,925.00',
+      });
+
+      chart.timeScale().fitContent();
+
+      // Auto-resize
+      window.addEventListener('resize', () => {
+        if (chart && container) {
+          chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+        }
+      });
+      setTimeout(() => {
+        chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+      }, 200);
+    }
+
+    // WEB AUDIO API SOUND GENERATOR (Zero External MP3s, OBS Friendly)
+    function playChime(type) {
+      if (!soundEnabled) return;
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'BUY') {
+          // Upward Dual Tone
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+          osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.25); // A5
+          gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.45);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.45);
+        } else if (type === 'T1') {
+          // High Bell Chime
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(1046.5, audioCtx.currentTime); // C6
+          osc.frequency.setValueAtTime(1318.5, audioCtx.currentTime + 0.15); // E6
+          gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.6);
+        } else if (type === 'T2') {
+          // Victory 3-Tone Arpeggio
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(1046.5, audioCtx.currentTime); // C6
+          osc.frequency.setValueAtTime(1318.5, audioCtx.currentTime + 0.15); // E6
+          osc.frequency.setValueAtTime(1567.98, audioCtx.currentTime + 0.3); // G6
+          gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.9);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.9);
+        }
+      } catch (e) {
+        console.log('Audio Context muted:', e);
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('soundIcon');
+      const btn = document.getElementById('soundBtn');
+      if (soundEnabled) {
+        icon.setAttribute('data-lucide', 'volume-2');
+        btn.className = 'px-2 py-1 text-xs font-semibold rounded bg-slate-800 hover:bg-slate-700 text-emerald-400 transition';
+      } else {
+        icon.setAttribute('data-lucide', 'volume-x');
+        btn.className = 'px-2 py-1 text-xs font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-500 transition';
+      }
+      lucide.createIcons();
+    }
+
+    // Trigger Visual Alert Toast
+    function showAlertToast(title, subtitle, type = 'BUY') {
+      const banner = document.getElementById('alertBanner');
+      const titleEl = document.getElementById('alertTitle');
+      const subtitleEl = document.getElementById('alertSubtitle');
+      const iconEl = document.getElementById('alertIcon');
+      const iconBox = document.getElementById('alertIconBox');
+
+      titleEl.textContent = title;
+      subtitleEl.textContent = subtitle;
+
+      if (type === 'BUY') {
+        banner.className = 'absolute top-3 left-1/2 -translate-x-1/2 z-50 px-6 py-2.5 rounded-2xl glass-panel border-2 border-emerald-400 shadow-2xl flex items-center gap-4 glow-green show pointer-events-none';
+        iconBox.className = 'w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-xl border border-emerald-400/40';
+        iconEl.setAttribute('data-lucide', 'trending-up');
+        playChime('BUY');
+      } else if (type === 'T1') {
+        banner.className = 'absolute top-3 left-1/2 -translate-x-1/2 z-50 px-6 py-2.5 rounded-2xl glass-panel border-2 border-amber-400 shadow-2xl flex items-center gap-4 glow-alert show pointer-events-none';
+        iconBox.className = 'w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-black text-xl border border-amber-400/40';
+        iconEl.setAttribute('data-lucide', 'crosshair');
+        playChime('T1');
+      } else if (type === 'T2') {
+        banner.className = 'absolute top-3 left-1/2 -translate-x-1/2 z-50 px-6 py-2.5 rounded-2xl glass-panel border-2 border-emerald-400 shadow-2xl flex items-center gap-4 glow-green show pointer-events-none animate-bounce';
+        iconBox.className = 'w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-xl border border-emerald-400/40';
+        iconEl.setAttribute('data-lucide', 'trophy');
+        playChime('T2');
+      }
+
+      lucide.createIcons();
+
+      setTimeout(() => {
+        banner.classList.remove('show');
+      }, 5000);
+    }
+
+    // REAL-TIME SIMULATION DATA POINTS (Bar-by-bar sequence)
+    const SIM_SEQUENCE = [
+      { price: 4820.00, log: '[09:30:00] ⏰ 09:30 AM CANDLE CLOSED. Scanning AngelOne L2 Feeds...', alert: 'BUY', alertTitle: '🟢 BUY SIGNAL ENTERED: HAL', alertSub: 'Entered @ ₹4,820.00 • SL: ₹4,785.00 (VWAP) • Target 2: ₹4,925.00' },
+      { price: 4826.50, log: '[09:32:10] Institutional bid surge detected: 72% buyers absorbing sell liquidity.' },
+      { price: 4834.00, log: '[09:35:00] 5m Candle 1 closed strong bullish (+₹14.00). Trailing VWAP rising.' },
+      { price: 4842.00, log: '[09:38:20] Approaching Target 1 (+1.2R zone). Order book ratio: 2.3x buyers.' },
+      { price: 4851.00, log: '[09:41:45] Breakout velocity accelerating: HAL @ ₹4,851.00.' },
+      { price: 4862.00, log: '[09:45:00] 🎯 TARGET 1 HIT (+1.2R) @ ₹4,862.00! 50% profit secured. SL trailed to Cost (₹4,820.00). 100% RISK-FREE!', alert: 'T1', alertTitle: '🎯 TARGET 1 HIT (+1.2R)!', alertSub: 'Locked 50% Profit @ ₹4,862.00 • Trailed SL to Entry (Cost: ₹4,820.00) • ₹0 RISK!' },
+      { price: 4875.50, log: '[09:50:30] Holding firmly above Target 1. Risk is ZERO. Letting remaining 50% runner aim for 1:3 payout.' },
+      { price: 4892.00, log: '[09:58:15] Power move: HAL @ ₹4,892.00. Institutional volume expanding +2.8x.' },
+      { price: 4910.00, log: '[10:05:40] Testing ₹4,910.00. Only 15 points away from full 1:3 Risk-to-Reward exit.' },
+      { price: 4925.00, log: '[10:12:30] 🎉 1:3 RR TARGET 2 HIT (+3.0R) @ ₹4,925.00! Full position squared off. +₹3 profit gained on ₹1 risk! 💰', alert: 'T2', alertTitle: '🎉 1:3 TARGET 2 HIT (+3.0R)!', alertSub: 'Full Exit @ ₹4,925.00 • Complete +3.0R Profit Locked into Demat! 🏆' }
+    ];
+
+    function toggleSimulation() {
+      isSimulating = !isSimulating;
+      const btn = document.getElementById('simBtn');
+      const text = document.getElementById('simBtnText');
+      const icon = document.getElementById('simIcon');
+
+      if (isSimulating) {
+        btn.className = 'px-2.5 py-1 text-xs font-bold rounded bg-amber-600 hover:bg-amber-500 text-white transition flex items-center gap-1 shadow';
+        text.textContent = 'Pause Sim';
+        icon.setAttribute('data-lucide', 'pause');
+        startSimLoop();
+      } else {
+        btn.className = 'px-2.5 py-1 text-xs font-bold rounded bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center gap-1 shadow';
+        text.textContent = 'Resume Sim';
+        icon.setAttribute('data-lucide', 'play');
+        if (simTimer) clearInterval(simTimer);
+      }
+      lucide.createIcons();
+    }
+
+    function resetSimulation() {
+      if (simTimer) clearInterval(simTimer);
+      isSimulating = false;
+      simStep = 0;
+      const btn = document.getElementById('simBtn');
+      btn.className = 'px-2.5 py-1 text-xs font-bold rounded bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center gap-1 shadow';
+      document.getElementById('simBtnText').textContent = 'Start Sim';
+      document.getElementById('simIcon').setAttribute('data-lucide', 'play');
+      lucide.createIcons();
+      initChart();
+      updateStepUI(SIM_SEQUENCE[0]);
+    }
+
+    function startSimLoop() {
+      if (simTimer) clearInterval(simTimer);
+      simTimer = setInterval(() => {
+        simStep = (simStep + 1) % SIM_SEQUENCE.length;
+        const currentData = SIM_SEQUENCE[simStep];
+        updateStepUI(currentData);
+      }, 3000);
+    }
+
+    function updateStepUI(data) {
+      const curPrice = data.price;
+      const entry = 4820.00;
+      const t1 = 4862.00;
+      const t2 = 4925.00;
+      const diff = curPrice - entry;
+      const pct = ((diff / entry) * 100).toFixed(2);
+
+      // 1. Update LTP
+      document.getElementById('tradeLtp').innerHTML = `<span>₹${curPrice.toFixed(2)}</span>`;
+      document.getElementById('tradePctChg').textContent = `${diff >= 0 ? '+' : ''}₹${diff.toFixed(2)} (${diff >= 0 ? '+' : ''}${pct}%) from Entry`;
+      document.getElementById('tradePctChg').className = `text-[11px] font-bold mono ${diff >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+      // 2. Update Progress Bar
+      let progress = Math.min(100, Math.max(0, ((curPrice - entry) / (t2 - entry)) * 100));
+      document.getElementById('progressBarFill').style.width = progress + '%';
+
+      // 3. Check State Transitions
+      if (curPrice >= t2) {
+        document.getElementById('progressPctText').textContent = '🎉 1:3 TARGET 2 HIT (+3.0R) - Full Profit Exited!';
+        document.getElementById('riskStatusBadge').className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1';
+        document.getElementById('riskStatusBadge').innerHTML = '<i data-lucide="trophy" class="w-3 h-3"></i> 1:3 RR Full Profit Achieved!';
+      } else if (curPrice >= t1) {
+        document.getElementById('progressPctText').textContent = '🎯 Target 1 Hit! 50% Booked • Aiming for 1:3 Target 2';
+        document.getElementById('riskStatusBadge').className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1';
+        document.getElementById('riskStatusBadge').innerHTML = '<i data-lucide="shield-check" class="w-3 h-3"></i> 100% RISK-FREE: SL Trailed to Entry Cost';
+        document.getElementById('slVal').textContent = '₹4,820.00';
+        document.getElementById('slLabel').textContent = 'Trailed to Cost (₹0 Downside)';
+        // Update Chart SL Line
+        if (slLine) {
+          candleSeries.removePriceLine(slLine);
+          slLine = candleSeries.createPriceLine({
+            price: entry,
+            color: '#10b981',
+            lineWidth: 2,
+            lineStyle: LightweightCharts.LineStyle.Solid,
+            axisLabelVisible: true,
+            title: 'TRAILED SL (COST) ₹4,820.00',
+          });
+        }
+      } else {
+        document.getElementById('progressPctText').textContent = `${Math.round(progress)}% Progress to 1:3 Target`;
+        document.getElementById('slVal').textContent = '₹4,785.00';
+        document.getElementById('slLabel').textContent = 'VWAP Dynamic Anchor';
+        document.getElementById('riskStatusBadge').className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1';
+        document.getElementById('riskStatusBadge').innerHTML = '<i data-lucide="shield" class="w-3 h-3"></i> Active Risk: ₹350 (Capped)';
+      }
+
+      // 4. Net P&L Calculation (10 shares with ₹45 statutory friction)
+      const grossPnl = diff * 10;
+      const netPnl = grossPnl > 0 ? (grossPnl - 45) : (grossPnl - 25);
+      document.getElementById('netPnlVal').textContent = `${netPnl >= 0 ? '+' : ''}₹${netPnl.toFixed(2)}`;
+      document.getElementById('netPnlVal').className = `text-base font-black mono ${netPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+      // 5. Update Order Book
+      const buyerPct = Math.min(85, Math.max(60, 68 + Math.floor(Math.sin(simStep) * 8)));
+      const sellerPct = 100 - buyerPct;
+      document.getElementById('buyDepthBar').style.width = buyerPct + '%';
+      document.getElementById('buyDepthBar').textContent = buyerPct + '% BUYERS';
+      document.getElementById('sellDepthBar').style.width = sellerPct + '%';
+      document.getElementById('sellDepthBar').textContent = sellerPct + '% SELLERS';
+      document.getElementById('orderRatioText').textContent = `${(buyerPct / sellerPct).toFixed(1)}x Buyer Dominance`;
+
+      // 6. Update Log
+      document.getElementById('liveLogText').textContent = data.log;
+
+      // 7. Update Real-Time Candlestick on Chart
+      const baseTime = Math.floor(new Date().setHours(9, 30, 0, 0) / 1000);
+      const activeCandleTime = baseTime + Math.floor(simStep / 3) * 300;
+      candleSeries.update({
+        time: activeCandleTime,
+        open: 4820,
+        high: Math.max(4825, curPrice),
+        low: 4815,
+        close: curPrice
+      });
+      vwapSeries.update({
+        time: activeCandleTime,
+        value: 4802 + Math.floor(simStep * 2.5)
+      });
+
+      // 8. Trigger Visual & Sound Alerts if defined
+      if (data.alert) {
+        showAlertToast(data.alertTitle, data.alertSub, data.alert);
+      }
+
+      lucide.createIcons();
+    }
+
+    // Populate Radar Table
     function renderRadarTable() {
       const tbody = document.getElementById('radarTableBody');
       tbody.innerHTML = '';
@@ -332,185 +764,57 @@
         const tr = document.createElement('tr');
         tr.className = s.status === 'IN TRADE' ? 'bg-emerald-500/10 border-l-2 border-emerald-400' : 'hover:bg-slate-800/40';
         
-        let statusBadge = `<span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">${s.status}</span>`;
+        let statusBadge = `<span class="text-[8px] px-1 py-0.5 rounded bg-slate-800 text-slate-400">${s.status}</span>`;
         if (s.status === 'IN TRADE') {
-          statusBadge = `<span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">ACTIVE</span>`;
+          statusBadge = `<span class="text-[8px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">ACTIVE</span>`;
         }
         
         tr.innerHTML = `
-          <td class="py-1.5 text-white">${s.sym}</td>
-          <td class="py-1.5 text-right">₹${s.ltp.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
-          <td class="py-1.5 text-right ${s.range >= '2.0%' ? 'text-emerald-400' : 'text-slate-400'}">${s.range}</td>
-          <td class="py-1.5 text-right ${s.score >= 70 ? 'text-amber-400 font-bold' : 'text-slate-400'}">${s.score}</td>
-          <td class="py-1.5 text-right">${statusBadge}</td>
+          <td class="py-1 text-white">${s.sym}</td>
+          <td class="py-1 text-right">₹${s.ltp.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+          <td class="py-1 text-right ${s.range >= '2.0%' ? 'text-emerald-400' : 'text-slate-400'}">${s.range}</td>
+          <td class="py-1 text-right ${s.score >= 70 ? 'text-amber-400 font-bold' : 'text-slate-400'}">${s.score}</td>
+          <td class="py-1 text-right">${statusBadge}</td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    // Live Clock Update
+    // Live Digital Clock
     function updateClock() {
       const now = new Date();
-      const timeStr = now.toLocaleTimeString('en-IN', { hour12: false }) + ' IST';
-      document.getElementById('liveClock').textContent = timeStr;
-      
-      const options = { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' };
+      document.getElementById('liveClock').textContent = now.toLocaleTimeString('en-IN', { hour12: false }) + ' IST';
+      const options = { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' };
       document.getElementById('liveDate').textContent = now.toLocaleDateString('en-IN', options);
-
-      // Determine Market Phase
-      const hrs = now.getHours();
-      const mins = now.getMinutes();
-      const totalMins = hrs * 60 + mins;
-
-      const phaseText = document.getElementById('phaseText');
-      const phaseDot = document.getElementById('phaseDot');
-
-      if (totalMins < 9 * 60 + 15) {
-        phaseText.textContent = 'Pre-Market / System Ready';
-        phaseDot.className = 'w-2.5 h-2.5 rounded-full bg-cyan-400 pulse-dot';
-      } else if (totalMins >= 9 * 60 + 15 && totalMins < 9 * 60 + 30) {
-        phaseText.textContent = '09:15 - 09:30 Opening Surveillance (Hands-Off)';
-        phaseDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 pulse-dot';
-      } else if (totalMins >= 9 * 60 + 30 && totalMins < 10 * 60 + 15) {
-        phaseText.textContent = '09:30 AM Sniper Confluence Breakout';
-        phaseDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 pulse-dot';
-      } else if (totalMins >= 10 * 60 + 15 && totalMins < 15 * 60 + 15) {
-        phaseText.textContent = 'Active Trailing & Position Management';
-        phaseDot.className = 'w-2.5 h-2.5 rounded-full bg-teal-400 pulse-dot';
-      } else if (totalMins >= 15 * 60 + 15 && totalMins < 15 * 60 + 30) {
-        phaseText.textContent = '15:15 PM EOD Square-Off Phase';
-        phaseDot.className = 'w-2.5 h-2.5 rounded-full bg-rose-500 pulse-dot';
-      } else {
-        phaseText.textContent = 'Market Closed';
-        phaseDot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500';
-      }
     }
 
-    // Toggle Simulation Mode for weekend testing
-    function toggleSimulationMode() {
-      isSimulationMode = !isSimulationMode;
-      const btn = document.getElementById('simBtn');
-      const text = document.getElementById('simBtnText');
-      
-      if (isSimulationMode) {
-        btn.className = 'px-3 py-1 text-xs font-bold rounded-lg bg-emerald-600 text-white border border-emerald-400 transition flex items-center gap-1.5 shadow-lg shadow-emerald-500/30';
-        text.textContent = 'Sim Running';
-        startSimulation();
-      } else {
-        btn.className = 'px-3 py-1 text-xs font-bold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 transition flex items-center gap-1.5 shadow';
-        text.textContent = 'Test Mode';
-        stopSimulation();
-      }
-    }
-
-    let simTick = 0;
-    const simPrices = [4820, 4828, 4835, 4845, 4858, 4862, 4875, 4890, 4910, 4925];
-    const simLogs = [
-      '[09:30:00] ⏰ 09:30 AM CANDLE CLOSED. Scanning 14 momentum stocks on AngelOne SmartAPI...',
-      '[09:30:02] ⭐ Confluence Detected: HAL Range 2.4% >= 2.0%, Volume Surge 2.1x, Anti-Wick Body 74%.',
-      '[09:30:05] 🟢 BUY SIGNAL ENTERED on HAL @ ₹4,820.00. SL: ₹4,785.00 | T1: ₹4,862.00 | T2: ₹4,925.00.',
-      '[09:30:08] 📸 HD Annotated Chart dispatched to Telegram @Sany_Stock_Bot.',
-      '[09:36:14] Price surging: HAL @ ₹4,845.00. Order depth shows 68% buyers dominating.',
-      '[09:42:20] 🎯 TARGET 1 HIT! (+1.2R) @ ₹4,862.00. 50% profit locked. Trailing SL moved to Entry (Cost: ₹4,820.00). Trade is now 100% RISK FREE!',
-      '[09:54:10] Trend continuing: HAL @ ₹4,890.00. Moving toward 1:3 Target 2...',
-      '[10:08:45] 🎉 1:3 RR TARGET 2 HIT (+3.0R) @ ₹4,925.00! Complete position exited. ₹3 profit gained on ₹1 risk!'
-    ];
-
-    function startSimulation() {
-      simTick = 0;
-      simInterval = setInterval(() => {
-        simTick = (simTick + 1) % simPrices.length;
-        const curPrice = simPrices[simTick];
-        const entry = 4820.00;
-        const diff = curPrice - entry;
-        const pct = ((diff / entry) * 100).toFixed(2);
-        
-        document.getElementById('tradeLtp').innerHTML = `<span>₹${curPrice.toFixed(2)}</span>`;
-        document.getElementById('tradePctChg').textContent = `${diff >= 0 ? '+' : ''}₹${diff.toFixed(2)} (${diff >= 0 ? '+' : ''}${pct}%) from Entry`;
-        document.getElementById('tradePctChg').className = `text-xs font-bold mono ${diff >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
-        
-        // Progress calc
-        const target2 = 4925.00;
-        const target1 = 4862.00;
-        let progress = Math.min(100, Math.max(0, ((curPrice - entry) / (target2 - entry)) * 100));
-        document.getElementById('progressBarFill').style.width = progress + '%';
-        
-        if (curPrice >= target2) {
-          document.getElementById('progressPctText').textContent = '🎉 1:3 TARGET 2 HIT (+3.0R)! Full Profit Booked!';
-          document.getElementById('riskStatusBadge').className = 'px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1';
-          document.getElementById('riskStatusBadge').innerHTML = '<i data-lucide="trophy" class="w-3.5 h-3.5"></i> Full 1:3 Target Achieved!';
-        } else if (curPrice >= target1) {
-          document.getElementById('progressPctText').textContent = '🎯 Target 1 Hit! 50% Booked • Aiming for 1:3 Target';
-          document.getElementById('riskStatusBadge').className = 'px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1';
-          document.getElementById('riskStatusBadge').innerHTML = '<i data-lucide="shield-check" class="w-3.5 h-3.5"></i> RISK-FREE: SL Trailed to Entry Cost';
-          document.getElementById('slVal').textContent = '₹4,820.00';
-          document.getElementById('slLabel').textContent = 'Trailed to Cost (₹0 Downside)';
-        } else {
-          document.getElementById('progressPctText').textContent = `${Math.round(progress)}% Progress to 1:3 Target`;
-          document.getElementById('slVal').textContent = '₹4,785.00';
-          document.getElementById('slLabel').textContent = 'VWAP Dynamic Anchor';
-          document.getElementById('riskStatusBadge').className = 'px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1';
-          document.getElementById('riskStatusBadge').innerHTML = '<i data-lucide="shield" class="w-3.5 h-3.5"></i> Active Risk: ₹350 (Capped)';
-        }
-
-        // Net PnL calc (10 shares minus statutory ₹45 fees)
-        const grossPnl = diff * 10;
-        const netPnl = grossPnl > 0 ? (grossPnl - 45) : (grossPnl - 25);
-        document.getElementById('netPnlVal').textContent = `${netPnl >= 0 ? '+' : ''}₹${netPnl.toFixed(2)}`;
-        document.getElementById('netPnlVal').className = `text-xl font-black mono ${netPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
-
-        // Order Book Depth Fluctuation
-        const buyPct = Math.min(80, Math.max(55, 65 + Math.floor(Math.sin(simTick) * 10)));
-        const sellPct = 100 - buyPct;
-        document.getElementById('buyDepthBar').style.width = buyPct + '%';
-        document.getElementById('buyDepthBar').textContent = buyPct + '% BUYERS';
-        document.getElementById('sellDepthBar').style.width = sellPct + '%';
-        document.getElementById('sellDepthBar').textContent = sellPct + '% SELLERS';
-        document.getElementById('orderRatioText').textContent = `${(buyPct / sellPct).toFixed(1)}x Buyer Demand Dominance`;
-
-        // Log message
-        const logIdx = Math.min(simLogs.length - 1, Math.floor((simTick / simPrices.length) * simLogs.length));
-        document.getElementById('liveLogText').textContent = simLogs[logIdx];
-
-        lucide.createIcons();
-      }, 2500);
-    }
-
-    function stopSimulation() {
-      if (simInterval) clearInterval(simInterval);
-    }
-
-    // Auto-fetch real state from local JSON if available during market hours
-    async function pollLiveBotState() {
-      if (isSimulationMode) return;
+    // Fallback sync with local JSON feed if available
+    async function pollLiveBotFeed() {
+      if (isSimulating) return;
       try {
         const res = await fetch('data/stream_hud_state.json?t=' + Date.now());
         if (res.ok) {
           const data = await res.json();
           if (data && data.active_trade) {
-            updateUIWithRealData(data);
+            document.getElementById('tradeSymbol').textContent = data.active_trade.symbol;
+            document.getElementById('entryVal').textContent = '₹' + (data.active_trade.entry || 0).toFixed(2);
+            document.getElementById('slVal').textContent = '₹' + (data.active_trade.sl || 0).toFixed(2);
+            document.getElementById('t1Val').textContent = '₹' + (data.active_trade.target1 || 0).toFixed(2);
+            document.getElementById('t2Val').textContent = '₹' + (data.active_trade.target2 || 0).toFixed(2);
+            if (data.log) document.getElementById('liveLogText').textContent = data.log;
           }
         }
-      } catch (e) {
-        // Fallback or silent when file not ready
-      }
+      } catch (e) {}
     }
 
-    function updateUIWithRealData(data) {
-      const t = data.active_trade;
-      document.getElementById('tradeSymbol').textContent = t.symbol || 'HAL';
-      document.getElementById('entryVal').textContent = '₹' + (t.entry || 0).toFixed(2);
-      document.getElementById('slVal').textContent = '₹' + (t.sl || 0).toFixed(2);
-      document.getElementById('t1Val').textContent = '₹' + (t.target1 || 0).toFixed(2);
-      document.getElementById('t2Val').textContent = '₹' + (t.target2 || 0).toFixed(2);
-      if (data.log) document.getElementById('liveLogText').textContent = data.log;
-    }
-
-    // Initialize
-    renderRadarTable();
-    updateClock();
-    setInterval(updateClock, 1000);
-    setInterval(pollLiveBotState, 3000);
+    // Initialize HUD on load
+    window.addEventListener('DOMContentLoaded', () => {
+      initChart();
+      renderRadarTable();
+      updateClock();
+      setInterval(updateClock, 1000);
+      setInterval(pollLiveBotFeed, 2000);
+    });
   </script>
 </body>
 </html>
