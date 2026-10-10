@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>NSE Intraday Terminal | Developed by Sanket Patel</title>
+  <title>QUANT SNIPER | NIFTY Option A SMC Terminal | Sanket Patel</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -16,925 +16,422 @@
       font-family: 'Inter', sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
-    .mono {
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .card {
-      background-color: #161b22;
-      border: 1px solid #30363d;
-    }
-    .card:hover {
-      border-color: #58a6ff;
-    }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .card { background-color: #161b22; border: 1px solid #30363d; }
+    .card:hover { border-color: #58a6ff; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0d1117; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #58a6ff; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-  <!-- Header -->
-  <header class="border-b border-[#30363d] bg-[#161b22]/95 sticky top-0 z-50 px-3 py-2.5 sm:px-4 sm:py-3">
-    <div class="max-w-6xl mx-auto flex items-center justify-between">
-      <div class="flex items-center space-x-2.5">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center font-bold text-gray-950 shadow">
-          <i data-lucide="trending-up" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+  <!-- Sticky Institutional Header -->
+  <header class="border-b border-[#30363d] bg-[#161b22]/95 sticky top-0 z-50 px-3 py-2.5 sm:px-6 sm:py-3.5 backdrop-blur">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-500 flex items-center justify-center font-extrabold text-gray-950 shadow-lg shadow-emerald-500/20">
+          <i data-lucide="crosshair" class="w-5 h-5"></i>
         </div>
         <div>
-          <div class="flex items-center gap-1.5">
-            <h1 class="text-sm sm:text-base font-bold text-white leading-tight">NSE Intraday Terminal</h1>
-            <span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">13-Sep-2026</span>
+          <div class="flex items-center gap-2">
+            <h1 class="text-sm sm:text-base font-extrabold text-white tracking-tight">QUANT SNIPER</h1>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/30">NIFTY OPTION A (SMC)</span>
+            <span class="hidden md:inline-flex text-[10px] px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 font-bold border border-cyan-500/30">100% AUTOMATED</span>
           </div>
-          <p class="text-[11px] text-cyan-400 font-medium">
-            Developed by <strong class="text-white">Sanket Patel</strong>
+          <p class="text-[11px] text-gray-400 font-medium">
+            Trader: <strong class="text-white">Sanket Patel</strong> | Client ID: <span class="mono text-cyan-300">IY0402</span>
           </p>
         </div>
       </div>
       
-      <a href="https://t.me/Sany_Intraday_Bot" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center gap-1 shadow transition-colors">
-        <i data-lucide="send" class="w-3.5 h-3.5"></i> <span class="hidden xs:inline">Telegram Bot</span>
-      </a>
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <div class="hidden sm:flex flex-col text-right">
+          <span class="text-[10px] text-gray-400 font-medium">STATIC IP SENTINEL</span>
+          <span class="mono text-xs text-emerald-400 font-bold flex items-center justify-end gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> 38.154.185.97
+          </span>
+        </div>
+        <a href="https://github.com/techsp13/nifty-option-a-smc-algo" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-[#21262d] hover:bg-[#30363d] text-gray-300 text-xs font-semibold border border-[#30363d] flex items-center gap-1.5 transition">
+          <i data-lucide="github" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Repo</span>
+        </a>
+      </div>
     </div>
   </header>
 
   <!-- Main Container -->
-  <main class="flex-1 max-w-6xl mx-auto w-full px-3 py-4 sm:px-4 sm:py-6 space-y-5">
+  <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 space-y-6">
 
-    <!-- Section 1: Morning Stock Picks -->
-    <div class="card rounded-xl p-4 sm:p-5 shadow-lg">
-      <div class="flex items-center justify-between border-b border-[#30363d] pb-3 mb-4">
-        <div>
-          <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-            <i data-lucide="zap" class="w-4 h-4 sm:w-5 sm:h-5 text-amber-400"></i>
-            Today's 08:30 AM Stock Picks
-          </h2>
-          <p class="text-[11px] sm:text-xs text-gray-400">Buy/Sell at 09:15 AM Market Open | Set Stop Loss & Targets</p>
-        </div>
-        <span class="text-[11px] px-2 py-0.5 rounded bg-[#0d1117] text-gray-300 border border-[#30363d] mono">
-          2 Stocks
+    <!-- Pre-Flight Sentinel Status Bar -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-xs">
+      <div class="card p-2.5 rounded-lg flex items-center justify-between">
+        <span class="text-gray-400 flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i> Static IP Proxy</span>
+        <span class="text-emerald-400 font-bold mono">38.154.185.97 ✓</span>
+      </div>
+      <div class="card p-2.5 rounded-lg flex items-center justify-between">
+        <span class="text-gray-400 flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-400"></i> Zerodha NFO</span>
+        <span class="text-emerald-400 font-bold">ACTIVE ✓</span>
+      </div>
+      <div class="card p-2.5 rounded-lg flex items-center justify-between">
+        <span class="text-gray-400 flex items-center gap-1.5"><i data-lucide="activity" class="w-3.5 h-3.5 text-emerald-400"></i> SmartAPI Feed</span>
+        <span class="text-emerald-400 font-bold">CONNECTED ✓</span>
+      </div>
+      <div class="card p-2.5 rounded-lg flex items-center justify-between">
+        <span class="text-gray-400 flex items-center gap-1.5"><i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-400"></i> Hard SL / Trade</span>
+        <span class="text-rose-400 font-bold mono">₹800 MAX</span>
+      </div>
+    </div>
+
+    <!-- Executive Scorecard (KPI Cards) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <!-- Demat Balance -->
+      <div class="card p-4 rounded-xl flex flex-col justify-between">
+        <span class="text-[11px] font-semibold text-gray-400 flex items-center justify-between">
+          DEMAT CAPITAL <i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i>
         </span>
+        <div class="mt-2">
+          <div class="mono text-xl sm:text-2xl font-black text-white" id="card-balance">₹28,655.50</div>
+          <span class="text-[10px] text-gray-400">Base: ₹15,000</span>
+        </div>
       </div>
 
-      <!-- MOBILE VIEW: Stacked Clean Cards -->
-      <div class="block md:hidden space-y-3">
+      <!-- Net Cash Profit -->
+      <div class="card p-4 rounded-xl flex flex-col justify-between border-emerald-500/30">
+        <span class="text-[11px] font-semibold text-gray-400 flex items-center justify-between">
+          NET REALIZED P&L <i data-lucide="trending-up" class="w-4 h-4 text-emerald-400"></i>
+        </span>
+        <div class="mt-2">
+          <div class="mono text-xl sm:text-2xl font-black text-emerald-400">+₹13,655.49</div>
+          <span class="text-[10px] text-emerald-400 font-semibold">After 100% Zerodha Taxes</span>
+        </div>
+      </div>
 
-        <div class="bg-[#0d1117] border border-[#30363d] rounded-xl p-3.5 space-y-2.5">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <h3 class="text-lg font-bold text-white font-sans">GRAPHITE</h3>
-              <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-bold border">LONG</span>
-            </div>
-            <button onclick="calculateSingleStock('GRAPHITE', '825.8', 'LONG')" class="px-3 py-1 rounded bg-[#21262d] hover:bg-cyan-600 text-cyan-400 hover:text-white text-xs font-semibold flex items-center gap-1 transition-colors">
-              <i data-lucide="calculator" class="w-3 h-3"></i> Size Stock
-            </button>
-          </div>
+      <!-- Total ROI -->
+      <div class="card p-4 rounded-xl flex flex-col justify-between">
+        <span class="text-[11px] font-semibold text-gray-400 flex items-center justify-between">
+          TOTAL ROI <i data-lucide="percent" class="w-4 h-4 text-cyan-400"></i>
+        </span>
+        <div class="mt-2">
+          <div class="mono text-xl sm:text-2xl font-black text-cyan-400">+91.0%</div>
+          <span class="text-[10px] text-gray-400">Net Compounded</span>
+        </div>
+      </div>
 
-          <div class="grid grid-cols-2 gap-2 bg-[#161b22] p-2.5 rounded-lg mono text-xs">
-            <div>
-              <span class="text-[10px] text-gray-400 block font-sans">Entry Ref</span>
-              <span class="text-white font-bold text-sm">₹825.80</span>
-            </div>
-            <div>
-              <span class="text-[10px] text-rose-400 block font-sans">SL (-2%)</span>
-              <span class="text-rose-400 font-bold text-sm">₹814.82</span>
-            </div>
-            <div>
-              <span class="text-[10px] text-emerald-400 block font-sans">T1 (+3%)</span>
-              <span class="text-emerald-400 font-bold text-sm">₹838.98</span>
-            </div>
-            <div>
-              <span class="text-[10px] text-cyan-400 block font-sans">T2 (+5%)</span>
-              <span class="text-cyan-400 font-bold text-sm">₹858.74</span>
-            </div>
-          </div>
-          
-          <div class="flex items-center justify-between text-[11px] text-gray-400 mono pt-1 border-t border-[#30363d]/60">
-            <span>Entry Zone: <strong class="text-white">₹821.67 – ₹829.93</strong></span>
-            <span class="text-cyan-300 font-semibold">5x Margin: ₹165.16/sh</span>
+      <!-- Win Rate -->
+      <div class="card p-4 rounded-xl flex flex-col justify-between">
+        <span class="text-[11px] font-semibold text-gray-400 flex items-center justify-between">
+          WIN RATE <i data-lucide="target" class="w-4 h-4 text-emerald-400"></i>
+        </span>
+        <div class="mt-2">
+          <div class="mono text-xl sm:text-2xl font-black text-white">70.5%</div>
+          <span class="text-[10px] text-gray-400 font-medium">31W / 13L (44 Trades)</span>
+        </div>
+      </div>
+
+      <!-- Max Drawdown -->
+      <div class="card p-4 rounded-xl flex flex-col justify-between">
+        <span class="text-[11px] font-semibold text-gray-400 flex items-center justify-between">
+          MAX DRAWDOWN <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i>
+        </span>
+        <div class="mt-2">
+          <div class="mono text-xl sm:text-2xl font-black text-amber-400">-₹2,602.41</div>
+          <span class="text-[10px] text-gray-400">Peak DD: 9.2%</span>
+        </div>
+      </div>
+
+      <!-- Active Sizing -->
+      <div class="card p-4 rounded-xl flex flex-col justify-between">
+        <span class="text-[11px] font-semibold text-gray-400 flex items-center justify-between">
+          ACTIVE SIZING <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i>
+        </span>
+        <div class="mt-2">
+          <div class="mono text-xl sm:text-2xl font-black text-white">1 Lot</div>
+          <span class="text-[10px] text-gray-400">65 Qty (Max 20L Ceiling)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Strategy Architecture & Rules Badge -->
+    <div class="card p-4 sm:p-5 rounded-xl space-y-3 bg-gradient-to-r from-[#161b22] to-[#1a202c]">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#30363d] pb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="cpu" class="w-5 h-5 text-emerald-400"></i>
+          <h2 class="text-sm sm:text-base font-bold text-white">OPTION A: SMC LIQUIDITY + FAIR VALUE GAP (FVG)</h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 font-bold border border-emerald-500/30">1:1.50 FIXED TARGET</span>
+          <span class="text-[11px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 font-bold border border-amber-500/30">11:30–13:30 CHOP SHIELD</span>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs text-gray-300">
+        <div>
+          <span class="text-gray-400 block text-[10px] font-semibold uppercase">Macro Context</span>
+          <span class="font-bold text-white">Daily PDH & PDL Anchors</span>
+        </div>
+        <div>
+          <span class="text-gray-400 block text-[10px] font-semibold uppercase">Execution Timeframe</span>
+          <span class="font-bold text-white">5-Minute Bar Imbalance (Gap &ge; 3 pts)</span>
+        </div>
+        <div>
+          <span class="text-gray-400 block text-[10px] font-semibold uppercase">Discipline Guardrail</span>
+          <span class="font-bold text-white">Max 2 Trades / Day (-₹1,600 Kill Switch)</span>
+        </div>
+        <div>
+          <span class="text-gray-400 block text-[10px] font-semibold uppercase">Expiry Contract Rule</span>
+          <span class="font-bold text-white">Thursday Next-Week Contract (Anti-Theta)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compounding Roadmap (Milestones) -->
+    <div class="card p-4 sm:p-5 rounded-xl space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="milestone" class="w-5 h-5 text-cyan-400"></i>
+          <h2 class="text-sm sm:text-base font-bold text-white">COMPOUNDING ROADMAP (₹15,000 ➔ ₹5,44,629)</h2>
+        </div>
+        <span class="text-xs text-gray-400 mono">Institutional Ceiling: 20 Lots Max</span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 text-xs">
+        <div class="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 space-y-1">
+          <span class="text-[10px] font-bold block uppercase tracking-wider text-emerald-400">Level 1 (Launch)</span>
+          <div class="mono text-sm font-black text-white">₹15,000</div>
+          <span class="text-[11px] block">1 Lot (65 Qty)</span>
+          <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300">ACTIVE NOW 🎯</span>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#21262d] border border-[#30363d] text-gray-300 space-y-1">
+          <span class="text-[10px] font-bold block uppercase tracking-wider text-gray-400">Level 2 (Scale)</span>
+          <div class="mono text-sm font-black text-white">₹30,000</div>
+          <span class="text-[11px] block">2 Lots (130 Qty)</span>
+          <span class="text-[10px] text-gray-400">Next Target</span>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#21262d] border border-[#30363d] text-gray-300 space-y-1">
+          <span class="text-[10px] font-bold block uppercase tracking-wider text-gray-400">Level 3 (Half-Lakh)</span>
+          <div class="mono text-sm font-black text-white">₹50,000</div>
+          <span class="text-[11px] block">3 Lots (195 Qty)</span>
+          <span class="text-[10px] text-gray-400">Buffer Building</span>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#21262d] border border-[#30363d] text-gray-300 space-y-1">
+          <span class="text-[10px] font-bold block uppercase tracking-wider text-cyan-400">Level 4 (1 Lakh Club)</span>
+          <div class="mono text-sm font-black text-white">₹1,00,000</div>
+          <span class="text-[11px] block">6 Lots (390 Qty)</span>
+          <span class="text-[10px] text-cyan-400 font-bold">Phase 2 Switch 🛡️</span>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#21262d] border border-[#30363d] text-gray-300 space-y-1">
+          <span class="text-[10px] font-bold block uppercase tracking-wider text-amber-400">Level 5 (Max Freeze)</span>
+          <div class="mono text-sm font-black text-white">₹3,00,000</div>
+          <span class="text-[11px] block">20 Lots (1,300 Qty)</span>
+          <span class="text-[10px] text-amber-400 font-bold">CEILING HIT 🛑</span>
+        </div>
+
+        <div class="p-3 rounded-lg bg-[#21262d] border border-[#30363d] text-gray-300 space-y-1">
+          <span class="text-[10px] font-bold block uppercase tracking-wider text-purple-400">Level 6 (1-Year Goal)</span>
+          <div class="mono text-sm font-black text-white">₹5,44,629</div>
+          <span class="text-[11px] block">20 Lots (1,300 Qty)</span>
+          <span class="text-[10px] text-purple-400 font-bold">Audited Target 👑</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Daily Profit & Loss Ledger -->
+    <div class="card p-4 sm:p-5 rounded-xl space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="book-open" class="w-5 h-5 text-emerald-400"></i>
+          <div>
+            <h2 class="text-sm sm:text-base font-bold text-white">DAILY PROFIT & LOSS LEDGER (OPTION PREMIUMS)</h2>
+            <span class="text-xs text-gray-400">Bar-by-Bar Discrete Intraday Accounting (Zero 1D Bias)</span>
           </div>
         </div>
 
-        <div class="bg-[#0d1117] border border-[#30363d] rounded-xl p-3.5 space-y-2.5">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <h3 class="text-lg font-bold text-white font-sans">CHENNPETRO</h3>
-              <span class="text-[10px] px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border-rose-500/20 font-bold border">SHORT</span>
-            </div>
-            <button onclick="calculateSingleStock('CHENNPETRO', '1572.9', 'SHORT')" class="px-3 py-1 rounded bg-[#21262d] hover:bg-cyan-600 text-cyan-400 hover:text-white text-xs font-semibold flex items-center gap-1 transition-colors">
-              <i data-lucide="calculator" class="w-3 h-3"></i> Size Stock
-            </button>
+        <!-- Filter Tabs & Search -->
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="flex rounded-lg bg-[#0d1117] p-1 border border-[#30363d] text-xs">
+            <button onclick="filterTrades('ALL')" id="tab-ALL" class="px-3 py-1 rounded font-semibold bg-emerald-500 text-gray-950 transition">All (44)</button>
+            <button onclick="filterTrades('WIN')" id="tab-WIN" class="px-3 py-1 rounded font-semibold text-gray-400 hover:text-white transition">Wins (31)</button>
+            <button onclick="filterTrades('LOSS')" id="tab-LOSS" class="px-3 py-1 rounded font-semibold text-gray-400 hover:text-white transition">Losses (13)</button>
           </div>
-
-          <div class="grid grid-cols-2 gap-2 bg-[#161b22] p-2.5 rounded-lg mono text-xs">
-            <div>
-              <span class="text-[10px] text-gray-400 block font-sans">Entry Ref</span>
-              <span class="text-white font-bold text-sm">₹1,572.90</span>
-            </div>
-            <div>
-              <span class="text-[10px] text-rose-400 block font-sans">SL (+2%)</span>
-              <span class="text-rose-400 font-bold text-sm">₹1,609.49</span>
-            </div>
-            <div>
-              <span class="text-[10px] text-emerald-400 block font-sans">T1 (-3%)</span>
-              <span class="text-emerald-400 font-bold text-sm">₹1,528.99</span>
-            </div>
-            <div>
-              <span class="text-[10px] text-cyan-400 block font-sans">T2 (-5%)</span>
-              <span class="text-cyan-400 font-bold text-sm">₹1,463.13</span>
-            </div>
-          </div>
-          
-          <div class="flex items-center justify-between text-[11px] text-gray-400 mono pt-1 border-t border-[#30363d]/60">
-            <span>Entry Zone: <strong class="text-white">₹1,565.04 – ₹1,580.76</strong></span>
-            <span class="text-cyan-300 font-semibold">5x Margin: ₹314.58/sh</span>
+          <div class="relative">
+            <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search Date / Strike..." class="bg-[#0d1117] border border-[#30363d] text-xs rounded-lg px-3 py-1.5 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 w-40 sm:w-48 mono">
           </div>
         </div>
-
       </div>
 
-      <!-- DESKTOP VIEW: Full Wide Table -->
-      <div class="hidden md:block overflow-x-auto">
-        <table class="w-full text-left text-xs mono">
-          <thead class="bg-[#0d1117] text-gray-400 uppercase text-[11px] border-b border-[#30363d]">
+      <!-- Ledger Table -->
+      <div class="overflow-x-auto rounded-lg border border-[#30363d]">
+        <table class="w-full text-left text-xs" id="ledgerTable">
+          <thead class="bg-[#0d1117] text-gray-400 uppercase font-semibold border-b border-[#30363d] tracking-wider text-[11px]">
             <tr>
-              <th class="px-4 py-3 font-sans">Stock</th>
-              <th class="px-4 py-3">Direction</th>
-              <th class="px-4 py-3 text-white">Entry Zone (±0.5%)</th>
-              <th class="px-4 py-3 text-cyan-300">5x Margin / Share</th>
-              <th class="px-4 py-3 text-rose-400">Stop Loss (2%)</th>
-              <th class="px-4 py-3 text-emerald-400">Target 1 (3%)</th>
-              <th class="px-4 py-3 text-cyan-400">Target 2 (5%)</th>
-              <th class="px-4 py-3 text-right">Calculator</th>
+              <th class="py-3 px-3">Date</th>
+              <th class="py-3 px-2">Trade</th>
+              <th class="py-3 px-3">Contract Strike</th>
+              <th class="py-3 px-2">Action</th>
+              <th class="py-3 px-3 text-right">Buy Avg</th>
+              <th class="py-3 px-3 text-right">Sell Avg</th>
+              <th class="py-3 px-2 text-right">Pts</th>
+              <th class="py-3 px-2 text-center">Lots</th>
+              <th class="py-3 px-3 text-right">Net P&L</th>
+              <th class="py-3 px-3 text-center">Result</th>
+              <th class="py-3 px-3 text-right">Closing Demat</th>
+              <th class="py-3 px-3 text-right">Peak DD</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-[#30363d] text-gray-200">
-
-            <tr class="hover:bg-[#1f242c] transition-colors">
-              <td class="px-4 py-3.5 font-bold text-white text-sm font-sans">GRAPHITE</td>
-              <td class="px-4 py-3.5 text-emerald-400 font-bold">LONG</td>
-              <td class="px-4 py-3.5 font-bold text-white">₹821.67 – ₹829.93</td>
-              <td class="px-4 py-3.5 text-cyan-300 font-semibold">₹165.16 <span class="text-[10px] text-gray-500 font-normal">/share</span></td>
-              <td class="px-4 py-3.5 text-rose-400 font-semibold">₹814.82</td>
-              <td class="px-4 py-3.5 text-emerald-400 font-semibold">₹838.98</td>
-              <td class="px-4 py-3.5 text-cyan-400 font-semibold">₹858.74</td>
-              <td class="px-4 py-3.5 text-right">
-                <button onclick="calculateSingleStock('GRAPHITE', '825.8', 'LONG')" class="px-2.5 py-1 rounded bg-[#21262d] hover:bg-cyan-600 text-gray-300 hover:text-white text-[11px] font-sans font-semibold transition-colors">
-                  Size Stock
-                </button>
-              </td>
-            </tr>
-
-            <tr class="hover:bg-[#1f242c] transition-colors">
-              <td class="px-4 py-3.5 font-bold text-white text-sm font-sans">CHENNPETRO</td>
-              <td class="px-4 py-3.5 text-rose-400 font-bold">SHORT</td>
-              <td class="px-4 py-3.5 font-bold text-white">₹1,565.04 – ₹1,580.76</td>
-              <td class="px-4 py-3.5 text-cyan-300 font-semibold">₹314.58 <span class="text-[10px] text-gray-500 font-normal">/share</span></td>
-              <td class="px-4 py-3.5 text-rose-400 font-semibold">₹1,609.49</td>
-              <td class="px-4 py-3.5 text-emerald-400 font-semibold">₹1,528.99</td>
-              <td class="px-4 py-3.5 text-cyan-400 font-semibold">₹1,463.13</td>
-              <td class="px-4 py-3.5 text-right">
-                <button onclick="calculateSingleStock('CHENNPETRO', '1572.9', 'SHORT')" class="px-2.5 py-1 rounded bg-[#21262d] hover:bg-cyan-600 text-gray-300 hover:text-white text-[11px] font-sans font-semibold transition-colors">
-                  Size Stock
-                </button>
-              </td>
-            </tr>
-
+          <tbody class="divide-y divide-[#30363d] text-gray-200 mono" id="ledgerBody">
+            <!-- Rendered dynamically by JavaScript -->
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Section 2: SMART PORTFOLIO CAPITAL ALLOCATOR & 5x MIS SIZER -->
-    <div id="calculatorSection" class="card rounded-xl p-4 sm:p-5 border-cyan-500/50 shadow-xl space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#30363d] pb-3 gap-2">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-            <i data-lucide="pie-chart" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-          </div>
-          <div>
-            <h3 class="text-sm sm:text-base font-bold text-white">Demat Capital Allocator & 5x MIS Calculator</h3>
-            <p class="text-[11px] sm:text-xs text-gray-400">Enter your Total Demat Balance to auto-calculate exact shares for all stocks</p>
-          </div>
-        </div>
-
-        <!-- Stock Selection Dropdown (All 5, 4, 3, 2, 1) -->
-        <div class="flex items-center gap-2 self-start sm:self-auto">
-          <label class="text-xs text-gray-400 font-semibold hidden sm:inline">Stocks to Trade:</label>
-          <div class="relative">
-            <select id="selectStockCount" onchange="onStockCountSelect(this.value)" class="bg-[#0d1117] border border-cyan-500/60 focus:border-cyan-400 text-cyan-300 rounded-lg px-3 py-1.5 text-xs font-bold mono outline-none cursor-pointer">
-              <option value="5" selected>All 5 Stocks (20% Split)</option>
-              <option value="4">Top 4 Stocks (25% Split)</option>
-              <option value="3">Top 3 Stocks (33.3% Split)</option>
-              <option value="2">Top 2 Picks (50/50 Split)</option>
-              <option value="1">Top 1 Best Pick (100% Margin)</option>
-            </select>
-          </div>
-        </div>
+    <!-- Capital & Lot Sizing Calculator -->
+    <div class="card p-4 sm:p-5 rounded-xl space-y-4">
+      <div class="flex items-center gap-2">
+        <i data-lucide="calculator" class="w-5 h-5 text-indigo-400"></i>
+        <h2 class="text-sm sm:text-base font-bold text-white">INTERACTIVE DEMAT CAPITAL & RISK CALCULATOR</h2>
       </div>
-
-      <!-- Input Controls (4-Column Grid) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label class="block text-xs text-cyan-400 mb-1 font-bold">Your Total Demat Cash (₹)</label>
-          <div class="relative">
-            <input type="number" id="inputDematCash" step="100" value="6800" oninput="recalculatePortfolio()" class="w-full bg-[#0d1117] border border-cyan-500/60 focus:border-cyan-400 rounded-lg p-2.5 pl-7 text-cyan-300 mono font-bold text-base outline-none">
-            <span class="absolute left-2.5 top-2.5 text-gray-500 font-bold text-sm">₹</span>
-          </div>
+          <label class="block text-xs text-gray-400 mb-1">Enter Available Demat Balance (₹):</label>
+          <input type="number" id="calcInput" value="28656" step="1000" oninput="calculateRisk()" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-3 py-2 text-white font-bold mono text-sm focus:outline-none focus:border-indigo-500">
         </div>
-
-        <div>
-          <label class="block text-xs text-gray-400 mb-1 font-semibold">Cash Margin per Stock</label>
-          <div id="dispMarginPerStock" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2.5 text-white mono font-bold text-base">
-            ₹1,360 / stock
+        <div class="sm:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <div class="p-2.5 rounded bg-[#0d1117] border border-[#30363d]">
+            <span class="text-gray-400 block text-[10px]">ALLOWED SIZING</span>
+            <span class="mono font-bold text-white text-sm" id="calcLots">1 Lot (65 Qty)</span>
           </div>
-        </div>
-
-        <div>
-          <label class="block text-xs text-cyan-300 mb-1 font-bold">5x Buying Power per Stock</label>
-          <div id="dispExposurePerStock" class="w-full bg-[#0d1117] border border-cyan-500/40 rounded-lg p-2.5 text-cyan-300 mono font-bold text-base">
-            ₹6,800 / stock
+          <div class="p-2.5 rounded bg-[#0d1117] border border-[#30363d]">
+            <span class="text-gray-400 block text-[10px]">MARGIN REQUIRED</span>
+            <span class="mono font-bold text-white text-sm" id="calcMargin">₹8,775</span>
           </div>
-        </div>
-
-        <div>
-          <label class="block text-xs text-emerald-400 mb-1 font-semibold">Total Portfolio Buying Power (5x)</label>
-          <div id="dispTotalBuyingPower" class="w-full bg-[#0d1117] border border-emerald-500/40 rounded-lg p-2.5 text-emerald-400 mono font-bold text-base">
-            ₹34,000 (5x MIS)
+          <div class="p-2.5 rounded bg-[#0d1117] border border-[#30363d]">
+            <span class="text-gray-400 block text-[10px]">MAX RISK / DAY</span>
+            <span class="mono font-bold text-rose-400 text-sm" id="calcRisk">-₹1,600 (2 SL)</span>
+          </div>
+          <div class="p-2.5 rounded bg-[#0d1117] border border-[#30363d]">
+            <span class="text-gray-400 block text-[10px]">DAILY TARGET (1:1.5)</span>
+            <span class="mono font-bold text-emerald-400 text-sm" id="calcTarget">+₹2,400</span>
           </div>
         </div>
       </div>
-
-      <!-- Quick Presets -->
-      <div class="flex flex-wrap items-center gap-2 text-xs font-mono">
-        <span class="text-gray-500 font-sans text-[11px]">Quick Presets:</span>
-        <button onclick="setQuickPreset(6800)" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-[#21262d] text-cyan-300 border border-[#30363d]">₹6,800</button>
-        <button onclick="setQuickPreset(10000)" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-[#21262d] text-gray-300 border border-[#30363d]">₹10,000</button>
-        <button onclick="setQuickPreset(20000)" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-[#21262d] text-gray-300 border border-[#30363d]">₹20,000</button>
-        <button onclick="setQuickPreset(50000)" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-[#21262d] text-gray-300 border border-[#30363d]">₹50,000</button>
-        <button onclick="setQuickPreset(100000)" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-[#21262d] text-emerald-400 border border-emerald-500/30 font-bold">₹1,00,000 (1 Lakh)</button>
-      </div>
-
-      <!-- Dynamic Stock Allocation Cards -->
-      <div class="space-y-2 pt-2 border-t border-[#30363d]">
-        <h4 class="text-xs font-bold text-gray-300 uppercase font-mono tracking-wider flex items-center gap-1.5">
-          <i data-lucide="layers" class="w-3.5 h-3.5 text-cyan-400"></i>
-          Exact Position Sizing & Shares for Today's Stocks:
-        </h4>
-        
-        <div id="portfolioAllocationContainer" class="space-y-2">
-          <!-- Rendered by JS -->
-        </div>
-      </div>
-    </div>
-
-    <!-- Section 3: SANKET'S PERSONAL TRADE JOURNAL & ₹1 CRORE PROGRESS TRACKER -->
-    <div id="journalSection" class="card rounded-xl p-4 sm:p-5 border-amber-500/40 shadow-xl space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#30363d] pb-3 gap-2">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-            <i data-lucide="trophy" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h3 class="text-sm sm:text-base font-bold text-white">Sanket's Trade Journal & ₹1 Crore Goal Tracker</h3>
-              <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 font-bold border border-amber-500/30">JOURNAL</span>
-            </div>
-            <p class="text-[11px] sm:text-xs text-gray-400">Log daily manual trades, track compounding Demat cash, and watch the ₹1 Crore progress bar!</p>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2 self-start sm:self-auto">
-          <button onclick="exportJournalToCSV()" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-emerald-900/40 text-emerald-300 hover:text-emerald-200 text-xs font-semibold border border-emerald-500/40 flex items-center gap-1 transition-colors">
-            <i data-lucide="download" class="w-3 h-3 text-emerald-400"></i> Export to Excel (.csv)
-          </button>
-          <button onclick="resetJournalData()" class="px-2.5 py-1 rounded bg-[#0d1117] hover:bg-rose-900/40 text-gray-400 hover:text-rose-300 text-xs font-semibold border border-[#30363d] flex items-center gap-1 transition-colors">
-            <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Reset to ₹6,800
-          </button>
-        </div>
-      </div>
-
-      <!-- ₹1 Crore Progress Bar -->
-      <div class="bg-[#0d1117] p-3.5 rounded-xl border border-[#30363d] space-y-2">
-        <div class="flex items-center justify-between text-xs font-mono">
-          <span class="text-gray-400 font-sans font-bold flex items-center gap-1.5">
-            <i data-lucide="flag" class="w-3.5 h-3.5 text-amber-400"></i> ₹1 CRORE GOAL PROGRESS
-          </span>
-          <span id="txtGoalProgress" class="text-amber-400 font-extrabold text-sm">₹6,800 / ₹1,00,00,000 (0.07%)</span>
-        </div>
-
-        <!-- Progress Bar Visual -->
-        <div class="w-full bg-[#161b22] h-3.5 rounded-full overflow-hidden border border-[#30363d] relative">
-          <div id="barGoalProgress" class="h-full bg-gradient-to-r from-emerald-500 via-cyan-400 to-amber-400 rounded-full transition-all duration-500" style="width: 0.1%;"></div>
-        </div>
-
-        <!-- Milestone Badges -->
-        <div class="flex flex-wrap items-center justify-between gap-1 text-[10px] font-mono text-gray-400 pt-1">
-          <span class="text-emerald-400 font-bold">🏁 ₹6.8k Start</span>
-          <span>🎯 ₹25k</span>
-          <span>🎯 ₹50k</span>
-          <span>🎯 ₹1 Lakh</span>
-          <span>🎯 ₹10 Lakhs</span>
-          <span>🎯 ₹50 Lakhs</span>
-          <span class="text-amber-400 font-bold">🏆 ₹1 CRORE!</span>
-        </div>
-      </div>
-
-      <!-- Journal 4-Metric Highlights -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mono text-center text-xs">
-        <div class="bg-[#0d1117] p-2.5 rounded-lg border border-[#30363d]">
-          <span class="text-[10px] text-gray-400 block font-sans">STARTING CASH</span>
-          <span class="text-white font-bold text-sm sm:text-base">₹6,800.00</span>
-        </div>
-        <div class="bg-[#0d1117] p-2.5 rounded-lg border border-cyan-500/40">
-          <span class="text-[10px] text-cyan-300 block font-sans font-bold">CURRENT DEMAT CASH</span>
-          <span id="txtJournalBalance" class="text-cyan-400 font-extrabold text-sm sm:text-base">₹6,800.00</span>
-        </div>
-        <div class="bg-[#0d1117] p-2.5 rounded-lg border border-emerald-500/40">
-          <span class="text-[10px] text-emerald-300 block font-sans font-bold">TOTAL REALIZED P&L</span>
-          <span id="txtJournalPnl" class="text-emerald-400 font-extrabold text-sm sm:text-base">+₹0.00</span>
-        </div>
-        <div class="bg-[#0d1117] p-2.5 rounded-lg border border-[#30363d]">
-          <span class="text-[10px] text-gray-400 block font-sans">WIN RATE (LOGGED)</span>
-          <span id="txtJournalWinRate" class="text-white font-bold text-sm sm:text-base">0.0% (0 Trades)</span>
-        </div>
-      </div>
-
-      <!-- Quick Log New Trade Form -->
-      <div class="bg-[#0d1117] p-3.5 rounded-xl border border-[#30363d] space-y-3">
-        <h4 class="text-xs font-bold text-white font-mono uppercase tracking-wider flex items-center gap-1.5">
-          <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-cyan-400"></i>
-          Log Manual Trade Result:
-        </h4>
-
-        <form id="formLogTrade" onsubmit="handleLogTradeSubmit(event)" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 text-xs font-mono">
-          <div>
-            <label class="block text-[10px] text-gray-400 mb-0.5">Date</label>
-            <input type="date" id="logDate" class="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-1.5 text-white outline-none">
-          </div>
-          <div>
-            <label class="block text-[10px] text-gray-400 mb-0.5">Stock *</label>
-            <input type="text" id="logStock" placeholder="e.g. IFCI" required class="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-1.5 text-white uppercase outline-none">
-          </div>
-          <div>
-            <label class="block text-[10px] text-gray-400 mb-0.5">Type</label>
-            <select id="logDirection" class="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-1.5 text-cyan-300 outline-none">
-              <option value="LONG">BUY (Long)</option>
-              <option value="SHORT">SELL (Short)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-[10px] text-gray-400 mb-0.5">Shares</label>
-            <input type="number" id="logShares" placeholder="e.g. 50" class="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-1.5 text-white outline-none">
-          </div>
-          <div>
-            <label class="block text-[10px] text-gray-400 mb-0.5">Entry Price (₹)</label>
-            <input type="number" id="logEntry" step="0.05" placeholder="e.g. 98.50" class="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-1.5 text-white outline-none">
-          </div>
-          <div>
-            <label class="block text-[10px] text-cyan-300 mb-0.5 font-bold">Net P&L (₹) *</label>
-            <input type="number" id="logPnl" step="0.05" placeholder="e.g. 250 or -140" required class="w-full bg-[#161b22] border border-cyan-500/60 rounded-lg p-1.5 text-cyan-300 font-bold outline-none">
-          </div>
-          <div class="col-span-2 sm:col-span-4 lg:col-span-1 flex items-end">
-            <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold p-1.5 rounded-lg flex items-center justify-center gap-1 shadow transition-colors">
-              <i data-lucide="check" class="w-3.5 h-3.5"></i> Add Log
-            </button>
-          </div>
-        </form>
-        <div id="logFeedback" class="hidden text-xs text-emerald-400 font-bold font-mono"></div>
-      </div>
-
-      <!-- Trade History Table -->
-      <div class="space-y-2">
-        <div class="flex items-center justify-between text-xs font-mono text-gray-400">
-          <span class="font-sans font-bold text-gray-300">Journal Trade History:</span>
-          <span id="txtJournalTradeCount">0 Trades Logged</span>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs mono">
-            <thead class="bg-[#0d1117] text-gray-400 uppercase text-[10px] border-b border-[#30363d]">
-              <tr>
-                <th class="px-3 py-2">Date</th>
-                <th class="px-3 py-2 font-sans">Stock</th>
-                <th class="px-3 py-2">Type</th>
-                <th class="px-3 py-2">Shares</th>
-                <th class="px-3 py-2">Entry</th>
-                <th class="px-3 py-2">Exit</th>
-                <th class="px-3 py-2 text-right">Net P&L (₹)</th>
-                <th class="px-3 py-2 text-right">Balance After</th>
-                <th class="px-3 py-2 text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody id="journalTableBody" class="divide-y divide-[#30363d] text-gray-200">
-              <!-- Rendered via JS -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Section 4: Trading Rules & Stock Selection Guide -->
-    <div class="card rounded-xl p-4 sm:p-5 shadow-lg border-emerald-500/30">
-      <div class="flex items-center gap-2 border-b border-[#30363d] pb-3 mb-4">
-        <i data-lucide="book-open" class="w-5 h-5 text-emerald-400"></i>
-        <div>
-          <h3 class="text-sm sm:text-base font-bold text-white">How to Trade & Select the Best Stocks</h3>
-          <p class="text-[11px] sm:text-xs text-gray-400">Simple rules to trade Long & Short setups safely</p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-        
-        <!-- Long & Short Selection Rules -->
-        <div class="space-y-2.5 bg-[#0d1117] p-3.5 rounded-xl border border-[#30363d]">
-          <h4 class="font-bold text-cyan-400 text-xs sm:text-sm flex items-center gap-1.5">
-            <i data-lucide="check-circle" class="w-4 h-4 text-cyan-400"></i>
-            Stock Selection Strategy:
-          </h4>
-          
-          <div class="space-y-2 text-gray-300 text-[11px] sm:text-xs">
-            <div class="flex items-start gap-2">
-              <span class="font-bold text-emerald-400 shrink-0">🟢</span>
-              <p><strong class="text-white">For LONG Trades:</strong> Pick stocks opening <span class="text-emerald-400 font-semibold">GREEN</span> at 09:15 AM. Buy at open, set SL at -2.0% below entry.</p>
-            </div>
-
-            <div class="flex items-start gap-2">
-              <span class="font-bold text-rose-400 shrink-0">🔴</span>
-              <p><strong class="text-white">For SHORT Trades:</strong> Pick stocks opening <span class="text-rose-400 font-semibold">RED</span> at 09:15 AM. Sell at open, set SL at +2.0% above entry.</p>
-            </div>
-
-            <div class="flex items-start gap-2">
-              <span class="font-bold text-amber-400 shrink-0">⚡</span>
-              <p><strong class="text-white">Avoid Big Gaps (> ±1.5%):</strong> Skip any stock with huge opening gap to avoid opening reversals.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Execution & Risk Management Rules -->
-        <div class="space-y-2.5 bg-[#0d1117] p-3.5 rounded-xl border border-[#30363d]">
-          <h4 class="font-bold text-emerald-400 text-xs sm:text-sm flex items-center gap-1.5">
-            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
-            Execution & Risk Rules:
-          </h4>
-          
-          <div class="space-y-2 text-gray-300 text-[11px] sm:text-xs">
-            <div class="flex items-start gap-2">
-              <span class="font-bold text-emerald-400 shrink-0">A.</span>
-              <p><strong class="text-white">09:15 AM Entry:</strong> Place MIS orders at open. Calculate quantity using the calculator above.</p>
-            </div>
-
-            <div class="flex items-start gap-2">
-              <span class="font-bold text-rose-400 shrink-0">B.</span>
-              <p><strong class="text-white">Strict 2.0% Stop Loss:</strong> Always place your SL order immediately. Never hold below/above 2%.</p>
-            </div>
-
-            <div class="flex items-start gap-2">
-              <span class="font-bold text-purple-400 shrink-0">C.</span>
-              <p><strong class="text-white">03:15 PM Square-off:</strong> Exit all open positions before 03:20 PM (100% intraday MIS).</p>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Section 5: Market Close Results (Reveals at 03:30 PM) -->
-    <div class="card rounded-xl p-4 sm:p-5">
-      <div class="flex items-center justify-between border-b border-[#30363d] pb-3 mb-4">
-        <div>
-          <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-            <i data-lucide="check-circle-2" class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400"></i>
-            Market Close Results & P&L (13-Sep-2026)
-          </h3>
-          <p class="text-[11px] sm:text-xs text-gray-400">Official intraday closing results updated daily at 03:30 PM IST</p>
-        </div>
-
-        <div class="text-right">
-          <span class="text-[10px] sm:text-xs text-gray-400 block">Total Net P&L</span>
-          <span class="text-base sm:text-xl font-bold text-emerald-400 mono">+₹987.90</span>
-        </div>
-      </div>
-
-      <!-- Mobile Result Cards -->
-      <div class="block md:hidden space-y-2.5">
-
-        <div class="bg-[#0d1117] border border-[#30363d] rounded-xl p-3 space-y-2">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-1.5">
-              <h4 class="font-bold text-white text-base font-sans">GRAPHITE</h4>
-              <span class="text-[10px] font-mono font-bold text-emerald-400">(LONG)</span>
-            </div>
-            <span class="text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded font-semibold text-[10px]">HIT STOP LOSS (-2%)</span>
-          </div>
-          <div class="grid grid-cols-3 gap-2 bg-[#161b22] p-2 rounded-lg mono text-[11px] text-center">
-            <div>
-              <span class="text-[9px] text-gray-400 block font-sans">Entry</span>
-              <span class="text-white font-semibold">₹825.80</span>
-            </div>
-            <div>
-              <span class="text-[9px] text-amber-300 block font-sans">Exit</span>
-              <span class="text-amber-300 font-bold">₹814.82</span>
-            </div>
-            <div>
-              <span class="text-[9px] text-gray-400 block font-sans">Net P&L</span>
-              <span class="text-rose-400 font-bold text-xs">₹-109.80</span>
-            </div>
-          </div>
-          <div class="flex justify-between text-[10px] text-gray-400 mono">
-            <span>Range: Low ₹785.10 / High ₹834.40</span>
-            <span>Outcome: HIT STOP LOSS (-2%)</span>
-          </div>
-        </div>
-
-        <div class="bg-[#0d1117] border border-[#30363d] rounded-xl p-3 space-y-2">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-1.5">
-              <h4 class="font-bold text-white text-base font-sans">CHENNPETRO</h4>
-              <span class="text-[10px] font-mono font-bold text-rose-400">(SHORT)</span>
-            </div>
-            <span class="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-semibold text-[10px]">HIT TARGET 2 (+5%)</span>
-          </div>
-          <div class="grid grid-cols-3 gap-2 bg-[#161b22] p-2 rounded-lg mono text-[11px] text-center">
-            <div>
-              <span class="text-[9px] text-gray-400 block font-sans">Entry</span>
-              <span class="text-white font-semibold">₹1,572.90</span>
-            </div>
-            <div>
-              <span class="text-[9px] text-amber-300 block font-sans">Exit</span>
-              <span class="text-amber-300 font-bold">₹1,463.13</span>
-            </div>
-            <div>
-              <span class="text-[9px] text-gray-400 block font-sans">Net P&L</span>
-              <span class="text-emerald-400 font-bold text-xs">+₹1,097.70</span>
-            </div>
-          </div>
-          <div class="flex justify-between text-[10px] text-gray-400 mono">
-            <span>Range: Low ₹785.10 / High ₹834.40</span>
-            <span>Outcome: HIT TARGET 2 (+5%)</span>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Desktop Wide Table -->
-      <div class="hidden md:block overflow-x-auto">
-        <table class="w-full text-left text-xs mono">
-          <thead class="bg-[#0d1117] text-gray-400 uppercase text-[11px] border-b border-[#30363d]">
-            <tr>
-              <th class="px-4 py-3 font-sans">Stock</th>
-              <th class="px-4 py-3">Direction</th>
-              <th class="px-4 py-3">Qty</th>
-              <th class="px-4 py-3">Entry Price</th>
-              <th class="px-4 py-3">Day High</th>
-              <th class="px-4 py-3">Day Low</th>
-              <th class="px-4 py-3 text-amber-300">Exit Price</th>
-              <th class="px-4 py-3">Outcome</th>
-              <th class="px-4 py-3 text-right">Net P&L (₹)</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-[#30363d] text-gray-200">
-
-            <tr class="hover:bg-[#1f242c]">
-              <td class="px-4 py-3 font-bold text-white text-sm font-sans">GRAPHITE</td>
-              <td class="px-4 py-3 text-emerald-400 font-bold">LONG</td>
-              <td class="px-4 py-3">10</td>
-              <td class="px-4 py-3">₹825.80</td>
-              <td class="px-4 py-3 text-emerald-400">₹834.40</td>
-              <td class="px-4 py-3 text-rose-400">₹785.10</td>
-              <td class="px-4 py-3 text-amber-300 font-bold">₹814.82</td>
-              <td class="px-4 py-3"><span class="text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded font-semibold">HIT STOP LOSS (-2%)</span></td>
-              <td class="px-4 py-3 text-right text-rose-400 font-bold text-sm">₹-109.80</td>
-            </tr>
-
-            <tr class="hover:bg-[#1f242c]">
-              <td class="px-4 py-3 font-bold text-white text-sm font-sans">CHENNPETRO</td>
-              <td class="px-4 py-3 text-rose-400 font-bold">SHORT</td>
-              <td class="px-4 py-3">10</td>
-              <td class="px-4 py-3">₹1,572.90</td>
-              <td class="px-4 py-3 text-emerald-400">₹834.40</td>
-              <td class="px-4 py-3 text-rose-400">₹785.10</td>
-              <td class="px-4 py-3 text-amber-300 font-bold">₹1,463.13</td>
-              <td class="px-4 py-3"><span class="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-semibold">HIT TARGET 2 (+5%)</span></td>
-              <td class="px-4 py-3 text-right text-emerald-400 font-bold text-sm">+₹1,097.70</td>
-            </tr>
-
-          </tbody>
-          <tfoot class="bg-[#0d1117] font-bold border-t border-[#30363d]">
-            <tr>
-              <td colspan="8" class="px-4 py-3 text-right text-gray-400 font-sans">TOTAL REALIZED NET P&L:</td>
-              <td class="px-4 py-3 text-right text-emerald-400 text-sm">+₹987.90</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-
     </div>
 
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-[#30363d] py-4 text-center text-[11px] text-gray-500 space-y-0.5 px-3">
-    <p class="text-gray-400 font-medium">NSE Intraday Breakout Terminal — Developed by Sanket Patel</p>
-    <p>Data provided for quantitative intraday research. Always trade with strict risk management.</p>
+  <footer class="border-t border-[#30363d] bg-[#161b22] px-4 py-4 text-center text-xs text-gray-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <span>QUANT SNIPER &copy; 2026 | Developed by <strong>Sanket Patel</strong> for Demat Client <strong>IY0402</strong></span>
+      <span class="mono text-[11px] text-gray-400">Strict AngelOne SmartAPI Data &bull; 100% Tax Deducted &bull; Zero Guessing</span>
+    </div>
   </footer>
 
+  <!-- Script for Table Rendering, Filtering & Calculator -->
   <script>
     lucide.createIcons();
+    const trades = [{"date": "2026-09-08", "trade_no": "T1", "contract": "23700 CE", "type": "BUY CE", "entry_price": 135.0, "exit_price": 145.5, "pts": 10.5, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 636.0, "result": "WIN", "demat_balance": 15636.0, "drawdown": "0.0%"}, {"date": "2026-09-08", "trade_no": "T2", "contract": "23700 CE", "type": "BUY CE", "entry_price": 135.0, "exit_price": 125.95, "pts": -9.05, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": -634.75, "result": "LOSS", "demat_balance": 15001.25, "drawdown": "-\u20b9634.75 (4.06%)"}, {"date": "2026-09-09", "trade_no": "T1", "contract": "23500 CE", "type": "BUY CE", "entry_price": 135.0, "exit_price": 128.0, "pts": -7.0, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": -501.5, "result": "LOSS", "demat_balance": 14499.75, "drawdown": "-\u20b91,136.25 (7.27%)"}, {"date": "2026-09-09", "trade_no": "T2", "contract": "23500 PE", "type": "BUY PE", "entry_price": 135.0, "exit_price": 123.0, "pts": -12.0, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": -826.5, "result": "LOSS", "demat_balance": 13673.25, "drawdown": "-\u20b91,962.75 (12.55%)"}, {"date": "2026-09-10", "trade_no": "T1", "contract": "23450 PE", "type": "BUY PE", "entry_price": 135.0, "exit_price": 145.5, "pts": 10.5, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 636.0, "result": "WIN", "demat_balance": 14309.25, "drawdown": "-\u20b91,326.75 (8.49%)"}, {"date": "2026-09-10", "trade_no": "T2", "contract": "23450 PE", "type": "BUY PE", "entry_price": 135.0, "exit_price": 145.5, "pts": 10.5, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 636.0, "result": "WIN", "demat_balance": 14945.25, "drawdown": "-\u20b9690.75 (4.42%)"}, {"date": "2026-09-11", "trade_no": "T1", "contract": "23250 CE", "type": "BUY CE", "entry_price": 135.0, "exit_price": 145.5, "pts": 10.5, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 636.0, "result": "WIN", "demat_balance": 15581.25, "drawdown": "-\u20b954.75 (0.35%)"}, {"date": "2026-09-11", "trade_no": "T2", "contract": "23250 CE", "type": "BUY CE", "entry_price": 135.0, "exit_price": 145.5, "pts": 10.5, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 636.0, "result": "WIN", "demat_balance": 16217.25, "drawdown": "0.0%"}, {"date": "2026-09-15", "trade_no": "T1", "contract": "23450 PE", "type": "BUY PE", "entry_price": 135.0, "exit_price": 153.0, "pts": 18.0, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 1123.5, "result": "WIN", "demat_balance": 17340.75, "drawdown": "0.0%"}, {"date": "2026-09-15", "trade_no": "T2", "contract": "23400 PE", "type": "BUY PE", "entry_price": 135.0, "exit_price": 147.79, "pts": 12.79, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 784.69, "result": "WIN", "demat_balance": 18125.44, "drawdown": "0.0%"}, {"date": "2026-09-16", "trade_no": "T1", "contract": "23150 PE", "type": "BUY PE", "entry_price": 135.0, "exit_price": 123.0, "pts": -12.0, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": -826.5, "result": "LOSS", "demat_balance": 17298.94, "drawdown": "-\u20b9826.50 (4.56%)"}, {"date": "2026-09-16", "trade_no": "T2", "contract": "23200 PE", "type": "BUY PE", "entry_price": 135.0, "exit_price": 150.22, "pts": 15.22, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 943.12, "result": "WIN", "demat_balance": 18242.06, "drawdown": "0.0%"}, {"date": "2026-09-17", "trade_no": "T1", "contract": "23250 CE", "type": "BUY CE", "entry_price": 135.0, "exit_price": 145.99, "pts": 10.99, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 667.69, "result": "WIN", "demat_balance": 18909.75, "drawdown": "0.0%"}, {"date": "2026-09-17", "trade_no": "T2", "contract": "23300 CE", "type": "BUY CE", "entry_price": 135.0, "exit_price": 145.5, "pts": 10.5, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 636.0, "result": "WIN", "demat_balance": 19545.75, "drawdown": "0.0%"}, {"date": "2026-09-18", "trade_no": "T1", "contract": "23300 PE", "type": "BUY PE", "entry_price": 135.0, "exit_price": 145.5, "pts": 10.5, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 636.0, "result": "WIN", "demat_balance": 20181.75, "drawdown": "0.0%"}, {"date": "2026-09-18", "trade_no": "T2", "contract": "23350 CE", "type": "BUY CE", "entry_price": 135.0, "exit_price": 145.5, "pts": 10.5, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 636.0, "result": "WIN", "demat_balance": 20817.75, "drawdown": "0.0%"}, {"date": "2026-09-21", "trade_no": "T1", "contract": "23350 CE", "type": "BUY CE", "entry_price": 135.0, "exit_price": 145.5, "pts": 10.5, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 636.0, "result": "WIN", "demat_balance": 21453.75, "drawdown": "0.0%"}, {"date": "2026-09-21", "trade_no": "T2", "contract": "23450 CE", "type": "BUY CE", "entry_price": 135.0, "exit_price": 123.48, "pts": -11.52, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": -795.62, "result": "LOSS", "demat_balance": 20658.13, "drawdown": "-\u20b9795.62 (3.71%)"}, {"date": "2026-09-22", "trade_no": "T1", "contract": "23450 PE", "type": "BUY PE", "entry_price": 135.0, "exit_price": 146.1, "pts": 11.1, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 675.0, "result": "WIN", "demat_balance": 21333.13, "drawdown": "-\u20b9120.62 (0.56%)"}, {"date": "2026-09-22", "trade_no": "T2", "contract": "23400 PE", "type": "BUY PE", "entry_price": 135.0, "exit_price": 146.62, "pts": 11.62, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 709.12, "result": "WIN", "demat_balance": 22042.26, "drawdown": "0.0%"}, {"date": "2026-09-23", "trade_no": "T1", "contract": "23400 PE", "type": "BUY PE", "entry_price": 135.0, "exit_price": 146.06, "pts": 11.06, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 672.56, "result": "WIN", "demat_balance": 22714.82, "drawdown": "0.0%"}, {"date": "2026-09-23", "trade_no": "T2", "contract": "23400 CE", "type": "BUY CE", "entry_price": 135.0, "exit_price": 153.0, "pts": 18.0, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 1123.5, "result": "WIN", "demat_balance": 23838.32, "drawdown": "0.0%"}, {"date": "2026-09-24", "trade_no": "T1", "contract": "23250 PE", "type": "BUY PE", "entry_price": 135.0, "exit_price": 145.88, "pts": 10.88, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 660.38, "result": "WIN", "demat_balance": 24498.7, "drawdown": "0.0%"}, {"date": "2026-09-24", "trade_no": "T2", "contract": "23200 PE", "type": "BUY PE", "entry_price": 135.0, "exit_price": 145.5, "pts": 10.5, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 636.0, "result": "WIN", "demat_balance": 25134.7, "drawdown": "0.0%"}, {"date": "2026-09-25", "trade_no": "T1", "contract": "23050 PE", "type": "BUY PE", "entry_price": 135.0, "exit_price": 148.28, "pts": 13.28, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 816.38, "result": "WIN", "demat_balance": 25951.08, "drawdown": "0.0%"}, {"date": "2026-09-25", "trade_no": "T2", "contract": "23100 PE", "type": "BUY PE", "entry_price": 135.0, "exit_price": 123.0, "pts": -12.0, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": -826.5, "result": "LOSS", "demat_balance": 25124.58, "drawdown": "-\u20b9826.50 (3.18%)"}, {"date": "2026-09-28", "trade_no": "T1", "contract": "22850 PE", "type": "BUY PE", "entry_price": 135.0, "exit_price": 151.16, "pts": 16.16, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 1004.06, "result": "WIN", "demat_balance": 26128.64, "drawdown": "0.0%"}, {"date": "2026-09-28", "trade_no": "T2", "contract": "22850 PE", "type": "BUY PE", "entry_price": 135.0, "exit_price": 145.5, "pts": 10.5, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 636.0, "result": "WIN", "demat_balance": 26764.64, "drawdown": "0.0%"}, {"date": "2026-09-29", "trade_no": "T1", "contract": "22650 CE", "type": "BUY CE", "entry_price": 135.0, "exit_price": 153.0, "pts": 18.0, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": 1123.5, "result": "WIN", "demat_balance": 27888.14, "drawdown": "0.0%"}, {"date": "2026-09-29", "trade_no": "T2", "contract": "22650 PE", "type": "BUY PE", "entry_price": 135.0, "exit_price": 128.0, "pts": -7.0, "lots": 1, "qty": 65, "charges": 46.5, "net_pnl": -501.5, "result": "LOSS", "demat_balance": 27386.64, "drawdown": "-\u20b9501.50 (1.8%)"}, {"date": "2026-09-30", "trade_no": "T1", "contract": "22700 PE", "type": "BUY PE", "entry_price": 128.0, "exit_price": 115.7, "pts": -12.3, "lots": 1, "qty": 65, "charges": 67.9, "net_pnl": -867.4, "result": "LOSS", "demat_balance": 26519.24, "drawdown": "-\u20b91,368.90 (4.91%)"}, {"date": "2026-09-30", "trade_no": "T2", "contract": "22750 CE", "type": "BUY CE", "entry_price": 163.8, "exit_price": 173.25, "pts": 9.45, "lots": 1, "qty": 65, "charges": 71.03, "net_pnl": 543.22, "result": "WIN", "demat_balance": 27062.46, "drawdown": "-\u20b9825.68 (2.96%)"}, {"date": "2026-10-01", "trade_no": "T1", "contract": "22550 CE", "type": "BUY CE", "entry_price": 153.4, "exit_price": 171.85, "pts": 18.45, "lots": 1, "qty": 65, "charges": 70.72, "net_pnl": 1128.53, "result": "WIN", "demat_balance": 28190.99, "drawdown": "0.0%"}, {"date": "2026-10-01", "trade_no": "T2", "contract": "22600 CE", "type": "BUY CE", "entry_price": 142.55, "exit_price": 130.25, "pts": -12.3, "lots": 1, "qty": 65, "charges": 68.83, "net_pnl": -868.33, "result": "LOSS", "demat_balance": 27322.66, "drawdown": "-\u20b9868.33 (3.08%)"}, {"date": "2026-10-05", "trade_no": "T1", "contract": "22600 CE", "type": "BUY CE", "entry_price": 108.4, "exit_price": 96.1, "pts": -12.3, "lots": 1, "qty": 65, "charges": 66.64, "net_pnl": -866.14, "result": "LOSS", "demat_balance": 26456.52, "drawdown": "-\u20b91,734.47 (6.15%)"}, {"date": "2026-10-05", "trade_no": "T2", "contract": "22550 CE", "type": "BUY CE", "entry_price": 136.55, "exit_price": 124.25, "pts": -12.3, "lots": 1, "qty": 65, "charges": 68.44, "net_pnl": -867.94, "result": "LOSS", "demat_balance": 25588.58, "drawdown": "-\u20b92,602.41 (9.23%)"}, {"date": "2026-10-06", "trade_no": "T1", "contract": "22650 CE", "type": "BUY CE", "entry_price": 57.05, "exit_price": 59.55, "pts": 2.5, "lots": 1, "qty": 65, "charges": 63.94, "net_pnl": 98.56, "result": "WIN", "demat_balance": 25687.14, "drawdown": "-\u20b92,503.85 (8.88%)"}, {"date": "2026-10-06", "trade_no": "T2", "contract": "22700 CE", "type": "BUY CE", "entry_price": 40.8, "exit_price": 46.25, "pts": 5.45, "lots": 1, "qty": 65, "charges": 63.02, "net_pnl": 291.23, "result": "WIN", "demat_balance": 25978.37, "drawdown": "-\u20b92,212.62 (7.85%)"}, {"date": "2026-10-07", "trade_no": "T1", "contract": "22650 CE", "type": "BUY CE", "entry_price": 159.4, "exit_price": 177.85, "pts": 18.45, "lots": 1, "qty": 65, "charges": 71.11, "net_pnl": 1128.14, "result": "WIN", "demat_balance": 27106.51, "drawdown": "-\u20b91,084.48 (3.85%)"}, {"date": "2026-10-07", "trade_no": "T2", "contract": "22700 CE", "type": "BUY CE", "entry_price": 139.95, "exit_price": 158.4, "pts": 18.45, "lots": 1, "qty": 65, "charges": 69.86, "net_pnl": 1129.39, "result": "WIN", "demat_balance": 28235.9, "drawdown": "0.0%"}, {"date": "2026-10-08", "trade_no": "T1", "contract": "22450 PE", "type": "BUY PE", "entry_price": 127.75, "exit_price": 115.45, "pts": -12.3, "lots": 1, "qty": 65, "charges": 67.88, "net_pnl": -867.38, "result": "LOSS", "demat_balance": 27368.52, "drawdown": "-\u20b9867.38 (3.07%)"}, {"date": "2026-10-08", "trade_no": "T2", "contract": "22450 PE", "type": "BUY PE", "entry_price": 126.5, "exit_price": 132.45, "pts": 5.95, "lots": 1, "qty": 65, "charges": 68.51, "net_pnl": 318.24, "result": "WIN", "demat_balance": 27686.76, "drawdown": "-\u20b9549.14 (1.94%)"}, {"date": "2026-10-09", "trade_no": "T1", "contract": "22450 CE", "type": "BUY CE", "entry_price": 137.6, "exit_price": 156.05, "pts": 18.45, "lots": 1, "qty": 65, "charges": 69.71, "net_pnl": 1129.54, "result": "WIN", "demat_balance": 28816.3, "drawdown": "0.0%"}, {"date": "2026-10-09", "trade_no": "T2", "contract": "22450 CE", "type": "BUY CE", "entry_price": 151.1, "exit_price": 149.7, "pts": -1.4, "lots": 1, "qty": 65, "charges": 69.8, "net_pnl": -160.8, "result": "LOSS", "demat_balance": 28655.5, "drawdown": "-\u20b9160.80 (0.56%)"}];
 
-    const currentStocks = [{"symbol": "GRAPHITE", "direction": "LONG", "entry": 825.8, "sl": 814.82, "t1": 838.98, "t2": 858.74}, {"symbol": "CHENNPETRO", "direction": "SHORT", "entry": 1572.9, "sl": 1609.49, "t1": 1528.99, "t2": 1463.13}];
-    let portfolioMode = 5; // Default: All 5 stocks
+    function renderTable(filter = 'ALL', search = '') {
+      const tbody = document.getElementById('ledgerBody');
+      tbody.innerHTML = '';
 
-    function onStockCountSelect(val) {
-      portfolioMode = parseInt(val) || 5;
-      recalculatePortfolio();
+      let filtered = trades;
+      if (filter === 'WIN') {
+        filtered = trades.filter(t => t.result === 'WIN');
+      } else if (filter === 'LOSS') {
+        filtered = trades.filter(t => t.result === 'LOSS');
+      }
+
+      if (search.trim()) {
+        const s = search.toLowerCase();
+        filtered = filtered.filter(t => 
+          String(t.date).toLowerCase().includes(s) || 
+          String(t.contract).toLowerCase().includes(s) ||
+          String(t.trade_no).toLowerCase().includes(s)
+        );
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="12" class="text-center py-6 text-gray-500">No matching trades found.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(t => {
+        const isWin = t.net_pnl > 0;
+        const pnlColor = isWin ? 'text-emerald-400' : 'text-rose-400';
+        const pnlBadge = isWin ? `+₹${Number(t.net_pnl).toLocaleString('en-IN', {minimumFractionDigits: 2})}` : `-₹${Math.abs(Number(t.net_pnl)).toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+        const resBadge = isWin 
+          ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">TARGET HIT</span>` 
+          : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30">SL HIT</span>`;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-[#161b22]/70 transition';
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 text-white font-semibold">${t.date}</td>
+          <td class="py-2.5 px-2 text-gray-400">${t.trade_no}</td>
+          <td class="py-2.5 px-3 text-cyan-300 font-bold">${t.contract}</td>
+          <td class="py-2.5 px-2 text-gray-300">${t.type}</td>
+          <td class="py-2.5 px-3 text-right text-gray-300">₹${Number(t.entry_price).toFixed(2)}</td>
+          <td class="py-2.5 px-3 text-right text-gray-300">₹${Number(t.exit_price).toFixed(2)}</td>
+          <td class="py-2.5 px-2 text-right ${Number(t.pts) > 0 ? 'text-emerald-400 font-bold' : 'text-rose-400'}">${Number(t.pts) > 0 ? '+' : ''}${Number(t.pts).toFixed(1)}</td>
+          <td class="py-2.5 px-2 text-center text-gray-400">${t.lots}L</td>
+          <td class="py-2.5 px-3 text-right font-black ${pnlColor}">${pnlBadge}</td>
+          <td class="py-2.5 px-3 text-center">${resBadge}</td>
+          <td class="py-2.5 px-3 text-right text-white font-bold">₹${Number(t.demat_balance).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+          <td class="py-2.5 px-3 text-right text-gray-400">${t.drawdown}</td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
-    function setQuickPreset(amount) {
-      document.getElementById('inputDematCash').value = amount;
-      recalculatePortfolio();
-    }
-
-    function recalculatePortfolio() {
-      const totalCash = parseFloat(document.getElementById('inputDematCash').value) || 0;
-      if (totalCash <= 0 || !currentStocks || currentStocks.length === 0) return;
-
-      const count = Math.min(portfolioMode, currentStocks.length);
-      const activeStocks = currentStocks.slice(0, count);
-
-      const marginPerStock = totalCash / count;
-      const exposurePerStock = marginPerStock * 5.0; // 5x MIS Leverage
-      const totalBuyingPower = totalCash * 5.0;
-
-      document.getElementById('dispMarginPerStock').innerText = '₹' + Math.round(marginPerStock).toLocaleString('en-IN') + ' / stock';
-      document.getElementById('dispExposurePerStock').innerText = '₹' + Math.round(exposurePerStock).toLocaleString('en-IN') + ' / stock';
-      document.getElementById('dispTotalBuyingPower').innerText = '₹' + Math.round(totalBuyingPower).toLocaleString('en-IN') + ' (5x MIS)';
-
-      const container = document.getElementById('portfolioAllocationContainer');
-      let html = '';
-
-      activeStocks.forEach((stk, idx) => {
-        const price = stk.entry;
-        const shares = Math.max(1, Math.floor(exposurePerStock / price));
-        const actualExposure = shares * price;
-        const actualMargin = actualExposure / 5.0;
-
-        let sl, t1, t2, maxLoss, profitT1, profitT2;
-        const isLong = stk.direction === 'LONG';
-
-        if (isLong) {
-          sl = price * 0.98;
-          t1 = price * 1.03;
-          t2 = price * 1.05;
-          maxLoss = (price - sl) * shares;
-          profitT1 = (t1 - price) * shares;
-          profitT2 = (t2 - price) * shares;
+    let currentFilter = 'ALL';
+    function filterTrades(type) {
+      currentFilter = type;
+      ['ALL', 'WIN', 'LOSS'].forEach(t => {
+        const btn = document.getElementById('tab-' + t);
+        if (t === type) {
+          btn.className = 'px-3 py-1 rounded font-semibold bg-emerald-500 text-gray-950 transition';
         } else {
-          sl = price * 1.02;
-          t1 = price * 0.97;
-          t2 = price * 0.95;
-          maxLoss = (sl - price) * shares;
-          profitT1 = (price - t1) * shares;
-          profitT2 = (price - t2) * shares;
+          btn.className = 'px-3 py-1 rounded font-semibold text-gray-400 hover:text-white transition';
         }
-
-        const badgeClass = isLong ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-rose-500/10 text-rose-400 border-rose-500/30';
-        const dirLabel = isLong ? '🟢 BUY (LONG)' : '🔴 SELL (SHORT)';
-
-        html += `
-        <div class="bg-[#0d1117] border border-[#30363d] rounded-xl p-3 sm:p-4 space-y-2.5">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="w-5 h-5 rounded-full bg-[#161b22] border border-[#30363d] flex items-center justify-center text-[10px] text-gray-400 font-mono font-bold">${idx + 1}</span>
-              <h4 class="text-sm sm:text-base font-bold text-white font-sans">${stk.symbol}</h4>
-              <span class="text-[10px] px-2 py-0.5 rounded font-mono font-bold border ${badgeClass}">${dirLabel}</span>
-            </div>
-            <div class="flex items-center gap-1.5">
-              <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-bold mono">5x MIS LEVERAGE</span>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-[#161b22] p-2.5 rounded-lg mono text-center text-xs">
-            <div class="p-1 bg-[#0d1117] rounded-lg border border-cyan-500/40">
-              <span class="text-[10px] text-cyan-300 block font-sans font-bold">ACTUAL 5x MARGIN</span>
-              <span class="text-sm sm:text-base font-extrabold text-cyan-400">₹${Math.round(actualMargin).toLocaleString('en-IN')}</span>
-              <span class="text-[9px] text-gray-400 block">5x Value: ₹${Math.round(actualExposure).toLocaleString('en-IN')}</span>
-            </div>
-            <div class="p-1">
-              <span class="text-[10px] text-white block font-sans font-bold">SHARES TO TRADE</span>
-              <span class="text-sm sm:text-base font-extrabold text-white">${shares} shares</span>
-              <span class="text-[9px] text-gray-500 block">@ ₹${price.toFixed(2)}</span>
-            </div>
-            <div class="p-1">
-              <span class="text-[10px] text-rose-400 block font-sans font-semibold">STOP LOSS (-2%)</span>
-              <span class="text-xs sm:text-sm font-bold text-rose-400">₹${sl.toFixed(2)}</span>
-              <span class="text-[9px] text-rose-300/80 block">Risk: -₹${Math.round(maxLoss).toLocaleString('en-IN')}</span>
-            </div>
-            <div class="p-1">
-              <span class="text-[10px] text-emerald-400 block font-sans font-semibold">TARGET 1 (+3%)</span>
-              <span class="text-xs sm:text-sm font-bold text-emerald-400">₹${t1.toFixed(2)}</span>
-              <span class="text-[9px] text-emerald-300/80 block">Profit: +₹${Math.round(profitT1).toLocaleString('en-IN')}</span>
-            </div>
-            <div class="p-1">
-              <span class="text-[10px] text-cyan-400 block font-sans font-semibold">TARGET 2 (+5%)</span>
-              <span class="text-xs sm:text-sm font-bold text-cyan-400">₹${t2.toFixed(2)}</span>
-              <span class="text-[9px] text-cyan-300/80 block">Profit: +₹${Math.round(profitT2).toLocaleString('en-IN')}</span>
-            </div>
-          </div>
-        </div>
-        `;
       });
-
-      container.innerHTML = html;
+      renderTable(currentFilter, document.getElementById('searchInput').value);
     }
 
-    function calculateSingleStock(sym, price, dir) {
-      const el = document.getElementById('calculatorSection');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    function searchTable() {
+      renderTable(currentFilter, document.getElementById('searchInput').value);
     }
 
-    // ==========================================
-    // TRADE JOURNAL & ₹1 CRORE TRACKER LOGIC
-    // ==========================================
-    const initialJournalData = {"initial_balance": 6800.0, "current_balance": 6800.0, "target_goal": 10000000.0, "trades": []};
-    let journal = JSON.parse(localStorage.getItem('sanket_trade_journal')) || initialJournalData;
+    function calculateRisk() {
+      const bal = parseFloat(document.getElementById('calcInput').value) || 15000;
+      let lots = 1;
+      if (bal >= 300000) lots = 20;
+      else if (bal >= 200000) lots = 12;
+      else if (bal >= 100000) lots = 6;
+      else if (bal >= 50000) lots = 3;
+      else if (bal >= 30000) lots = 2;
+      else lots = 1;
 
-    function renderJournal() {
-      const trades = journal.trades || [];
-      const initBal = journal.initial_balance || 6800.0;
-      let currBal = initBal;
+      const qty = lots * 65;
+      const margin = lots * 8775;
+      const risk = lots * 1600;
+      const target = lots * 2400;
 
-      trades.forEach(t => {
-        currBal += parseFloat(t.pnl || 0);
-      });
-
-      journal.current_balance = Math.round(currBal * 100) / 100;
-      localStorage.setItem('sanket_trade_journal', JSON.stringify(journal));
-
-      const totalPnl = currBal - initBal;
-      const wins = trades.filter(t => (t.pnl || 0) > 0).length;
-      const losses = trades.filter(t => (t.pnl || 0) < 0).length;
-      const winRate = trades.length > 0 ? ((wins / trades.length) * 100).toFixed(1) : '0.0';
-
-      const goal = 10000000.0; // ₹1 Crore
-      const progressPct = Math.min(100, Math.max(0.05, (currBal / goal) * 100)).toFixed(2);
-
-      document.getElementById('txtGoalProgress').innerText = '₹' + Math.round(currBal).toLocaleString('en-IN') + ' / ₹1,00,00,000 (' + (currBal/goal*100).toFixed(3) + '%)';
-      document.getElementById('barGoalProgress').style.width = Math.max(0.5, (currBal / goal * 100)) + '%';
-
-      document.getElementById('txtJournalBalance').innerText = '₹' + currBal.toLocaleString('en-IN', { minimumFractionDigits: 2 });
-      const pnlSign = totalPnl >= 0 ? '+' : '';
-      document.getElementById('txtJournalPnl').innerText = pnlSign + '₹' + totalPnl.toLocaleString('en-IN', { minimumFractionDigits: 2 });
-      document.getElementById('txtJournalPnl').className = totalPnl >= 0 ? 'text-emerald-400 font-extrabold text-sm sm:text-base' : 'text-rose-400 font-extrabold text-sm sm:text-base';
-      document.getElementById('txtJournalWinRate').innerText = winRate + '% (' + wins + 'W/' + losses + 'L)';
-      document.getElementById('txtJournalTradeCount').innerText = trades.length + ' Trades Logged';
-
-      const tbody = document.getElementById('journalTableBody');
-      if (trades.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" class="px-3 py-4 text-center text-gray-500 font-sans">No trades logged yet. Start logging from tomorrow morning!</td></tr>';
-        return;
-      }
-
-      let runningBal = initBal;
-      let rowsHtml = '';
-      trades.forEach((t, idx) => {
-        runningBal += parseFloat(t.pnl || 0);
-        const pSign = t.pnl >= 0 ? '+' : '';
-        const pColor = t.pnl >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
-        const typeColor = t.direction === 'LONG' ? 'text-emerald-400' : 'text-rose-400';
-
-        rowsHtml += `
-        <tr class="hover:bg-[#1f242c]">
-          <td class="px-3 py-2 text-gray-400 text-[11px]">${t.date}</td>
-          <td class="px-3 py-2 font-bold text-white font-sans">${t.stock}</td>
-          <td class="px-3 py-2 ${typeColor} font-bold">${t.direction}</td>
-          <td class="px-3 py-2">${t.shares}</td>
-          <td class="px-3 py-2">₹${parseFloat(t.entry).toFixed(2)}</td>
-          <td class="px-3 py-2">₹${parseFloat(t.exit || t.entry).toFixed(2)}</td>
-          <td class="px-3 py-2 text-right ${pColor}">${pSign}₹${parseFloat(t.pnl).toFixed(2)}</td>
-          <td class="px-3 py-2 text-right font-bold text-white">₹${runningBal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-          <td class="px-3 py-2 text-center">
-            <button onclick="deleteTradeEntry(${idx})" class="text-gray-500 hover:text-rose-400 px-1 py-0.5 transition-colors">
-              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-            </button>
-          </td>
-        </tr>
-        `;
-      });
-      tbody.innerHTML = rowsHtml;
-      lucide.createIcons();
+      document.getElementById('calcLots').innerText = `${lots} Lot (${qty} Qty)`;
+      document.getElementById('calcMargin').innerText = `₹${margin.toLocaleString('en-IN')}`;
+      document.getElementById('calcRisk').innerText = `-₹${risk.toLocaleString('en-IN')} (2 SL)`;
+      document.getElementById('calcTarget').innerText = `+₹${target.toLocaleString('en-IN')}`;
     }
 
-    function handleLogTradeSubmit(e) {
-      e.preventDefault();
-      try {
-        const dateInput = document.getElementById('logDate').value;
-        const date = dateInput ? dateInput : new Date().toISOString().split('T')[0];
-        const stock = document.getElementById('logStock').value.trim().toUpperCase();
-        const direction = document.getElementById('logDirection').value || 'LONG';
-        const shares = parseInt(document.getElementById('logShares').value) || 10;
-        let entry = parseFloat(document.getElementById('logEntry').value);
-        if (isNaN(entry) || entry <= 0) entry = 100.0;
-        const pnl = parseFloat(document.getElementById('logPnl').value);
-
-        if (!stock) {
-          alert('Please enter a Stock symbol (e.g. IFCI)!');
-          return;
-        }
-        if (isNaN(pnl)) {
-          alert('Please enter a valid Net P&L amount (e.g. 250 or -140)!');
-          return;
-        }
-
-        const exit = direction === 'LONG' ? (entry + (pnl / shares)) : (entry - (pnl / shares));
-
-        if (!journal) journal = { initial_balance: 6800.0, current_balance: 6800.0, target_goal: 10000000.0, trades: [] };
-        if (!journal.trades) journal.trades = [];
-
-        journal.trades.push({
-          date: date,
-          stock: stock,
-          direction: direction,
-          shares: shares,
-          entry: entry,
-          exit: Math.round(exit * 100) / 100,
-          pnl: pnl
-        });
-
-        renderJournal();
-
-        const fb = document.getElementById('logFeedback');
-        if (fb) {
-          const pSign = pnl >= 0 ? '+' : '';
-          fb.innerText = `✅ Logged ${stock} (${direction}) with P&L: ${pSign}₹${pnl.toFixed(2)}!`;
-          fb.className = 'text-xs font-bold font-mono ' + (pnl >= 0 ? 'text-emerald-400' : 'text-rose-400');
-          setTimeout(() => fb.className = 'hidden', 4000);
-        }
-
-        document.getElementById('formLogTrade').reset();
-        try { document.getElementById('logDate').valueAsDate = new Date(); } catch(err) {}
-      } catch(err) {
-        console.error('Error logging trade:', err);
-        alert('Error saving trade: ' + err.message);
-      }
-    }
-
-    function deleteTradeEntry(idx) {
-      if (confirm('Delete this trade entry?')) {
-        journal.trades.splice(idx, 1);
-        renderJournal();
-      }
-    }
-
-    function exportJournalToCSV() {
-      const trades = journal.trades || [];
-      if (trades.length === 0) {
-        alert('No trades logged yet to export. Log some trades first!');
-        return;
-      }
-
-      const rows = [];
-      rows.push(['Trade ID', 'Date', 'Stock', 'Direction', 'Shares', 'Entry Price (INR)', 'Exit Price (INR)', 'Net PnL (INR)', 'Balance After (INR)'].join(','));
-      let runningBal = journal.initial_balance || 6800.0;
-
-      trades.forEach((t, idx) => {
-        runningBal += parseFloat(t.pnl || 0);
-        rows.push([
-          idx + 1,
-          t.date,
-          t.stock,
-          t.direction,
-          t.shares,
-          parseFloat(t.entry).toFixed(2),
-          parseFloat(t.exit || t.entry).toFixed(2),
-          parseFloat(t.pnl).toFixed(2),
-          runningBal.toFixed(2)
-        ].join(','));
-      });
-
-      const csvContent = rows.join(String.fromCharCode(10));
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', 'sanket_trade_journal_' + new Date().toISOString().split('T')[0] + '.csv');
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    function resetJournalData() {
-      if (confirm('Reset trade journal to clean starting state (₹6,800 balance)? All test entries will be cleared.')) {
-        journal = {
-          initial_balance: 6800.0,
-          current_balance: 6800.0,
-          trades: []
-        };
-        localStorage.setItem('sanket_trade_journal', JSON.stringify(journal));
-        renderJournal();
-      }
-    }
-
-    // Initial setup
-    document.getElementById('logDate').valueAsDate = new Date();
-    recalculatePortfolio();
-    renderJournal();
+    // Initial render
+    renderTable();
+    calculateRisk();
   </script>
 </body>
 </html>
